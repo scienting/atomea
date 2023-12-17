@@ -14,4 +14,4 @@ WORKDIR /atomea
 ENV POETRY_DYNAMIC_VERSIONING_BYPASS 0.0.0
 RUN pip3 install poetry
 COPY pyproject.toml .
-RUN poetry install --with docs
+RUN poetry install --with docs,test
