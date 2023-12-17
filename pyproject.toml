@@ -11,6 +11,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 loguru = "^0.7.2"
+pyyaml = "^6.0.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.0"
