@@ -5,6 +5,18 @@ LABEL org.opencontainers.image.description="Extensible schema for atomistic simu
 LABEL org.opencontainers.image.authors="OASCI <us@oasci.org>"
 LABEL org.opencontainers.image.source="https://gitlab.com/oasci/software/atomea"
 
+ENV PYTHONFAULTHANDLER=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONHASHSEED=random \
+    PYTHONDONTWRITEBYTECODE=1 \
+    # pip:
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    # poetry:
+    POETRY_VERSION=1.1.13 \
+    POETRY_NO_INTERACTION=1
+
 RUN apt-get update \
     && apt-get install --no-install-recommends git curl -y \
     && rm -rf /var/lib/apt/lists/*
@@ -13,5 +25,5 @@ WORKDIR /atomea
 
 ENV POETRY_DYNAMIC_VERSIONING_BYPASS 0.0.0
 RUN pip3 install poetry
-COPY pyproject.toml .
-RUN poetry install --with docs,test
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --no-interaction --no-root --only docs,test
