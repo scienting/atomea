@@ -181,6 +181,7 @@ mkdocs_port := $(shell \
 
 .PHONY: serve
 serve:
+	$(CONDA) docs/copy_schemas.py
 	echo "Served at http://127.0.0.1:$(mkdocs_port)/"
 	$(CONDA) mkdocs serve -a localhost:$(mkdocs_port)
 
