@@ -1,0 +1,17 @@
+FROM python:3.11
+
+LABEL org.opencontainers.image.title="atomea"
+LABEL org.opencontainers.image.description="Extensible schema for atomistic simulations and calculations."
+LABEL org.opencontainers.image.authors="OASCI <us@oasci.org>"
+LABEL org.opencontainers.image.source="https://gitlab.com/oasci/software/atomea"
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends git curl -y \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /atomea
+
+ENV POETRY_DYNAMIC_VERSIONING_BYPASS 0.0.0
+RUN pip3 install poetry
+COPY pyproject.toml .
+RUN poetry install --with docs

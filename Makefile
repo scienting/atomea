@@ -192,3 +192,13 @@ docs:
 .PHONY: open-docs
 open-docs:
 	xdg-open public/index.html 2>/dev/null
+
+###   DEPLOY   ###
+
+.PHONY: docker-build-env
+docker-build-env:
+	docker build -t registry.gitlab.com/oasci/software/atomea:env -f ./docker/Dockerfile-env .
+
+.PHONY: docker-push-env
+docker-push-env:
+	docker push registry.gitlab.com/oasci/software/atomea:env
