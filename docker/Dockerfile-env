@@ -25,7 +25,7 @@ WORKDIR /atomea
 
 ENV POETRY_DYNAMIC_VERSIONING_BYPASS 0.0.0
 RUN pip3 install poetry
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock poetry.toml ./
 RUN poetry install --no-interaction --no-root --with docs,test
 
 CMD ["/bin/bash"]
