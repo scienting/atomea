@@ -190,6 +190,7 @@ docs:
 	$(CONDA) docs/copy_schemas.py
 	$(CONDA) mkdocs build -d public/
 	- rm -f public/gen_ref_pages.py
+	- rm -rf api
 
 .PHONY: open-docs
 open-docs:
