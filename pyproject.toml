@@ -12,6 +12,9 @@ readme = "README.md"
 python = "^3.9"
 loguru = "^0.7.2"
 pyyaml = "^6.0.1"
+numpy = "^1.26.2"
+zarr = "^2.16.1"
+pyarrow = "^14.0.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.0"
@@ -22,6 +25,7 @@ mypy = "^1.5.1"
 mypy-extensions = "^1.0.0"
 bump-my-version = "^0.11.0"
 poetry-dynamic-versioning = "^1.1.0"
+mdanalysis = "^2.6.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.2"
