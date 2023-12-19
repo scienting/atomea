@@ -1,6 +1,6 @@
 electron_frozen_num:
   description: >+
     Total number of frozen electrons used in quantum chemical calculations.
-  stype: array
+  ndim: 0
   dtype: i4
   units: null

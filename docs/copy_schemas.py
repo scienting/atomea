@@ -79,7 +79,7 @@ for file_name, defs in yaml_files.items():
 
             f.write("\n" + defs_dicts["description"])
 
-            f.write("\n**Storage:** " + defs_dicts["stype"] + "\n")
+            f.write("\n**Dimensions:** " + str(defs_dicts["ndim"]) + "\n")
             f.write("\n**Data type:** `" + defs_dicts["dtype"] + "`\n")
             if defs_dicts["units"] is not None:
                 f.write("\n**Units:** " + defs_dicts["units"] + "\n")

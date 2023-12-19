@@ -1,7 +1,7 @@
 sha256_coordinates:
   description: >+
     A sha256 hash based only on [coordinates](/schemas/system#coordinates).
-  stype: value
+  ndim: 0
   dtype: U64
   units: null
 entity_ids:
@@ -9,7 +9,7 @@ entity_ids:
     A uniquely identifying integer specifying what atoms belong to which entities.
     Entities can be a related set of atoms, molecules, or functional group.
     For example, a water and methanol molecule could be ``[0, 0, 0, 1, 1, 1, 1, 1, 1]``.
-  stype: array
+  ndim: 1
   dtype: i8
   units: null
 component_ids:
@@ -19,6 +19,6 @@ component_ids:
     There are no standardized labels for species.
     The index of the label is the respective ``entity_id``.
     For example, a water and methanol molecule could be ``['h2o', 'meoh']``.
-  stype: array
+  ndim: 1
   dtype: U30
   units: null

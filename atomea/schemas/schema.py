@@ -69,7 +69,7 @@ class Atomea:
         for key, value in schema.items():
             logger.trace("Validating {}", key)
             if isinstance(value, dict):
-                for k in ("description", "stype", "dtype", "units"):
+                for k in ("description", "ndim", "dtype", "units"):
                     if k not in value.keys():
                         raise ValueError(f"{key} is missing {k}")
             else:
