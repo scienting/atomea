@@ -4,7 +4,7 @@ import os
 
 import yaml
 
-SRC_DIR = "atomea/schemas/yaml"
+SRC_DIR = "atomea/schemas"
 DEST_DIR = "docs/schemas"
 
 
