@@ -3,7 +3,7 @@ from typing import Any
 from abc import ABC, abstractmethod
 from collections.abc import Collection
 
-from ..schemas import Atomea
+from ..schema import Atomea
 
 
 class Digester(ABC):
@@ -13,8 +13,8 @@ class Digester(ABC):
     information.
     """
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def digest(
         self, atomea: Atomea, *args: Any, **kwargs: Collection[Any]
     ) -> dict[str, Any]:
