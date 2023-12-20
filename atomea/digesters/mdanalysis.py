@@ -11,8 +11,8 @@ from collections.abc import Collection
 import numpy as np
 import numpy.typing as npt
 
-from ...schemas.schema import Atomea
-from ..digest import Digester
+from ..schema import Atomea
+from .digester import Digester
 
 
 class MDAnalysisDigester(Digester):
