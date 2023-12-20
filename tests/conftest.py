@@ -3,6 +3,7 @@ import os
 
 import pytest
 import requests
+from requests.compat import urljoin
 
 from atomea import enable_logging
 from atomea.schema import Atomea
@@ -21,11 +22,11 @@ def download_file(url, local_path):
         raise RuntimeError(f"Failed to download file at {url}")
 
 
-def download_files(dest, base_url, paths):
-    paths = [os.path.join(dest, p) for p in paths]
+def download_files(dest, base_url, slugs):
+    paths = [os.path.join(dest, s) for s in slugs]
     if not os.path.exists(dest):
         os.makedirs(dest)
-        urls = [os.path.join(base_url, p) for p in paths]
+        urls = [urljoin(base_url, s) for s in slugs]
         for url, path in zip(urls, paths):
             download_file(url, path)
     return paths
@@ -59,7 +60,7 @@ def globus_simlify_url():
 @pytest.fixture
 def uuid_simlify_rogfp2(globus_simlify_url):
     uuid = "f7498a8c-d021-491c-a343-10151e81434a"
-    base_url = os.path.join(globus_simlify_url, uuid)
+    base_url = urljoin(globus_simlify_url, uuid)
     dest = os.path.join(CACHE_DIR, uuid)
     slugs = ["topo/mol.prmtop", "outputs/07_relax_npt.nc"]
     download_files(dest, base_url, slugs)
