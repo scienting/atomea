@@ -16,7 +16,7 @@ class Atomea:
         Args:
             yaml_paths: Path(s) to YAML file(s) to load into the schema.
         """
-        self._schema: dict[str, Any] = {}
+        self.schema: dict[str, Any] = {}
         if isinstance(yaml_paths, str):
             yaml_paths = [yaml_paths]
         if yaml_paths is not None:
@@ -49,7 +49,7 @@ class Atomea:
         """
         logger.debug("Updating schema:\n{}", attr_dict)
         for key, value in attr_dict.items():
-            self._schema[key] = value
+            self.schema[key] = value
 
     def get(self) -> dict[str, Any]:
         """Retrieve the schema.
@@ -57,10 +57,8 @@ class Atomea:
         Returns:
             A dictionary representing the current schema.
         """
-        # The following line filters methods and attributes like __dict__.
-        schema = {k: v for k, v in self._schema if not callable(v) and "__" not in k}
-        logger.debug("Retrieved schema:\n{}", schema)
-        return schema
+        logger.debug("Retrieved schema:\n{}", self.schema)
+        return self.schema
 
     def validate(self) -> None:
         """Validate the schema."""
