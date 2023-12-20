@@ -1,5 +1,6 @@
 import importlib
 import os
+import shutil
 
 import pytest
 import requests
@@ -27,8 +28,12 @@ def download_files(dest, base_url, slugs):
     if not os.path.exists(dest):
         os.makedirs(dest)
         urls = [urljoin(base_url, s) for s in slugs]
-        for url, path in zip(urls, paths):
-            download_file(url, path)
+        try:
+            for url, path in zip(urls, paths):
+                download_file(url, path)
+        except RuntimeError:
+            shutil.rmtree(dest)
+            raise
     return paths
 
 
@@ -60,7 +65,7 @@ def globus_simlify_url():
 @pytest.fixture
 def uuid_simlify_rogfp2(globus_simlify_url):
     uuid = "f7498a8c-d021-491c-a343-10151e81434a"
-    base_url = urljoin(globus_simlify_url, uuid)
+    base_url = urljoin(globus_simlify_url, uuid) + "/"
     dest = os.path.join(CACHE_DIR, uuid)
     slugs = ["topo/mol.prmtop", "outputs/07_relax_npt.nc"]
     download_files(dest, base_url, slugs)
