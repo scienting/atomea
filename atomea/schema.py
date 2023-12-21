@@ -60,6 +60,11 @@ class Atomea:
         logger.debug("Retrieved schema:\n{}", self.schema)
         return self.schema
 
+    @property
+    def fields(self) -> dict[str, str]:
+        """Return schema fields for tabular data."""
+        return [(k, v["dtype"]) for k, v in self.schema.items()]
+
     def validate(self) -> None:
         """Validate the schema."""
         schema = self.get()

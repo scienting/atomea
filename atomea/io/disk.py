@@ -38,12 +38,13 @@ class DiskData:
         with atomea as schema:
             data_tabular = {}
             for k, v in merged_dict.items():
-                if isinstance(v[0], (np.ndarray,)):
+                if isinstance(v[0], np.ndarray):
                     v = np.array(v)
                     data_path = os.path.join(dest, k)
 
                     self.backend_array(data_path, v, dtype=schema[k]["dtype"])
                 else:
                     data_tabular[k] = v
-            data_path = os.path.join(dest, "tabular")
-            self.backend_tabular(data_path, data_tabular)
+            if len(data_tabular) > 0:
+                data_path = os.path.join(dest, "tabular")
+                self.backend_tabular(data_path, data_tabular, atomea.fields)
