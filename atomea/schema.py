@@ -25,6 +25,16 @@ class Atomea:
         self.update(kwargs)
         self.validate()
 
+    @property
+    def schema(self) -> dict[str, Any]:
+        return self._schema
+
+    @schema.setter
+    def schema(self, value: dict[str, Any]) -> None:
+        if "description" in value.keys():
+            value.pop("description")
+        self._schema = value
+
     def from_yaml(self, yaml_path: str | None) -> None:
         """Load schema information from a YAML file. This will only update data
         contained in the YAML file.
@@ -72,11 +82,11 @@ class Atomea:
         for key, value in schema.items():
             logger.trace("Validating {}", key)
             if isinstance(value, dict):
-                for k in ("description", "ndim", "dtype", "units"):
+                for k in ("description", "ndim", "dtype", "units", "tabular"):
                     if k not in value.keys():
                         raise ValueError(f"{key} is missing {k}")
             else:
-                raise TypeError(f"{key} is not a dictionary")
+                logger.warning(f"{key} is not a dictionary")
 
     def __enter__(self) -> dict[str, Any]:
         """Enter the context and return the current context as a dictionary."""
