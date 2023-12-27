@@ -1,15 +1,15 @@
-description: >+
+description: |
   Information that specifies the physical atomistic system.
 
 coordinates:
-  description: >+
+  description: |
     Coordinates refer to the specific three-dimensional positions of particles defined using a set of Cartesian coordinates ($x$, $y$, $z$).
   ndim: 2
   dtype: f8
   units: angstrom
   tabular: false
 atom_z:
-  description: >+
+  description: |
     The atomic number is a fundamental property of an atom and is denoted by the symbol $Z$.
     It is defined as the number of protons in the nucleus of an atom. In a neutral atom, the atomic number also corresponds to the number of electrons orbiting the nucleus.
   ndim: 1
@@ -17,7 +17,7 @@ atom_z:
   units: null
   tabular: true
 atom_symbol:
-  description: >+
+  description: |
     The code used to identify the atom species (singular or plural) representing this atom type.
     Normally this code is the element symbol.
     The code may be composed of any character except an underscore with the additional proviso that digits designate an oxidation state and must be followed by a + or - character.
@@ -26,14 +26,14 @@ atom_symbol:
   units: null
   tabular: true
 charge_net:
-  description: >+
+  description: |
     The net charge of an atomic system is the overall charge determined by the balance between positively charged protons and negatively charged electrons.
   ndim: 0
   dtype: f8
   units: e
   tabular: null
 multiplicity:
-  description: >+
+  description: |
     The degeneracy or the number of possible spin states associated with a particular electronic state of a molecule.
     The multiplicity is denoted by the symbol $2S+1$, where $S$ is the total electron spin angular momentum.
     Here, $S$ can take non-negative half-integer values, such as 0, 1/2, 1, 3/2, and so on.
@@ -43,7 +43,7 @@ multiplicity:
   units: null
   tabular: null
 entity_ids:
-  description: >+
+  description: |
     A uniquely identifying integer specifying what atoms belong to which entities.
     Entities can be a related set of atoms, molecules, or functional group.
     For example, a water and methanol molecule could be ``[0, 0, 0, 1, 1, 1, 1, 1, 1]``.
@@ -52,7 +52,7 @@ entity_ids:
   units: null
   tabular: false
 component_ids:
-  description: >+
+  description: |
     Relates ``entity_id`` to a fragment label for chemical components or species.
     Labels could be WAT or h2o for water, MeOH for methanol, bz for benzene, etc.
     There are no standardized labels for species.

@@ -1,8 +1,8 @@
-description: >+
+description: |
   Information related to the quantum mechanical description or calculation not already included in [system](./system.md).
 
 electron_frozen_num:
-  description: >+
+  description: |
     Total number of frozen electrons used in quantum chemical calculations.
   ndim: 0
   dtype: u2
