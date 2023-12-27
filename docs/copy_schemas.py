@@ -75,6 +75,9 @@ for file_name, defs in yaml_files.items():
         f.write("# " + file_name.capitalize() + "\n")
 
         for defs_cat_name, defs_dicts in defs.items():
+            if defs_cat_name == "description":
+                f.write(defs_dicts)
+                continue
             f.write("\n## `" + defs_cat_name + "`\n")
 
             f.write("\n" + defs_dicts["description"])

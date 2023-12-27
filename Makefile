@@ -187,6 +187,7 @@ serve:
 
 .PHONY: docs
 docs:
+	- rm -rf public/
 	$(CONDA) docs/copy_schemas.py
 	$(CONDA) mkdocs build -d public/
 	- rm -f public/gen_ref_pages.py

@@ -1,3 +1,6 @@
+description: >+
+  Information that specifies the physical atomistic system.
+
 coordinates:
   description: >+
     Coordinates refer to the specific three-dimensional positions of particles defined using a set of Cartesian coordinates ($x$, $y$, $z$).
@@ -9,7 +12,7 @@ atom_z:
     The atomic number is a fundamental property of an atom and is denoted by the symbol $Z$.
     It is defined as the number of protons in the nucleus of an atom. In a neutral atom, the atomic number also corresponds to the number of electrons orbiting the nucleus.
   ndim: 1
-  dtype: i4
+  dtype: u1
   units: null
 atom_symbol:
   description: >+
@@ -33,4 +36,22 @@ multiplicity:
     The multiplicity is always an integer.
   ndim: 0
   dtype: u1
+  units: null
+entity_ids:
+  description: >+
+    A uniquely identifying integer specifying what atoms belong to which entities.
+    Entities can be a related set of atoms, molecules, or functional group.
+    For example, a water and methanol molecule could be ``[0, 0, 0, 1, 1, 1, 1, 1, 1]``.
+  ndim: 1
+  dtype: i8
+  units: null
+component_ids:
+  description: >+
+    Relates ``entity_id`` to a fragment label for chemical components or species.
+    Labels could be WAT or h2o for water, MeOH for methanol, bz for benzene, etc.
+    There are no standardized labels for species.
+    The index of the label is the respective ``entity_id``.
+    For example, a water and methanol molecule could be ``['h2o', 'meoh']``.
+  ndim: 1
+  dtype: U30
   units: null
