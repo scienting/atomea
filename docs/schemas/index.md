@@ -22,6 +22,14 @@ TODO:
 
 TODO:
 
+If the data does not have units then this should be set to `null`.
+
+### tabular
+
+If `ndim = 1` we could reasonably store this as an array or tabular format.
+When `tabular` is `True`, then we will concatenate this data for every individual structure.
+For any other case of `ndim`, `tabular` should be set to `null`.
+
 ## Data types
 
 ### Integers

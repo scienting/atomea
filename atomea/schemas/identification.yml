@@ -7,3 +7,4 @@ sha256_coordinates:
   ndim: 0
   dtype: U64
   units: null
+  tabular: null

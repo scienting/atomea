@@ -7,6 +7,7 @@ coordinates:
   ndim: 2
   dtype: f8
   units: angstrom
+  tabular: false
 atom_z:
   description: >+
     The atomic number is a fundamental property of an atom and is denoted by the symbol $Z$.
@@ -14,6 +15,7 @@ atom_z:
   ndim: 1
   dtype: u1
   units: null
+  tabular: true
 atom_symbol:
   description: >+
     The code used to identify the atom species (singular or plural) representing this atom type.
@@ -22,12 +24,14 @@ atom_symbol:
   ndim: 1
   dtype: U8
   units: null
+  tabular: true
 charge_net:
   description: >+
     The net charge of an atomic system is the overall charge determined by the balance between positively charged protons and negatively charged electrons.
   ndim: 0
   dtype: f8
   units: e
+  tabular: null
 multiplicity:
   description: >+
     The degeneracy or the number of possible spin states associated with a particular electronic state of a molecule.
@@ -37,6 +41,7 @@ multiplicity:
   ndim: 0
   dtype: u1
   units: null
+  tabular: null
 entity_ids:
   description: >+
     A uniquely identifying integer specifying what atoms belong to which entities.
@@ -45,6 +50,7 @@ entity_ids:
   ndim: 1
   dtype: i8
   units: null
+  tabular: false
 component_ids:
   description: >+
     Relates ``entity_id`` to a fragment label for chemical components or species.
@@ -55,3 +61,4 @@ component_ids:
   ndim: 1
   dtype: U30
   units: null
+  tabular: false

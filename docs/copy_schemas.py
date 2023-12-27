@@ -86,3 +86,5 @@ for file_name, defs in yaml_files.items():
             f.write("\n**Data type:** `" + defs_dicts["dtype"] + "`\n")
             if defs_dicts["units"] is not None:
                 f.write("\n**Units:** " + defs_dicts["units"] + "\n")
+            if defs_dicts["tabular"] is not None:
+                f.write("\n**Tabular:** `" + str(defs_dicts["tabular"]) + "`\n")
