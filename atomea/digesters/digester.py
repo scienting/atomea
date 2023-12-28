@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Generator
 
 from abc import ABC, abstractmethod
 from collections.abc import Collection
@@ -18,4 +18,11 @@ class Digester(ABC):
     def digest(
         self, atomea: Atomea, *args: Any, **kwargs: Collection[Any]
     ) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def digestStep(
+        self, atomea: Atomea, *args: Any, **kwargs: Collection[Any]
+    ) -> Generator[dict[str, Any], None, None]:
         raise NotImplementedError

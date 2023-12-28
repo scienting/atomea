@@ -24,5 +24,4 @@ def test_amber_rogfp2_digest(uuid_simlify_rogfp2, base_atomea):
         table_test = pq.read_table(os.path.join(tmp_dir, "atoms.parquet"))
 
         assert table_test.column("ff_atom_type").type.equals(pa.string())
-        assert table_test.column("ff_atom_type").num_chunks == 1
-        assert table_test.column("ff_atom_type").length() == 37381
+        assert table_test.shape == (373810, 1)

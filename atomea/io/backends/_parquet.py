@@ -32,7 +32,12 @@ def tabular_parquet(
     if not path.endswith(".parquet"):
         path += ".parquet"
     schema_fields = apply_dtype_map(schema_fields, dtype_map)
-    schema = pa.schema(schema_fields)
+    for k, v in data.items():
+        rows_per_batch = str(len(v[0]))
+        break
+    schema = pa.schema(
+        schema_fields, metadata={"rows_per_batch": bytes(rows_per_batch, "utf-8")}
+    )
 
     arrays = [pa.chunked_array(v) for k, v in data.items()]
     table = pa.table(arrays, schema=schema, **kwargs)

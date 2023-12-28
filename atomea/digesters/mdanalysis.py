@@ -4,8 +4,9 @@ try:
     HAS_MDANALYSIS = True
 except ImportError:
     HAS_MDANALYSIS = False
-from typing import Any
+from typing import Any, Generator
 
+from collections import defaultdict
 from collections.abc import Collection
 
 import numpy as np
@@ -23,24 +24,37 @@ class MDAnalysisDigester(Digester):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    @staticmethod
+    def checks():
+        if not HAS_MDANALYSIS:
+            raise ImportError("MDAnalysis is not installed")
+
     @classmethod
     def digest(
         cls, atomea: Atomea, *args: Any, **kwargs: Collection[Any]
     ) -> dict[str, Any]:
         """Digest simulations supported by [MDAnalysis](https://www.mdanalysis.org/)."""
-        if not HAS_MDANALYSIS:
-            raise ImportError("MDAnalysis is not installed")
-        data: dict[str, Any] = {}
-        u = mda.Universe(*args, **kwargs)
-        with atomea as schema:
+        data_all: dict[str, Any] = defaultdict(list)
+        for data in cls.digestStep(atomea, *args, **kwargs):
+            for k, v in data.items():
+                data_all[k].append(v)
+        return data_all
+
+    @classmethod
+    def digestStep(
+        cls, atomea: Atomea, *args: Any, **kwargs: Collection[Any]
+    ) -> Generator[dict[str, Any], None, None]:
+        cls.checks()  # Assuming checks is a class method
+        u: mda.Universe = mda.Universe(*args, **kwargs)
+        schema = atomea.get()
+        for ts in u.trajectory:
+            data: dict[str, Any] = {}
             for k in schema.keys():
-                if k not in data.keys():
-                    data[k] = []
                 try:
-                    data[k].append(getattr(cls, k)(u))
+                    data[k] = getattr(cls, k)(u)
                 except AttributeError as e:
                     raise NotImplementedError(f"{k} not implemented") from e
-        return data
+            yield data
 
     @staticmethod
     def coordinates(u: mda.Universe) -> npt.NDArray[np.float64]:
