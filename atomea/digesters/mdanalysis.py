@@ -15,6 +15,10 @@ from ..schema import Atomea
 from .digester import Digester
 
 
+def accumate_things(*args, **kwargs):
+    return list(*args)
+
+
 class MDAnalysisDigester(Digester):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,6 +34,8 @@ class MDAnalysisDigester(Digester):
         u = mda.Universe(*args, **kwargs)
         with atomea as schema:
             for k in schema.keys():
+                if k in data.keys():
+                    continue
                 try:
                     data[k] = getattr(cls, k)(u)
                 except AttributeError as e:
@@ -43,3 +49,9 @@ class MDAnalysisDigester(Digester):
         if isinstance(v, np.ndarray):
             return v
         raise TypeError(f"{type(v)} is not a numpy array")
+
+    @staticmethod
+    def ff_atom_type(u: mda.Universe) -> list[str]:
+        """Return the coordinates of the atoms in the universe."""
+        atom_types: list[str] = u.atoms.accumulate("types", function=accumate_things)
+        return atom_types
