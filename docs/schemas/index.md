@@ -30,30 +30,37 @@ If `ndim = 1` we could reasonably store this as an array or tabular format.
 When `tabular` is `True`, then we will concatenate this data for every individual structure.
 For any other case of `ndim`, `tabular` should be set to `null`.
 
+### length
+
+We also need to specify how many values we expect per structure.
+
+-   `structure` means one value per structure.
+-   `atoms` means one value per atom in a single structure.
+
 ## Data types
 
 ### Integers
 
 | Type | Alias | Description |
 | ---- | ----- | ----------- |
-| `i1` | `int8` | An 8-bit signed integer whose values exist on the interval `[-128, +127]`. |
-| `i2` | `int16` | A 16-bit signed integer whose values exist on the interval `[−32,767, +32,767]`. |
-| `i3` | `int32` | A 32-bit signed integer whose values exist on the interval `[−2,147,483,647, +2,147,483,647]`. |
-| `i4` | `int64` | A 64-bit signed integer whose values exist on the interval `[−9,223,372,036,854,775,807, +9,223,372,036,854,775,807]`. |
+| `int8` | `i1` | An 8-bit signed integer whose values exist on the interval `[-128, +127]`. |
+| `int16` | `i2` | A 16-bit signed integer whose values exist on the interval `[−32,767, +32,767]`. |
+| `int32` | `i4` | A 32-bit signed integer whose values exist on the interval `[−2,147,483,647, +2,147,483,647]`. |
+| `int64` | `i8` | A 64-bit signed integer whose values exist on the interval `[−9,223,372,036,854,775,807, +9,223,372,036,854,775,807]`. |
 
 | Type | Alias | Description |
 | ---- | ----- | ----------- |
-| `u1` | `uint8` | An 8-bit unsigned integer whose values exist on the interval `[0, +255]`. |
-| `u2` | `uint16` | A 16-bit unsigned integer whose values exist on the interval `[0, +65,535]`. |
-| `u4` | `uint32` | A 32-bit unsigned integer whose values exist on the interval `[0, +4,294,967,295]`. |
-| `u8` | `uint64` | A 64-bit unsigned integer whose values exist on the interval `[0, +18,446,744,073,709,551,615]`. |
+| `uint8` | `u1` | An 8-bit unsigned integer whose values exist on the interval `[0, +255]`. |
+| `uint16` | `u2` | A 16-bit unsigned integer whose values exist on the interval `[0, +65,535]`. |
+| `uint32` | `u4` | A 32-bit unsigned integer whose values exist on the interval `[0, +4,294,967,295]`. |
+| `uint64` | `u8` | A 64-bit unsigned integer whose values exist on the interval `[0, +18,446,744,073,709,551,615]`. |
 
 ### Floats
 
 | Type | Alias | Description | Min > 0 | Max > 0 |
 | ---- | ----- | ----------- | ------- | ------- |
-| `f4` | `float32` | IEEE 754 single-precision binary floating-point number. | 1.18 ⨉ 10<sup>-38</sup> | 3.40 ⨉ 10<sup>38</sup> |
-| `f8` | `float64` | IEEE 754 double-precision binary floating-point number. | 2.23 ⨉ 10<sup>-308</sup> | 1.80 ⨉ 10<sup>308</sup> |
+| `float32` | `f4` | IEEE 754 single-precision binary floating-point number. | 1.18 ⨉ 10<sup>-38</sup> | 3.40 ⨉ 10<sup>38</sup> |
+| `float64` | `f8` | IEEE 754 double-precision binary floating-point number. | 2.23 ⨉ 10<sup>-308</sup> | 1.80 ⨉ 10<sup>308</sup> |
 
 #### Precision
 
@@ -63,11 +70,11 @@ $$
 \text{precision} = \frac{\text{value}}{2^{n}};
 $$
 
-where $n$ is the number of mantissa bits which is 23 for `f4` and 52 for `f8`.
+where $n$ is the number of mantissa bits which is 23 for `float32` and 52 for `float64`.
 This can be used to select an appropriate format given the expected value of a number and the required precision.
 
-| Value | `f4` precision | `f8` precision |
-| ----- | ------------- | --------------- |
+| Value | `float32` precision | `float64` precision |
+| ----- | ------------------- | --------------- |
 |  **10<sup>-12</sup>** | 10<sup>-19</sup> | 10<sup>-28</sup> |
 |  **10<sup>-9</sup>** | 10<sup>-16</sup> | 10<sup>-25</sup> |
 |  **10<sup>-6</sup>** | 10<sup>-13</sup> | 10<sup>-22</sup> |
@@ -139,7 +146,7 @@ chartGroup.append("text")
   .attr("transform", `translate(100,280)`)
   .attr("text-anchor", "start")
   .style("fill", "#e41a1c")
-  .text("f4");
+  .text("float32");
 // float64
 chartGroup.append('path')
   .datum([{ x: 10**-12, y: 2.220446049250313*10**-28 }, { x: 10**12, y: 0.0002220446049250313 }])
@@ -151,14 +158,13 @@ chartGroup.append("text")
   .attr("transform", `translate(100,420)`)
   .attr("text-anchor", "start")
   .style("fill", "#377eb8")
-  .text("f8");
+  .text("float64");
 </script>
 
 ### Text
 
-We generally use Unicode with type `U` with a fixed length.
-For example, Unicode text with a maximum of 30 characters would be `U30`.
+We generally use Unicode with type `utf8`.
 
 ### Boolean
 
-Type `b` is used for `True` (`1`) and `False` (`0`).
+Type `bool` is used for `True` (`1`) and `False` (`0`).
