@@ -70,10 +70,16 @@ class Atomea:
         logger.debug("Retrieved schema:\n{}", self.schema)
         return self.schema
 
-    @property
-    def fields(self) -> dict[str, str]:
+    def filter(self, keys: Iterable[str]) -> None:
+        """Filter schema and only keep specified keys."""
+        self.schema = {key: self.schema[key] for key in self.schema if key in keys}
+
+    def fields(self, keys: Iterable[str] | None = None) -> dict[str, str]:
         """Return schema fields for tabular data."""
-        return [(k, v["dtype"]) for k, v in self.schema.items()]
+        schema = self.schema
+        if keys is not None:
+            schema = {key: schema[key] for key in schema if key in keys}
+        return [(k, v["dtype"]) for k, v in schema.items()]
 
     def validate(self) -> None:
         """Validate the schema."""
@@ -82,7 +88,7 @@ class Atomea:
         for key, value in schema.items():
             logger.trace("Validating {}", key)
             if isinstance(value, dict):
-                for k in ("description", "ndim", "dtype", "units", "tabular"):
+                for k in ("description", "ndim", "dtype", "units", "tabular", "length"):
                     if k not in value.keys():
                         raise ValueError(f"{key} is missing {k}")
             else:
