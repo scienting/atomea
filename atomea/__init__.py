@@ -1,4 +1,3 @@
-# type: ignore[attr-defined]
 """Extensible schema for atomistic simulations and calculations."""
 
 from typing import Any
