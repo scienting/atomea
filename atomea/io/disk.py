@@ -25,26 +25,33 @@ class DiskData:
         includes keys that are shared between all `data`"""
         if isinstance(data, dict):
             data = [data]
-        common_keys = set(data[0].keys())
+        common_keys = set(data[0].keys())  # type: ignore
         for d in data:
             common_keys = common_keys.intersection(d.keys())
 
         merged_dict = defaultdict(list)
         for d in data:
             for key in common_keys:
-                merged_dict[key].append(d[key])
-        merged_dict = dict(merged_dict)
+                merged_dict[key].extend(d[key])
+        merged_dict = dict(merged_dict)  # type: ignore
 
         with atomea as schema:
-            data_tabular = {}
+            data_tabular: dict[str, dict[str, Any]] = {}
             for k, v in merged_dict.items():
-                if isinstance(v[0], np.ndarray):
-                    v = np.array(v)
+                if isinstance(v[0], np.ndarray) and not schema[k]["tabular"]:
+                    v = np.array(v)  # type: ignore
                     data_path = os.path.join(dest, k)
 
                     self.backend_array(data_path, v, dtype=schema[k]["dtype"])
                 else:
-                    data_tabular[k] = v
+                    length: str = schema[k]["length"]
+                    if length not in data_tabular.keys():
+                        data_tabular[length] = {}
+                    data_tabular[length][k] = v
+
             if len(data_tabular) > 0:
-                data_path = os.path.join(dest, "tabular")
-                self.backend_tabular(data_path, data_tabular, atomea.fields)
+                for length_key, tab_data in data_tabular.items():
+                    data_path = os.path.join(dest, length_key)
+                    self.backend_tabular(
+                        data_path, tab_data, atomea.fields(tab_data.keys())
+                    )

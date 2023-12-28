@@ -34,10 +34,10 @@ class MDAnalysisDigester(Digester):
         u = mda.Universe(*args, **kwargs)
         with atomea as schema:
             for k in schema.keys():
-                if k in data.keys():
-                    continue
+                if k not in data.keys():
+                    data[k] = []
                 try:
-                    data[k] = getattr(cls, k)(u)
+                    data[k].append(getattr(cls, k)(u))
                 except AttributeError as e:
                     raise NotImplementedError(f"{k} not implemented") from e
         return data
