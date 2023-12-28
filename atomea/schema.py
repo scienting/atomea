@@ -79,7 +79,8 @@ class Atomea:
         schema = self.schema
         if keys is not None:
             schema = {key: schema[key] for key in schema if key in keys}
-        return [(k, v["dtype"]) for k, v in schema.items()]
+            return [(k, v["dtype"]) for k, v in schema.items()]
+        return schema
 
     def validate(self) -> None:
         """Validate the schema."""
