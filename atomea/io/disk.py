@@ -7,16 +7,17 @@ from collections.abc import Iterable
 import numpy as np
 
 from ..schema import Atomea
-from .backends._parquet import tabular_parquet
-from .backends._zarr import array_zarr
+from ..utils import get_obj_from_string
 
 
 class DiskData:
     """Manage data with a single backend."""
 
-    def __init__(self, backend_array=array_zarr, backend_tabular=tabular_parquet):
-        self.backend_array = backend_array
-        self.backend_tabular = backend_tabular
+    def __init__(self, backend_array="zarr", backend_tabular="parquet"):
+        self.backend_array = get_obj_from_string("atomea.io.backends._" + backend_array)
+        self.backend_tabular = get_obj_from_string(
+            "atomea.io.backends._" + backend_tabular
+        )
 
     def store(
         self, dest: str, data: dict[str, Any] | Iterable[dict[str, Any]], atomea: Atomea
@@ -42,7 +43,9 @@ class DiskData:
                     v = np.array(v)  # type: ignore
                     data_path = os.path.join(dest, k)
 
-                    self.backend_array(data_path, v, dtype=schema[k]["dtype"])
+                    self.backend_array.array_write(
+                        data_path, v, dtype=schema[k]["dtype"]
+                    )
                 else:
                     length: str = schema[k]["length"]
                     if length not in data_tabular.keys():
@@ -52,6 +55,6 @@ class DiskData:
             if len(data_tabular) > 0:
                 for length_key, tab_data in data_tabular.items():
                     data_path = os.path.join(dest, length_key)
-                    self.backend_tabular(
+                    self.backend_tabular.tabular_write(
                         data_path, tab_data, atomea.fields(tab_data.keys())
                     )

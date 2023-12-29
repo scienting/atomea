@@ -44,10 +44,10 @@ class MDAnalysisDigester(Digester):
     def digestStep(
         cls, atomea: Atomea, *args: Any, **kwargs: Collection[Any]
     ) -> Generator[dict[str, Any], None, None]:
-        cls.checks()  # Assuming checks is a class method
+        cls.checks()
         u: mda.Universe = mda.Universe(*args, **kwargs)
         schema = atomea.get()
-        for ts in u.trajectory:
+        for _ in u.trajectory:
             data: dict[str, Any] = {}
             for k in schema.keys():
                 try:

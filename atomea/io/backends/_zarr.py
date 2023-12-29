@@ -17,7 +17,14 @@ dtype_map = {
 }
 
 
-def array_zarr(
+def array_initialize(path: str, shape: tuple[int, ...], dtype: str, **kwargs):
+    """Thin wrapper around `zarr.creation.create`."""
+    if not path.endswith(".zarr"):
+        path += ".zarr"
+    return zarr.creation.create(shape, dtype=dtype_map[dtype], path=path, **kwargs)
+
+
+def array_write(
     path: str,
     arr: npt.NDArray[Any],
     mode: str = "a",
@@ -25,7 +32,7 @@ def array_zarr(
     **kwargs: dict[str, Any],
 ) -> zarr.core.Array:
     """Thin wrapper around `zarr.open`."""
-    if path[-5] != ".zarr":
+    if not path.endswith(".zarr"):
         path += ".zarr"
     dtype = dtype_map[dtype]
     z = zarr.open(path, mode=mode, shape=arr.shape, dtype=dtype, **kwargs)

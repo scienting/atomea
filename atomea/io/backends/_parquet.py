@@ -22,7 +22,7 @@ dtype_map = {
 }
 
 
-def tabular_parquet(
+def tabular_write(
     path: str,
     data: dict[str, Any],
     schema_fields: Iterable[Iterable[Any]],
