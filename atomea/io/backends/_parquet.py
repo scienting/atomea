@@ -28,13 +28,19 @@ def tabular_parquet(
     schema_fields: Iterable[Iterable[Any]],
     **kwargs: dict[str, Any],
 ) -> pa.Table:
-    """Initialize `pyarrow.table` and save parquet file."""
+    """Initialize `pyarrow.table` and save parquet file.
+
+    Args:
+        path: Path to parquet file to save.
+        data: Columns (keys) and values to store in a parquet file.
+        schema_fields:
+        **kwargs: Passed into `pa.table` and `pa.write_table`.
+    """
     if not path.endswith(".parquet"):
         path += ".parquet"
     schema_fields = apply_dtype_map(schema_fields, dtype_map)
-    for k, v in data.items():
-        rows_per_batch = str(len(v[0]))
-        break
+    v = next(iter(data.values()))
+    rows_per_batch = str(len(v[0]))
     schema = pa.schema(
         schema_fields, metadata={"rows_per_batch": bytes(rows_per_batch, "utf-8")}
     )
