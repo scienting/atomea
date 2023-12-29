@@ -58,3 +58,21 @@ class DiskData:
                     self.backend_tabular.tabular_write(
                         data_path, tab_data, atomea.fields(tab_data.keys())
                     )
+
+    def store_stream(
+        self,
+        atomea: Atomea,
+        digester: "Digester",
+        digester_args: Iterable[Iterable[Any]],
+        digester_kwargs: Iterable[dict[str, Any]],
+    ):
+        """Digest and store data as a stream with parallelization. Use this if you
+        have a large amount of data to digest.
+
+        Args:
+            atomea: The atomea schema to use.
+            digester: The digester to use.
+            digester_args: Iterable of arguments to pass to the digester.
+            digester_kwargs: Iterable of keyword arguments to pass to the digester.
+        """
+        # TODO:
