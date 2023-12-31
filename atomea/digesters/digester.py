@@ -1,7 +1,7 @@
 from typing import Any, Generator
 
 from abc import ABC, abstractmethod
-from collections.abc import Collection
+from collections.abc import Collection, MutableSequence
 
 from ..schema import Atomea
 
@@ -14,6 +14,13 @@ class Digester(ABC):
     """
 
     @classmethod
+    def array_size(
+        cls, schema_info: dict[str, Any], *args: Any, **kwargs: Collection[Any]
+    ) -> MutableSequence[int]:
+        """Return the size of the array to be stored."""
+        raise NotImplementedError
+
+    @classmethod
     @abstractmethod
     def digest(
         self, atomea: Atomea, *args: Any, **kwargs: Collection[Any]
@@ -22,7 +29,7 @@ class Digester(ABC):
 
     @classmethod
     @abstractmethod
-    def digestStep(
+    def digest_step(
         self, atomea: Atomea, *args: Any, **kwargs: Collection[Any]
     ) -> Generator[dict[str, Any], None, None]:
         raise NotImplementedError
