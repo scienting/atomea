@@ -19,8 +19,9 @@ class Atomea:
         self.schema: dict[str, Any] = {}
         self.storage_forms: dict[str, MutableSequence[str]] = {
             "array": [],
-            "tabular": [],
+            "table": [],
         }
+        self.table_fields: dict[str, dict[str, str]] = {"atoms": {}, "structures": {}}
         if isinstance(yaml_paths, str):
             yaml_paths = [yaml_paths]
         if yaml_paths is not None:
@@ -50,7 +51,7 @@ class Atomea:
             logger.info("Loading YAML schema from {}", yaml_path)
             with open(yaml_path, "r", encoding="utf-8") as f:
                 yaml_data = yaml.safe_load(f)
-            logger.debug("YAML data:\n{}", yaml_data)
+            logger.trace("YAML data:\n{}", yaml_data)
             self.update(yaml_data)
         self.yaml_path = yaml_path
 
@@ -61,10 +62,24 @@ class Atomea:
             attr_dict: Dictionary containing attribute names and their
             corresponding values.
         """
-        logger.debug("Updating schema:\n{}", attr_dict)
+        logger.debug("Updating schema")
+        logger.trace("Additions: \n{}", attr_dict)
         for key, value in attr_dict.items():
+            if key == "description":
+                continue
             self.schema[key] = value
-            self.storage_forms[self.store_as(value["shape"])].append(key)
+            storage_form = self.store_as(value["shape"])
+            self.storage_forms[storage_form].append(key)
+            if storage_form == "table":
+                self.update_table_fields(key, value)
+
+    def update_table_fields(self, key: str, info: dict[str, Any]) -> None:
+        if "n_atoms" in info["shape"]:
+            self.table_fields["atoms"][key] = info["dtype"]
+        elif "n_structures" in info["shape"] or info["shape"][0] == 0:
+            self.table_fields["structures"][key] = info["dtype"]
+        else:
+            raise ValueError(f"Unknown shape for key {key}")
 
     def get(self) -> dict[str, Any]:
         """Retrieve the schema.
@@ -77,14 +92,24 @@ class Atomea:
 
     def filter(self, keys: Iterable[str]) -> None:
         """Filter schema and only keep specified keys."""
-        self.schema = {key: self.schema[key] for key in self.schema if key in keys}
+        schema = {key: self.schema[key] for key in self.schema if key in keys}
+        self.clear()
+        self.update(schema)
+
+    def clear(self):
+        self.schema = {}
+        self.storage_forms = {
+            "array": [],
+            "table": [],
+        }
+        self.table_fields = {"atoms": {}, "structures": {}}
 
     @staticmethod
     def store_as(shape: Iterable[int | str]) -> str:
         """If they field with these properties will be stored as an array."""
         if "n_structures" in shape:
             return "array"
-        return "tabular"
+        return "table"
 
     def get_keys(self, storage_form: None | str = None) -> Iterable[str]:
         """Get schema keys.
@@ -115,7 +140,7 @@ class Atomea:
         for key, value in schema.items():
             logger.trace("Validating {}", key)
             if isinstance(value, dict):
-                for k in ("description", "ndim", "dtype", "units", "tabular", "length"):
+                for k in ("description", "shape", "dtype", "units"):
                     if k not in value.keys():
                         raise ValueError(f"{key} is missing {k}")
             else:

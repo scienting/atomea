@@ -1,7 +1,7 @@
 import importlib
 
 
-def get_obj_from_string(import_string: str) -> object:
+def get_obj_from_string(import_string):
     """Retrieves an object based on an import string and object name.
 
     Args:
