@@ -22,10 +22,11 @@ dtype_map = {
 }
 
 
-def tabular_write(
+def write(
     path: str,
     data: dict[str, Any],
     schema_fields: Iterable[Iterable[Any]],
+    schema_metadata: dict[str, Any] | None = None,
     **kwargs: dict[str, Any],
 ) -> pa.Table:
     """Initialize `pyarrow.table` and save parquet file.
@@ -33,20 +34,16 @@ def tabular_write(
     Args:
         path: Path to parquet file to save.
         data: Columns (keys) and values to store in a parquet file.
-        schema_fields:
+        schema_fields: TODO: Document this.
         **kwargs: Passed into `pa.table` and `pa.write_table`.
     """
     if not path.endswith(".parquet"):
         path += ".parquet"
     schema_fields = apply_dtype_map(schema_fields, dtype_map)
-    v = next(iter(data.values()))
-    rows_per_batch = str(len(v[0]))
-    schema = pa.schema(
-        schema_fields, metadata={"rows_per_batch": bytes(rows_per_batch, "utf-8")}
-    )
-
-    arrays = [pa.chunked_array(v) for k, v in data.items()]
+    if schema_metadata is None:
+        schema_metadata = {}
+    schema = pa.schema(schema_fields, metadata=schema_metadata)
+    arrays = [pa.array(data[k], type=schema[k].type) for k in data]
     table = pa.table(arrays, schema=schema, **kwargs)
-
     pq.write_table(table=table, where=path, **kwargs)
     return table

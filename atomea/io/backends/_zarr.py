@@ -1,5 +1,7 @@
 from typing import Any
 
+from collections.abc import Iterable
+
 import numpy.typing as npt
 import zarr
 
@@ -17,24 +19,21 @@ dtype_map = {
 }
 
 
-def array_initialize(path: str, shape: tuple[int, ...], dtype: str, **kwargs):
+def initialize(
+    path: str, shape: tuple[int, ...], dtype: str, **kwargs: dict[str, Any]
+) -> zarr.core.Array:
     """Thin wrapper around `zarr.creation.create`."""
     if not path.endswith(".zarr"):
         path += ".zarr"
     return zarr.creation.create(shape, dtype=dtype_map[dtype], path=path, **kwargs)
 
 
-def array_write(
-    path: str,
-    arr: npt.NDArray[Any],
-    mode: str = "a",
-    dtype: str = "float64",
+def write(
+    arr: zarr.core.Array,
+    data: npt.NDArray[Any],
+    indices: int | Iterable[int],
+    *args: Any,
     **kwargs: dict[str, Any],
 ) -> zarr.core.Array:
-    """Thin wrapper around `zarr.open`."""
-    if not path.endswith(".zarr"):
-        path += ".zarr"
-    dtype = dtype_map[dtype]
-    z = zarr.open(path, mode=mode, shape=arr.shape, dtype=dtype, **kwargs)
-    z[:] = arr
-    return z
+    arr[indices] = data
+    return arr
