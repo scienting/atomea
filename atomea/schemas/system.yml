@@ -5,12 +5,11 @@ coordinates:
   description: |
     Coordinates refer to the specific three-dimensional positions of particles defined using a set of Cartesian coordinates ($x$, $y$, $z$).
   shape:
+    - "n_structures"
     - "n_atoms"
     - 3
   dtype: float64
   units: angstrom
-  tabular: false
-  length: atoms
 atom_z:
   description: |
     The atomic number is a fundamental property of an atom and is denoted by the symbol $Z$.
@@ -19,8 +18,6 @@ atom_z:
     - "n_atoms"
   dtype: uint8
   units: null
-  tabular: true
-  length: atoms
 atom_symbol:
   description: |
     The code used to identify the atom species (singular or plural) representing this atom type.
@@ -30,7 +27,6 @@ atom_symbol:
     - "n_atoms"
   dtype: utf8
   units: null
-  tabular: true
 charge_net:
   description: |
     The net charge of an atomic system is the overall charge determined by the balance between positively charged protons and negatively charged electrons.
@@ -38,8 +34,6 @@ charge_net:
     - 0
   dtype: float64
   units: e
-  tabular: null
-  length: structure
 multiplicity:
   description: |
     The degeneracy or the number of possible spin states associated with a particular electronic state of a molecule.
@@ -50,27 +44,23 @@ multiplicity:
     - 0
   dtype: uint8
   units: null
-  tabular: null
 entity_ids:
   description: |
     A uniquely identifying integer specifying what atoms belong to which entities.
     Entities can be a related set of atoms, molecules, or functional group.
     For example, a water and methanol molecule could be ``[0, 0, 0, 1, 1, 1, 1, 1, 1]``.
   shape:
+    - "n_structures"
     - "n_atoms"
   dtype: int64
   units: null
-  tabular: false
-  length: atoms
 component_ids:
   description: |
     Relates ``entity_id`` to a fragment label for chemical components or species.
     Labels could be WAT or h2o for water, MeOH for methanol, bz for benzene, etc.
     There are no standardized labels for species.
-    The index of the label is the respective ``entity_id``.
-    For example, a water and methanol molecule could be ``['h2o', 'meoh']``.
   shape:
+    - "n_structures"
     - "n_atoms"
   dtype: utf8
   units: null
-  tabular: false

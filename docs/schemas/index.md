@@ -10,7 +10,7 @@ All schema items contain the following information to describe a single structur
 
 TODO:
 
-### ndim
+### shape
 
 TODO:
 
@@ -23,19 +23,6 @@ TODO:
 TODO:
 
 If the data does not have units then this should be set to `null`.
-
-### tabular
-
-If `ndim = 1` we could reasonably store this as an array or tabular format.
-When `tabular` is `True`, then we will concatenate this data for every individual structure.
-For any other case of `ndim`, `tabular` should be set to `null`.
-
-### length
-
-We also need to specify how many values we expect per structure.
-
--   `structure` means one value per structure.
--   `atoms` means one value per atom in a single structure.
 
 ## Data types
 
@@ -143,7 +130,7 @@ chartGroup.append('path')
   .attr('stroke-width', 2)
   .attr('d', line);
 chartGroup.append("text")
-  .attr("transform", `translate(100,280)`)
+  .attr("transform", `translate(60,280)`)
   .attr("text-anchor", "start")
   .style("fill", "#e41a1c")
   .text("float32");
@@ -155,7 +142,7 @@ chartGroup.append('path')
   .attr('stroke-width', 2)
   .attr('d', line);
 chartGroup.append("text")
-  .attr("transform", `translate(100,420)`)
+  .attr("transform", `translate(60,420)`)
   .attr("text-anchor", "start")
   .style("fill", "#377eb8")
   .text("float64");

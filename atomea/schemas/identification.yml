@@ -8,4 +8,4 @@ sha256_coordinates:
     - 0
   dtype: utf8
   units: null
-  tabular: null
+  tabular: true

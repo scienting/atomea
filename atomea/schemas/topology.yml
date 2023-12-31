@@ -13,4 +13,3 @@ ff_atom_type:
     - "n_atoms"
   dtype: utf8
   units: null
-  tabular: true

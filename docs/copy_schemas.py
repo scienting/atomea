@@ -70,8 +70,14 @@ for file_path in yaml_file_paths:
 
 
 def get_shape_string(info):
-    shape = ["n_structures"] + [str(x) for x in info["shape"] if x != 0]
-    shape_str = "\n**Shape:** (" + ", ".join(shape) + ")\n"
+    shape_str = "\n**Shape:** "
+    shape = [str(x) for x in info["shape"] if x != 0]
+    if len(shape) == 0:
+        shape_str += "0\n"
+    elif len(shape) == 1:
+        shape_str += shape[0] + "\n"
+    else:
+        shape_str += "(" + ", ".join(shape) + ")\n"
     return shape_str
 
 
@@ -94,5 +100,3 @@ for file_name, defs in yaml_files.items():
             f.write("\n**Data type:** " + defs_dicts["dtype"] + "\n")
             if defs_dicts["units"] is not None:
                 f.write("\n**Units:** " + defs_dicts["units"] + "\n")
-            if defs_dicts["tabular"] is not None:
-                f.write("\n**Tabular:** " + str(defs_dicts["tabular"]) + "\n")
