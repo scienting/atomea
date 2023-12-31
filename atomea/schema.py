@@ -1,6 +1,6 @@
 from typing import Any
 
-from collections.abc import Iterable
+from collections.abc import Iterable, MutableSequence
 
 import yaml
 from loguru import logger
@@ -17,6 +17,10 @@ class Atomea:
             yaml_paths: Path(s) to YAML file(s) to load into the schema.
         """
         self.schema: dict[str, Any] = {}
+        self.storage_forms: dict[str, MutableSequence[str]] = {
+            "array": [],
+            "tabular": [],
+        }
         if isinstance(yaml_paths, str):
             yaml_paths = [yaml_paths]
         if yaml_paths is not None:
@@ -60,6 +64,7 @@ class Atomea:
         logger.debug("Updating schema:\n{}", attr_dict)
         for key, value in attr_dict.items():
             self.schema[key] = value
+            self.storage_forms[self.store_as(value["shape"])].append(key)
 
     def get(self) -> dict[str, Any]:
         """Retrieve the schema.
@@ -73,6 +78,27 @@ class Atomea:
     def filter(self, keys: Iterable[str]) -> None:
         """Filter schema and only keep specified keys."""
         self.schema = {key: self.schema[key] for key in self.schema if key in keys}
+
+    @staticmethod
+    def store_as(shape: Iterable[int | str]) -> str:
+        """If they field with these properties will be stored as an array."""
+        if "n_structures" in shape:
+            return "array"
+        return "tabular"
+
+    def get_keys(self, storage_form: None | str = None) -> Iterable[str]:
+        """Get schema keys.
+
+        Args:
+            storage_form: Specify the storage type to filter keys by. If `None`, then
+            all keys will be returned.
+
+        Returns:
+            List of schema keys.
+        """
+        if storage_form is None:
+            return self.schema.keys()
+        return self.storage_forms[storage_form]
 
     def fields(self, keys: Iterable[str] | None = None) -> dict[str, str]:
         """Return schema fields for tabular data."""
