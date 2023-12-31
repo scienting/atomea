@@ -1,11 +1,11 @@
 from typing import Any
 
 import os
-from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, MutableSequence
 
 import numpy as np
 
+from ..digesters import Digester
 from ..schema import Atomea
 from ..utils import get_obj_from_string
 
@@ -18,54 +18,45 @@ class DiskData:
         self.backend_tabular = get_obj_from_string(
             "atomea.io.backends._" + backend_tabular
         )
+        self.arrays = {}
+        self.tables = {}
+        self.array_keys: MutableSequence[str] = []
+        self.table_atom_fields: dict[str, str] = {}
+        self.table_structure_fields: dict[str, str] = {}
+
+    def write_data(
+        self, dest: str, idx: int, data: dict[str, Any], atomea: Atomea
+    ) -> None:
+        array_keys = atomea.storage_forms["array"]
+        for k in array_keys:
+            v = np.array(data[k]) if not isinstance(data[k], np.ndarray) else data[k]
+            self.backend_array.write(self.arrays[k], v, idx)
+
+        # We only write tables for the first structure. So we exit if this is not the
+        # first structure.
+        if idx > 0:
+            return
+
+        table_fields_atoms = atomea.table_fields["atoms"]
+        if table_fields_atoms:
+            data_path = os.path.join(dest, "atoms")
+            data_tabular = {k: data[k] for k in table_fields_atoms.keys()}
+            self.backend_tabular.write(data_path, data_tabular, table_fields_atoms)
+
+        table_fields_structures = atomea.table_fields["structures"]
+        if table_fields_structures:
+            data_path = os.path.join(dest, "structures")
+            data_tabular = {k: data[k] for k in table_fields_structures.keys()}
+            self.backend_tabular.write(data_path, data_tabular, table_fields_structures)
 
     def store(
-        self, dest: str, data: dict[str, Any] | Iterable[dict[str, Any]], atomea: Atomea
-    ) -> None:
-        """Store data into array and tabular formats into a single location. Only
-        includes keys that are shared between all `data`"""
-        if isinstance(data, dict):
-            data = [data]
-        common_keys = set(data[0].keys())  # type: ignore
-        for d in data:
-            common_keys = common_keys.intersection(d.keys())
-
-        merged_dict = defaultdict(list)
-        for d in data:
-            for key in common_keys:
-                merged_dict[key].extend(d[key])
-        merged_dict = dict(merged_dict)  # type: ignore
-
-        with atomea as schema:
-            data_tabular: dict[str, dict[str, Any]] = {}
-            for k, v in merged_dict.items():
-                if isinstance(v[0], np.ndarray) and not schema[k]["tabular"]:
-                    v = np.array(v)  # type: ignore
-                    data_path = os.path.join(dest, k)
-
-                    self.backend_array.array_write(
-                        data_path, v, dtype=schema[k]["dtype"]
-                    )
-                else:
-                    length: str = schema[k]["length"]
-                    if length not in data_tabular.keys():
-                        data_tabular[length] = {}
-                    data_tabular[length][k] = v
-
-            if len(data_tabular) > 0:
-                for length_key, tab_data in data_tabular.items():
-                    data_path = os.path.join(dest, length_key)
-                    self.backend_tabular.tabular_write(
-                        data_path, tab_data, atomea.fields(tab_data.keys())
-                    )
-
-    def store_stream(
         self,
+        dest: str,
         atomea: Atomea,
-        digester: "Digester",
-        digester_args: Iterable[Iterable[Any]],
-        digester_kwargs: Iterable[dict[str, Any]],
-    ):
+        digester: Any,
+        digester_args: Iterable[Any],
+        digester_kwargs: dict[str, Any],
+    ) -> None:
         """Digest and store data as a stream with parallelization. Use this if you
         have a large amount of data to digest.
 
@@ -75,4 +66,23 @@ class DiskData:
             digester_args: Iterable of arguments to pass to the digester.
             digester_kwargs: Iterable of keyword arguments to pass to the digester.
         """
-        # TODO:
+        schema = atomea.get()
+
+        # Initialize all arrays
+        self.array_keys = atomea.storage_forms["array"]
+        self.arrays = {
+            k: self.backend_array.initialize(
+                dest,
+                digester.array_size(schema[k], *digester_args, **digester_kwargs),
+                schema[k]["dtype"],
+            )
+            for k in self.array_keys
+        }
+
+        # Note, we do not need to analyze tables because there will only be one
+        # for "atoms" and "structures".
+
+        for idx, data in enumerate(
+            digester.digest_step(atomea, *digester_args, **digester_kwargs)
+        ):
+            self.write_data(dest, idx, data, atomea)
