@@ -68,6 +68,13 @@ for file_path in yaml_file_paths:
     with open(file_path, encoding="utf-8") as f:
         yaml_files[file_name] = yaml.safe_load(f)
 
+
+def get_shape_string(info):
+    shape = ["n_structures"] + [str(x) for x in info["shape"] if x != 0]
+    shape_str = "\n**Shape:** (" + ", ".join(shape) + ")\n"
+    return shape_str
+
+
 for file_name, defs in yaml_files.items():
     file_path = os.path.join(DEST_DIR, file_name + ".md")
 
@@ -78,13 +85,14 @@ for file_name, defs in yaml_files.items():
             if defs_cat_name == "description":
                 f.write(defs_dicts)
                 continue
-            f.write("\n## `" + defs_cat_name + "`\n")
+            f.write("\n## " + defs_cat_name + "\n")
 
             f.write("\n" + defs_dicts["description"])
+            shape_string = get_shape_string(defs_dicts)
 
-            f.write("\n**Dimensions:** `" + str(defs_dicts["ndim"]) + "`\n")
-            f.write("\n**Data type:** `" + defs_dicts["dtype"] + "`\n")
+            f.write(shape_string)
+            f.write("\n**Data type:** " + defs_dicts["dtype"] + "\n")
             if defs_dicts["units"] is not None:
                 f.write("\n**Units:** " + defs_dicts["units"] + "\n")
             if defs_dicts["tabular"] is not None:
-                f.write("\n**Tabular:** `" + str(defs_dicts["tabular"]) + "`\n")
+                f.write("\n**Tabular:** " + str(defs_dicts["tabular"]) + "\n")

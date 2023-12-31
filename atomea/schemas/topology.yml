@@ -9,8 +9,8 @@ ff_atom_type:
     Each atom in a molecular system is assigned a particular atom type, which is typically associated with a set of parameters defining its behavior.
     These parameters include values such as atomic mass, partial charges, van der Waals radii, and bond, angle, and dihedral force constants.
     The specific values for these parameters are determined based on experimental data and quantum mechanical calculations.
-  ndim: 1
+  shape:
+    - "n_atoms"
   dtype: utf8
   units: null
   tabular: true
-  length: atoms

@@ -4,7 +4,9 @@ description: |
 coordinates:
   description: |
     Coordinates refer to the specific three-dimensional positions of particles defined using a set of Cartesian coordinates ($x$, $y$, $z$).
-  ndim: 2
+  shape:
+    - "n_atoms"
+    - 3
   dtype: float64
   units: angstrom
   tabular: false
@@ -13,7 +15,8 @@ atom_z:
   description: |
     The atomic number is a fundamental property of an atom and is denoted by the symbol $Z$.
     It is defined as the number of protons in the nucleus of an atom. In a neutral atom, the atomic number also corresponds to the number of electrons orbiting the nucleus.
-  ndim: 1
+  shape:
+    - "n_atoms"
   dtype: uint8
   units: null
   tabular: true
@@ -23,15 +26,16 @@ atom_symbol:
     The code used to identify the atom species (singular or plural) representing this atom type.
     Normally this code is the element symbol.
     The code may be composed of any character except an underscore with the additional proviso that digits designate an oxidation state and must be followed by a + or - character.
-  ndim: 1
+  shape:
+    - "n_atoms"
   dtype: utf8
   units: null
   tabular: true
-  length: atoms
 charge_net:
   description: |
     The net charge of an atomic system is the overall charge determined by the balance between positively charged protons and negatively charged electrons.
-  ndim: 0
+  shape:
+    - 0
   dtype: float64
   units: e
   tabular: null
@@ -42,17 +46,18 @@ multiplicity:
     The multiplicity is denoted by the symbol $2S+1$, where $S$ is the total electron spin angular momentum.
     Here, $S$ can take non-negative half-integer values, such as 0, 1/2, 1, 3/2, and so on.
     The multiplicity is always an integer.
-  ndim: 0
+  shape:
+    - 0
   dtype: uint8
   units: null
   tabular: null
-  length: structure
 entity_ids:
   description: |
     A uniquely identifying integer specifying what atoms belong to which entities.
     Entities can be a related set of atoms, molecules, or functional group.
     For example, a water and methanol molecule could be ``[0, 0, 0, 1, 1, 1, 1, 1, 1]``.
-  ndim: 1
+  shape:
+    - "n_atoms"
   dtype: int64
   units: null
   tabular: false
@@ -64,8 +69,8 @@ component_ids:
     There are no standardized labels for species.
     The index of the label is the respective ``entity_id``.
     For example, a water and methanol molecule could be ``['h2o', 'meoh']``.
-  ndim: 1
+  shape:
+    - "n_atoms"
   dtype: utf8
   units: null
   tabular: false
-  length: atoms

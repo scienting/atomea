@@ -4,8 +4,8 @@ description: |
 sha256_coordinates:
   description: |
     A sha256 hash based only on [coordinates](./system.md#coordinates).
-  ndim: 0
+  shape:
+    - 0
   dtype: utf8
   units: null
   tabular: null
-  length: structure
