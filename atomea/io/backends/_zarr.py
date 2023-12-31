@@ -5,7 +5,7 @@ from collections.abc import Iterable
 import numpy.typing as npt
 import zarr
 
-dtype_map = {
+DTYPE_MAP = {
     "int8": "i1",
     "int16": "i2",
     "int32": "i4",
@@ -16,6 +16,7 @@ dtype_map = {
     "uint64": "u8",
     "float32": "f4",
     "float64": "f8",
+    "utf-8": "U64",
 }
 
 
@@ -25,7 +26,7 @@ def initialize(
     """Thin wrapper around `zarr.creation.create`."""
     if not path.endswith(".zarr"):
         path += ".zarr"
-    return zarr.creation.create(shape, dtype=dtype_map[dtype], path=path, **kwargs)
+    return zarr.creation.create(shape, dtype=DTYPE_MAP[dtype], path=path, **kwargs)
 
 
 def write(

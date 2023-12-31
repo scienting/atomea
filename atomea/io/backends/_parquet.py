@@ -18,7 +18,7 @@ dtype_map = {
     "uint64": "uint64",
     "float32": "float32",
     "float64": "float64",
-    "utf8": "string",
+    "utf-8": "string",
 }
 
 
@@ -43,7 +43,7 @@ def write(
     if schema_metadata is None:
         schema_metadata = {}
     schema = pa.schema(schema_fields, metadata=schema_metadata)
-    arrays = [pa.array(data[k], type=schema[k].type) for k in data]
+    arrays = [pa.array(data[k], type=schema.field_by_name(k).type) for k in data]
     table = pa.table(arrays, schema=schema, **kwargs)
     pq.write_table(table=table, where=path, **kwargs)
     return table
