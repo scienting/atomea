@@ -18,8 +18,8 @@
     --md-default-bg-color--lightest:     #FAFAFA;
 
     /* Code color shades */
-    --md-code-fg-color:                  #36464e; /* Code block text color */
-    --md-code-bg-color:                  #E8E8E8; /* Code block background */
+    --md-code-fg-color:                  #212529; /* Code block text color */
+    --md-code-bg-color:                  #f0f0f0; /* Code block background */
 
     /* Code highlighting color shades */
     --md-code-hl-color:                  #0000ff;
