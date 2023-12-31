@@ -11,5 +11,5 @@ ff_atom_type:
     The specific values for these parameters are determined based on experimental data and quantum mechanical calculations.
   shape:
     - "n_atoms"
-  dtype: utf8
+  dtype: utf-8
   units: null

@@ -25,7 +25,7 @@ atom_symbol:
     The code may be composed of any character except an underscore with the additional proviso that digits designate an oxidation state and must be followed by a + or - character.
   shape:
     - "n_atoms"
-  dtype: utf8
+  dtype: utf-8
   units: null
 charge_net:
   description: |
@@ -62,5 +62,5 @@ component_ids:
   shape:
     - "n_structures"
     - "n_atoms"
-  dtype: utf8
+  dtype: utf-8
   units: null
