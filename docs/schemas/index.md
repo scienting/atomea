@@ -1,28 +1,37 @@
 # Schemas
 
-TODO:
+Schemas define the structure, data types, and additional metadata for datasets used within a defined project space.
+They ensure consistency and provide clear guidelines on how data is formatted and interpreted.
 
 ## Information
 
-All schema items contain the following information to describe a single structure.
+All schema items are designed to describe properties related to a single structure. Each item in the schema contains the following fields.
 
-### description
+### Description
 
-TODO:
+This multi-line text field provides a brief yet comprehensive description of the data item.
+It explains what the data represents, how it's used, and any specific details relevant to understanding the significance of the data within the context of the dataset.
 
-### shape
+### Shape
 
-TODO:
+The `shape` field describes the dimensions of the data with the assumption that we have multiple structures or time points.
+This field helps users understand how data is organized, whether it's a single value, a vector, a matrix, or a higher-dimensional array.
 
-### dtype
+We use `n_structures` and `n_atoms` as placeholders to account for an arbitrary number of structures or atoms in specific systems of the same number of atoms.
+These values are a list of the aforementioned placeholders or integers for the shape of that dimension.
+For example, the shape of atomic Cartesian coordinates would be `[n_structures, n_atoms, 3]` and the atomic numbers of all atoms in the system would be `[n_atoms]`.
 
-TODO:
+### Dtype
 
-### units
+The `dtype` (data type) field specifies the type of data stored in the dataset and is detailed [below](#data-types).
+The data type is crucial for understanding what kind of operations can be performed on the data and how it should be handled during processing.
 
-TODO:
+### Units
 
-If the data does not have units then this should be set to `null`.
+The `units` field indicates the measurement units for the data item. This is essential for interpreting the data correctly, especially in scientific calculations where dimensions must be consistent. Examples of units include `meters` for length, `seconds` for time, `Kelvin` for temperature, etc.
+If the data does not have units (e.g., it's a count or a dimensionless quantity), this should be set to `null`. This specification helps prevent errors in data interpretation by clearly stating when units are not applicable.
+
+In summary, these schema definitions serve as a blueprint for the data, providing all necessary details to use, interpret, and process the data correctly. Each aspect of the schema plays a critical role in data management and utilization.
 
 ## Data types
 
