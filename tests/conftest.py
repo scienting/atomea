@@ -48,16 +48,6 @@ def turn_on_logging():
 
 
 @pytest.fixture
-def base_atomea():
-    schema_dir = importlib.resources.files("atomea.schemas")
-    schema_paths = []
-    for file_path in schema_dir.iterdir():
-        if file_path.suffix == ".yaml" or file_path.suffix == ".yml":
-            schema_paths.append(file_path)
-    return Atomea(schema_paths)
-
-
-@pytest.fixture
 def globus_simlify_url():
     return "https://g-9e1ff7.1d26db.e229.dn.glob.us"
 

@@ -1,9 +1,11 @@
-description: |
-  Information pertaining to a classical force field (ff) topology.
+from pydantic import BaseModel, Field
 
-ff_atom_type:
-  description: |
-    In the context of force fields used in molecular dynamics simulations, an
+
+class TopologySchema(BaseModel):
+    """Information that specifies the physical atomistic system."""
+
+    ff_atom_type: list[str] | None = Field(default=None)
+    """In the context of force fields used in molecular dynamics simulations, an
     "atom type" refers to a specific classification assigned to individual atoms within
     a molecular system based on certain characteristics.
     Atom types play a crucial role in defining the parameters and potential
@@ -14,8 +16,4 @@ ff_atom_type:
     These parameters include values such as atomic mass, partial charges, van der
     Waals radii, and bond, angle, and dihedral force constants.
     The specific values for these parameters are determined based on experimental
-    data and quantum mechanical calculations.
-  shape:
-    - "n_atoms"
-  dtype: utf-8
-  units: null
+    data and quantum mechanical calculations."""
