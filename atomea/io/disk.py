@@ -5,8 +5,7 @@ from collections.abc import Iterable, MutableSequence
 
 import numpy as np
 
-from ..digesters import Digester
-from ..schema import Atomea
+from ..schemas import EnsembleSchema
 from ..utils import get_obj_from_string
 
 
@@ -25,9 +24,9 @@ class DiskData:
         self.table_structure_fields: dict[str, str] = {}
 
     def write_data(
-        self, dest: str, idx: int, data: dict[str, Any], atomea: Atomea
+        self, dest: str, idx: int, data: dict[str, Any], ensemble_schema: EnsembleSchema
     ) -> None:
-        array_keys = atomea.storage_forms["array"]
+        array_keys = ensemble_schema.storage_forms["array"]
         for k in array_keys:
             v = np.array(data[k]) if not isinstance(data[k], np.ndarray) else data[k]
             self.backend_array.write(self.arrays[k], v, idx)
@@ -37,13 +36,13 @@ class DiskData:
         if idx > 0:
             return
 
-        table_fields_atoms = atomea.table_fields["atoms"]
+        table_fields_atoms = ensemble_schema.table_fields["atoms"]
         if table_fields_atoms:
             data_path = os.path.join(dest, "atoms")
             data_tabular = {k: data[k] for k in table_fields_atoms.keys()}
             self.backend_tabular.write(data_path, data_tabular, table_fields_atoms)
 
-        table_fields_structures = atomea.table_fields["structures"]
+        table_fields_structures = ensemble_schema.table_fields["structures"]
         if table_fields_structures:
             data_path = os.path.join(dest, "structures")
             data_tabular = {k: data[k] for k in table_fields_structures.keys()}
@@ -52,7 +51,7 @@ class DiskData:
     def store(
         self,
         dest: str,
-        atomea: Atomea,
+        ensemble_schema: EnsembleSchema,
         digester: Any,
         digester_args: Iterable[Any],
         digester_kwargs: dict[str, Any],
@@ -66,10 +65,10 @@ class DiskData:
             digester_args: Iterable of arguments to pass to the digester.
             digester_kwargs: Iterable of keyword arguments to pass to the digester.
         """
-        schema = atomea.get()
+        schema = ensemble_schema.get()
 
         # Initialize all arrays
-        self.array_keys = atomea.storage_forms["array"]
+        self.array_keys = ensemble_schema.storage_forms["array"]
         self.arrays = {
             k: self.backend_array.initialize(
                 dest,
@@ -83,6 +82,6 @@ class DiskData:
         # for "atoms" and "structures".
 
         for idx, data in enumerate(
-            digester.digest_step(atomea, *digester_args, **digester_kwargs)
+            digester.digest_step(ensemble_schema, *digester_args, **digester_kwargs)
         ):
-            self.write_data(dest, idx, data, atomea)
+            self.write_data(dest, idx, data, ensemble_schema)

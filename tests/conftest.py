@@ -1,40 +1,23 @@
-import importlib
 import os
-import shutil
 
 import pytest
-import requests
-from requests.compat import urljoin
+from google.cloud import storage
 
 from atomea import enable_logging
-from atomea.schema import Atomea
 
 TEST_DIR = os.path.dirname(__file__)
 CACHE_DIR = os.path.join(TEST_DIR, "cache")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv(
+    "GOOGLE_APPLICATION_CREDENTIALS", ""
+)
 
 
-def download_file(url, local_path):
-    os.makedirs(os.path.dirname(local_path), exist_ok=True)
-    response = requests.get(url, timeout=10, stream=True)
-    if response.status_code == 200:
-        with open(local_path, "wb") as f:
-            f.write(response.content)
-    else:
-        raise RuntimeError(f"Failed to download file at {url}")
-
-
-def download_files(dest, base_url, slugs):
-    paths = [os.path.join(dest, s) for s in slugs]
-    if not os.path.exists(dest):
-        os.makedirs(dest)
-        urls = [urljoin(base_url, s) for s in slugs]
-        try:
-            for url, path in zip(urls, paths):
-                download_file(url, path)
-        except RuntimeError:
-            shutil.rmtree(dest)
-            raise
-    return paths
+def download_from_gcs(bucket_name, source_blob_name, destination_file_name):
+    """Download a file from GCS bucket."""
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
 
 
 @pytest.fixture
@@ -48,15 +31,20 @@ def turn_on_logging():
 
 
 @pytest.fixture
-def globus_simlify_url():
-    return "https://g-9e1ff7.1d26db.e229.dn.glob.us"
+def amber_rogfp2_sim_paths():
+    bucket_name = "atomea-tests"
+    source_dir = "amber_rogfp2_sims"
+    destination_dir = os.path.join(CACHE_DIR, source_dir)
 
+    if not os.path.exists(destination_dir):
+        os.makedirs(destination_dir)
 
-@pytest.fixture
-def uuid_simlify_rogfp2(globus_simlify_url):  # pylint: disable=redefined-outer-name
-    uuid = "f7498a8c-d021-491c-a343-10151e81434a"
-    base_url = urljoin(globus_simlify_url, uuid) + "/"
-    dest = os.path.join(CACHE_DIR, uuid)
-    slugs = ["topo/mol.prmtop", "outputs/07_relax_npt.nc"]
-    download_files(dest, base_url, slugs)
-    return dest
+    paths = {
+        "mol.prmtop": os.path.join(destination_dir, "mol.prmtop"),
+        "07_relax_npt.nc": os.path.join(destination_dir, "07_relax_npt.nc"),
+    }
+    for file_name, save_path in paths.items():
+        source_blob_name = os.path.join(source_dir, file_name)
+        if not os.path.exists(save_path):
+            download_from_gcs(bucket_name, source_blob_name, save_path)
+    return paths

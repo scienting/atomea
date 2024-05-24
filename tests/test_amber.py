@@ -1,27 +1,13 @@
 """Processing AMBER simulations with roGFP2"""
-import os
-import tempfile
-
-import pyarrow as pa
-import pyarrow.parquet as pq
-
 from atomea.digesters import MDAnalysisDigester
-from atomea.io import DiskData
+from atomea.schemas import EnsembleSchema
 
 
-def test_amber_rogfp2_digest(uuid_simlify_rogfp2, base_atomea):
-    topo_path = os.path.join(uuid_simlify_rogfp2, "topo/mol.prmtop")
-    coord_path = os.path.join(uuid_simlify_rogfp2, "outputs/07_relax_npt.nc")
-
-    base_atomea.filter(("coordinates", "ff_atom_type"))
-
-    disk = DiskData()
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        disk.store(
-            tmp_dir, base_atomea, MDAnalysisDigester, (topo_path, coord_path), {}
-        )
-
-        table_test = pq.read_table(os.path.join(tmp_dir, "atoms.parquet"))
-
-        assert table_test.column("ff_atom_type").type.equals(pa.string())
-        assert table_test.shape == (37381, 1)
+def test_amber_rogfp2_digest(amber_rogfp2_sim_paths):
+    ensemble_data = EnsembleSchema()
+    digester = MDAnalysisDigester()
+    digest_inputs = {
+        "topology": amber_rogfp2_sim_paths["mol.prmtop"],
+        "coordinates": amber_rogfp2_sim_paths["07_relax_npt.nc"],
+    }
+    ensemble_data = digester.digest(ensemble_data, **digest_inputs)

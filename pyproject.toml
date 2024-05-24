@@ -21,13 +21,13 @@ pyarrow = "^14.0.2"
 black = "^23.9.0"
 isort = "^5.12.0"
 pre-commit = "^3.4.0"
-pylint = "^2.17.5"
 mypy = "^1.5.1"
 mypy-extensions = "^1.0.0"
 bump-my-version = "^0.11.0"
 poetry-dynamic-versioning = "^1.1.0"
 mdanalysis = "^2.6.1"
 requests = "^2.31.0"
+ruff = "^0.4.5"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.2"
@@ -35,6 +35,7 @@ pytest-cov = "^4.1.0"
 pytest-html = "^4.0.1"
 coverage = "^7.3.1"
 colorama = "^0.4.6"
+google-cloud-storage = "^2.16.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.5.3"
@@ -71,25 +72,30 @@ folders = [
     { path = "conda_poetry_liaison" },
 ]
 
-[tool.pylint.messages_control]
-good-names = [
-    "i",
-    "j",
-    "e",
-    "ex",
-]
-ignore = [
-    "CVS",
-    "conf.py",
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+indent-width = 4
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "env",
+    "venv",
 ]
 
-[tool.black]
-target-version = [
-    "py311",
-]
-line-length = 88
-color = true
-exclude = "/(\n    \\.git\n    | \\.hg\n    | \\.mypy_cache\n    | \\.tox\n    | \\.venv\n    | _build\n    | buck-out\n    | build\n    | dist\n    | env\n    | venv\n)/\n"
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
 
 [tool.isort]
 py_version = 311

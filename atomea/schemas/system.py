@@ -1,10 +1,12 @@
 import numpy as np
 import numpy.typing as npt
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class SystemSchema(BaseModel):
     """Information that specifies the physical atomistic system."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     atom_z: npt.NDArray[np.uint8] | None = Field(default=None)
     """The atomic number is a fundamental property of an atom and is denoted by the
@@ -12,7 +14,7 @@ class SystemSchema(BaseModel):
     In a neutral atom, the atomic number also corresponds to the number of electrons
     orbiting the nucleus."""
 
-    @validator("atom_z", pre=True)
+    @field_validator("atom_z")
     def validate_atom_z(cls, v):
         if v is None:
             return v
@@ -33,7 +35,7 @@ class SystemSchema(BaseModel):
     In a neutral atom, the atomic number also corresponds to the number of electrons
     orbiting the nucleus."""
 
-    @validator("atom_symbol", pre=True)
+    @field_validator("atom_symbol")
     def validate_atom_symbol(cls, v):
         if v is None:
             return v
@@ -53,7 +55,7 @@ class SystemSchema(BaseModel):
     defined using a set of Cartesian coordinates ($x$, $y$, $z$).
     """
 
-    @validator("coordinates", pre=True)
+    @field_validator("coordinates")
     def validate_coordinates(cls, v):
         if v is None:
             return v
