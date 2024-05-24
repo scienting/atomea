@@ -1,7 +1,7 @@
 default:
   image: registry.gitlab.com/oasci/software/atomea:env
   before_script:
-    - poetry install --only-root
+    - poetry install --with tests
 
 
 tests:
