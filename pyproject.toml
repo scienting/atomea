@@ -68,9 +68,6 @@ format-jinja = "{%- if distance == 0 -%}{{ serialize_pep440(base) }}{%- else -%}
 patterns = [
     "(^__version__\\s*(?::.*?)?=\\s*['\"])[^'\"]*(['\"])",
 ]
-folders = [
-    { path = "conda_poetry_liaison" },
-]
 
 [tool.ruff]
 target-version = "py311"

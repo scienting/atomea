@@ -34,9 +34,6 @@ theme:
     - content.code.annotate
     - content.code.copy
     - content.code.select
-    - navigation.instant
-    - navigation.instant.prefetch
-    - navigation.instant.progress
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.tracking
@@ -68,7 +65,7 @@ plugins:
           options:
             annotations_path: brief
             docstring_style: google
-            docstring_section_style: list
+            docstring_section_style: spacy
             show_if_no_docstring: true
             show_docstring_yields: true
             show_docstring_examples: true
@@ -80,7 +77,9 @@ plugins:
             show_symbol_type_toc: true
             show_root_members_full_path: true
             show_source: false
+            merge_init_into_class: true
             line_length: 88
+            show_root_heading: false
   - awesome-pages:
         collapse_single_pages: true
         strict: false
