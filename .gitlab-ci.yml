@@ -7,8 +7,8 @@ default:
 tests:
   stage: test
   script:
-    - poetry install --only test
-    - export GOOGLE_APPLICATION_CREDENTIALS=/tmp/secure_files/atomea-691142bc6c0a.json
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
+    - export GOOGLE_APPLICATION_CREDENTIALS=.secure_files/atomea-691142bc6c0a.json
     - pytest -c pyproject.toml --cov=atomea --cov-report=xml --junit-xml=report.xml --color=yes tests/
     - coverage report  # for displaying coverage in job logs
 
@@ -29,8 +29,6 @@ tests:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_TAG
     - if: "$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH"
-  variables:
-    SECURE_FILES_DOWNLOAD_PATH: '/tmp/secure_files'
 
 
 pages:

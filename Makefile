@@ -198,6 +198,10 @@ open-docs:
 
 ###   DEPLOY   ###
 
+.PHONY: docker-auth
+docker-auth:
+	docker login registry.gitlab.com
+
 .PHONY: docker-build-env
 docker-build-env:
 	docker build -t registry.gitlab.com/oasci/software/atomea:env -f ./docker/Dockerfile-env .
