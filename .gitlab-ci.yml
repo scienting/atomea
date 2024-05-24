@@ -1,12 +1,13 @@
 default:
   image: registry.gitlab.com/oasci/software/atomea:env
   before_script:
-    - poetry install --with tests
+    - poetry install --only-root
 
 
 tests:
   stage: test
   script:
+    - poetry install --only test
     - export GOOGLE_APPLICATION_CREDENTIALS=/tmp/secure_files/atomea-691142bc6c0a.json
     - pytest -c pyproject.toml --cov=atomea --cov-report=xml --junit-xml=report.xml --color=yes tests/
     - coverage report  # for displaying coverage in job logs
@@ -35,7 +36,6 @@ tests:
 pages:
   stage: deploy
   script:
-    - ./docs/copy_schemas.py
     - mkdocs build -d public/
   artifacts:
     paths:
