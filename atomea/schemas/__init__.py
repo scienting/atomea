@@ -1,3 +1,3 @@
-from .main import EnsembleSchema, MoleculeSchema
+from .main import AtomeaSchema
 
-__all__ = ["EnsembleSchema", "MoleculeSchema"]
+__all__ = ["AtomeaSchema"]
