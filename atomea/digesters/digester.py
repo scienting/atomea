@@ -4,7 +4,7 @@ import inspect
 from abc import ABC, abstractmethod
 from collections.abc import Collection
 
-from ..schemas import EnsembleSchema, MoleculeSchema
+from ..schemas.atomistic import EnsembleSchema, MoleculeSchema
 
 
 class Digester(ABC):

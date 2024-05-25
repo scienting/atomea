@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from .atomistic.ensemble import EnsembleSchema
+from .atomistic import EnsembleSchema
 from .id import IdentificationSchema
 from .slurm import SlurmSchema
 

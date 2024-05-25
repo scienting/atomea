@@ -1,6 +1,6 @@
 """Processing AMBER simulations with roGFP2"""
 from atomea.digesters import MDAnalysisDigester
-from atomea.schemas import EnsembleSchema
+from atomea.schemas.atomistic import EnsembleSchema
 
 
 def test_amber_rogfp2_digest(amber_rogfp2_sim_paths):
