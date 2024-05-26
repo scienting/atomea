@@ -1,4 +1,5 @@
 nav:
     - Home: index.md
-    - Schemas: schemas
+    - Concepts: concepts
+    - Examples: examples
     - API: api
