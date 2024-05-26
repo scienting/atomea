@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "atomea"
-version = "0.0.0"
+version = "0.0.0.post89"
 description = "Extensible schema for atomistic simulations and calculations."
 authors = [
     "OASCI <us@oasci.org>",
@@ -36,6 +36,7 @@ poetry-dynamic-versioning = "^1.1.0"
 requests = "^2.31.0"
 ruff = "^0.4.5"
 types-pyyaml = "^6.0.12.20240311"
+twine = "^5.1.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.2"
@@ -68,7 +69,7 @@ search = "\\[Unreleased\\]"
 replace = "[Unreleased]\n\n## [{new_version}] - {now:%Y-%m-%d}"
 
 [tool.poetry-dynamic-versioning]
-enable = true
+enable = false
 vcs = "git"
 format-jinja = "{%- if distance == 0 -%}{{ serialize_pep440(base) }}{%- else -%}{{ serialize_pep440(base, post=distance) }}{%- endif -%}"
 

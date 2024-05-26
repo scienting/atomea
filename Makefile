@@ -119,12 +119,19 @@ lint: check-codestyle mypy
 
 
 
-###   BUILDING   ###
+###   DEPLOY   ###
 
 .PHONY: build
 build:
 	$(CONDA) poetry build
 
+.PHONY: publish-test
+publish-test:
+	$(CONDA) python3 -m twine upload --repository testpypi dist/*
+
+.PHONY: publish
+publish:
+	$(CONDA) python3 -m twine upload dist/*
 
 
 ###   CLEANING   ###
@@ -196,7 +203,7 @@ docs:
 open-docs:
 	xdg-open public/index.html 2>/dev/null
 
-###   DEPLOY   ###
+###   DOCKER   ###
 
 .PHONY: docker-auth
 docker-auth:
