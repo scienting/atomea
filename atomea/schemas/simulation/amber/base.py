@@ -1,5 +1,5 @@
 """Simulation contexts for Amber"""
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -10,23 +10,23 @@ class AmberSchemaBase(BaseModel):
     imin: Literal[0, 1] = Field(default=0)
     """Flag for running the energy minimization procedure.
 
-    - 0 Perform molecular dynamics simulation.
-    - 1 Perform energy minimization.
+    -   `0`: Perform molecular dynamics simulation.
+    -   `1`: Perform energy minimization.
     """
 
     irest: Literal[0, 1] = Field(default=0)
     """Flag to restart a simulation.
 
-        0` Do not restart the simulation.
-        1` Restart the simulation.
+    -   `0`: Do not restart the simulation.
+    -   `1`: Restart the simulation.
     """
 
     ntx: Literal[1, 2, 5] = Field(default=0)
     """Option to read the coordinates from `inpcrd` file.
 
-        1` File is read with no initial velocity information.
-        2` File is read unformatted with no initial velocity information.
-        5` Coordinates and velocities will be read.
+    -   `1`: File is read with no initial velocity information.
+    -   `2`: File is read unformatted with no initial velocity information.
+    -   `5`: Coordinates and velocities will be read.
 
     Velocity information will only be used if `irst = 1`.
     """
@@ -34,11 +34,14 @@ class AmberSchemaBase(BaseModel):
     ntmin: Literal[1, 2, 5] = Field(default=0)
     """Flag for selecting minimization type.
 
-    - 0` Full conjugate gradient minimization.
-        The first four cycles are steepest descent at the start of the run and after every nonbonded pair list update.
-        Conjugate gradient is slower than steepest descent when far from a minimum. Still, it becomes more efficient when close to the minimum.
-    - 1` For `ncyc` cycles, the steepest descent method is used then the conjugate gradient is switched on. **[ recommended ]**
-    - 2` Only the steepest descent method is used.
+    -   `0`: Full conjugate gradient minimization.
+        The first four cycles are steepest descent at the start of the run and after
+        every nonbonded pair list update. Conjugate gradient is slower than steepest
+        descent when far from a minimum. Still, it becomes more efficient when close
+        to the minimum.
+    -   `1`: For `ncyc` cycles, the steepest descent method is used then the conjugate
+        gradient is switched on. **[ recommended ]**
+    -   `2`: Only the steepest descent method is used.
         This algorithm is fairly popular because it is robust and easy to implement.
     """
 
@@ -85,8 +88,8 @@ class AmberSchemaBase(BaseModel):
     ntr: Literal[0, 1] = Field(default=0)
     """Flag for restraining positions of specified atoms using a harmonic potential.
 
-    - 0` No constraints.
-    - 1` Constrain atoms specified in `restraintmask`.
+    -   `0`: No constraints.
+    -   `1`: Constrain atoms specified in `restraintmask`.
     """
 
     restraint_wt: float = Field(default=4.0)
@@ -98,13 +101,16 @@ class AmberSchemaBase(BaseModel):
 
     restraintmask: str = Field(default="!(@H=)")
     """Strings that specify the restricted atoms when `ntr = 1`.
-    To see what atoms will be restrained, you can use `ambmask -p mol.prmtop -c mol.inpcrd -out pdb -find "RESTRAINT_STRING"` in `ambertools`.
-    Here are some examples of `restraintmask`s and their descriptions.
+    To see what atoms will be restrained, you can use
+    `ambmask -p mol.prmtop -c mol.inpcrd -out pdb -find "RESTRAINT_STRING"`
+    in `ambertools`. Here are some examples of `restraintmask`s and their descriptions.
 
-    - "!(@H=)"`: Restrain all atoms except hydrogens.
-    - "!(:WAT) & !(@H=)"`: Restrain all atoms except hydrogens and water molecules.
-    - "!(:WAT) & !(@H=) & !(:Na+,Cl-)"`: Same as above, but does not also restrain Na<sup>+</sup> and Cl<sup>-</sup> ions.
-    - "!(:WAT) & (@C,CA,N,O,O5',P,O3',C3',C4',C5')"`: Restrains protein, DNA, and RNA backbone atoms.
+    -   "!(@H=)"`: Restrain all atoms except hydrogens.
+    -   "!(:WAT) & !(@H=)"`: Restrain all atoms except hydrogens and water molecules.
+    -   "!(:WAT) & !(@H=) & !(:Na+,Cl-)"`: Same as above, but does not also restrain
+        Na<sup>+</sup> and Cl<sup>-</sup> ions.
+    -   "!(:WAT) & (@C,CA,N,O,O5',P,O3',C3',C4',C5')"`: Restrains protein, DNA, and RNA
+        backbone atoms.
 
     We must include the `!(:WAT)` to avoid restraining oxygen atoms in the water molecules.
     (TODO: Confirm that atoms after `O` are restraining DNA and RNA backbone atoms.)
@@ -114,25 +120,25 @@ class AmberSchemaBase(BaseModel):
     """Flag for periodic boundary conditions when computing non-bonded interactions.
     Bonds that cross the boundary are not supported.
 
-    - 0` No periodic boundary conditions.
-    - 1` Constant volume.
-    - 2` Constant pressure.
+    -   `0`: No periodic boundary conditions.
+    -   `1`: Constant volume.
+    -   `2`: Constant pressure.
     """
 
     ntf: Literal[1, 2, 3] = Field(default=1)
     """Force evaluation type.
 
-    - 1` All contributions. **[ required for minimization ]**
-    - 2` Ignore bond interactions involving hydrogens (when `ntc = 2`).
-    - 3` All bond interactions are omitted (when `ntc = 3`).
+    -   `1`: All contributions. **[ required for minimization ]**
+    -   `2`: Ignore bond interactions involving hydrogens (when `ntc = 2`).
+    -   `3`: All bond interactions are omitted (when `ntc = 3`).
     """
 
     ntc: Literal[1, 2, 3] = Field(default=1)
     """Flag for SHAKE to perform bond length constraints.
 
-    - 1` No SHAKE. **[ required for minimization ]**
-    - 2` Bonds involving hydrogen are constrained. **[ recommended for MD ]**
-    - 3` All bonds are constrained.
+    -   `1`: No SHAKE. **[ required for minimization ]**
+    -   `2`: Bonds involving hydrogen are constrained. **[ recommended for MD ]**
+    -   `3`: All bonds are constrained.
 
     (Not available for parallel or qmmm runs in sander).
     """
@@ -148,19 +154,22 @@ class AmberSchemaBase(BaseModel):
     ntt: Literal[0, 1, 2, 3, 9, 10, 11] = Field(default=3)
     """Switch for temperature scaling.
 
-    - 0` Constant total energy (NVE).
-    - 1` Constant temperature using the weak-coupling algorithm.
+    -   `0`: Constant total energy (NVE).
+    -   `1`: Constant temperature using the weak-coupling algorithm.
         A single scaling factor is used for all atoms.
         Generally not recommended.
-    - 2` Andersen-like temperature coupling scheme, in which imaginary "collisions" are performed with heat bath of temperature `temp0` every `vrand` steps.
-    - 3` Use Langevin dynamics with the collision frequency `gamma_ln`.
-        Since Langevin simulations are highly susceptible to "synchronization" artifacts, you should explicitly set `ig` to a different value every restart (e.g., `-1`).
-        **[ recommended ]**
-    - 9` Optimized Isokinetic Nose-Hoover chain ensemble (OIN).
+    -   `2`: Andersen-like temperature coupling scheme, in which imaginary "collisions"
+        are performed with heat bath of temperature `temp0` every `vrand` steps.
+    -   `3`: Use Langevin dynamics with the collision frequency `gamma_ln`.
+        Since Langevin simulations are highly susceptible to "synchronization"
+        artifacts, you should explicitly set `ig` to a different value every
+        restart (e.g., `-1`). **[ recommended ]**
+    -   `9`: Optimized Isokinetic Nose-Hoover chain ensemble (OIN).
         Implemented mainly for 3D-RISM and RESPA simulations.
-    - 10` Stochastic Isokinetic Nose-Hoover RESPA integrator.
+    -   `10`: Stochastic Isokinetic Nose-Hoover RESPA integrator.
         Mainly used for RESPA simulations.
-    - 11` Stochastic version of Berendsen thermostat, also known as the Bussi thermostat.
+    -   `11`: Stochastic version of Berendsen thermostat, also known as the
+        Bussi thermostat.
     """
 
     tempi: float = Field(default=100.0)
@@ -175,27 +184,29 @@ class AmberSchemaBase(BaseModel):
 
     gamma_ln: float = Field(default=2.0)
     """The collision frequency, $\gamma$, when `ntt = 3`.
-    Note that $\gamma$ doesn't need to approximate the physical collision frequency, which is about 50 ps<sup>-1</sup>.
-    In fact, it is often advantageous to use smaller values around 2 to 5 ps<sup>-1</sup>.
+    Note that $\gamma$ doesn't need to approximate the physical collision frequency,
+    which is about 50 ps<sup>-1</sup>. In fact, it is often advantageous to use smaller
+    values around 2 to 5 ps<sup>-1</sup>.
     (TODO: More information?)
     """
 
     ntp: Literal[0, 1, 2] = Field(default=1)
     """Flag for constant pressure dynamics.
 
-    - 0` No pressure scaling.
-    - 1` Isotropic position scaling. **[ recommended ]**
-    - 2` Anisotropic pressure scaling that can only be used orthogonal boxes.
+    -   `0`: No pressure scaling.
+    -   `1`: Isotropic position scaling. **[ recommended ]**
+    -   `2`: Anisotropic pressure scaling that can only be used orthogonal boxes.
 
-    Usually, this is only used for membrane simulations, where the surface tensions are different for x, y, and z directions.
-    Solutes dissolved in water should not use this.
+    Usually, this is only used for membrane simulations, where the surface tensions are
+    different for x, y, and z directions. Solutes dissolved in water should not use
+    this.
     """
 
     barostat: Literal[1, 2] = Field(default=2)
     """Flab used to control which barostat is used in order to control the pressure.
 
-    - 1` Berendsen.
-    - 2` Monte Carlo. **[ recommended ]**
+    -   `1`: Berendsen.
+    -   `2`: Monte Carlo. **[ recommended ]**
     """
 
     pres0: float = Field(default=1.01325)
@@ -204,33 +215,34 @@ class AmberSchemaBase(BaseModel):
     """
 
     mcbarint: int = Field(default=100)
-    """Number of steps between volume change attempts performed as part of the Monte Carlo barostat.
-    `100` is usually the value.
+    """Number of steps between volume change attempts performed as part of the
+    Monte Carlo barostat. `100` is usually the value.
     """
 
     comp: float = Field(default=44.6)
-    """Compressibility of the system when `npt > 0` in units of 10<sup>-6</sup> bar<sup>-1</sup>.
-    A value of `44.6` is appropriate for water.
+    """Compressibility of the system when `npt > 0` in units of
+    10<sup>-6</sup> bar<sup>-1</sup>. A value of `44.6` is appropriate for water.
     """
 
     taup: float = Field(default=1.0)
     """Pressure relaxation time in picoseconds when `ntp > 0`.
-    Recommended values are between `1.0` and `5.0`.
-    Start with `1.0`, but if your simulations are unstable, you may need to increase this value.
+    Recommended values are between `1.0` and `5.0`. Start with `1.0`, but if your
+    simulations are unstable, you may need to increase this value.
     """
 
     ntxo: Literal[1, 2] = Field(default=2)
     """Format of the final coordinates, velocities, and box size.
 
-    - 1` ASCII.
-    - 2` Binary NetCDF file. **[ recommended ]**
+    -   `1`: ASCII.
+    -   `2`: Binary NetCDF file. **[ recommended ]**
     """
 
     ntwr: int = Field(default=1000)
     """Write the restart file every `ntwr` steps.
     A restart file is always written at the end of every run.
-    One should be cautious about saving too frequently, as the file size will grow quickly, and samples may be time-correlated.
-    Reasonable values are between `100` and `2000`; however, some situations could call for values outside this range.
+    One should be cautious about saving too frequently, as the file size will grow
+    quickly, and samples may be time-correlated. Reasonable values are between `100` and
+    `2000`; however, some situations could call for values outside this range.
     """
 
     ntpr: int = Field(default=1000)
@@ -247,13 +259,14 @@ class AmberSchemaBase(BaseModel):
     ioutfm: Literal[0, 1] = Field(default=1)
     """Format of coordinate and velocity trajectory files.
 
-    - 0` ASCII.
-    - 1` Binary NetCDF files. **[ recommended ]**
+    -   `0`: ASCII.
+    -   `1`: Binary NetCDF files. **[ recommended ]**
     """
 
     iwrap: Literal[0, 1] = Field(default=1)
     """Flag for wrapping coordinates around the periodic boundary.
 
-    - 0` No wrapping.
-    - 1` If atoms move across the periodic boundary, amber will wrap them around to the other side. **[ recommended ]**
+    -   `0`: No wrapping.
+    -   `1`: If atoms move across the periodic boundary, amber will wrap them around
+        to the other side. **[ recommended ]**
     """
