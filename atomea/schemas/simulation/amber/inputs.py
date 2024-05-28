@@ -6,9 +6,7 @@ from pydantic import BaseModel, Field
 from ...io import IOBase
 
 
-class AmberSchemaBase(BaseModel, IOBase):
-    r"""Validate Amber contexts."""
-
+class AmberInputsBase(BaseModel, IOBase):
     imin: Literal[0, 1] = Field(default=0)
     """Flag for running the energy minimization procedure.
 

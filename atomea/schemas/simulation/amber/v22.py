@@ -3,11 +3,18 @@ from typing import Literal
 
 from pydantic import Field
 
-from .base import AmberSchemaBase
+from .inputs import AmberInputsBase
+from .schema import AmberSchemaBase
+
+
+class Amber22Inputs(AmberInputsBase):
+    pass
 
 
 class Amber22Schema(AmberSchemaBase):
     r"""Amber 22 schema for simulation contexts."""
+
+    inputs: Amber22Inputs = Field(default_factory=Amber22Inputs)
 
     ff_protein: Literal[
         "ff19SB",
