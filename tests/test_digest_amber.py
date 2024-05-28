@@ -3,7 +3,7 @@ from atomea.digesters import MDAnalysisDigester
 from atomea.schemas.atomistic import EnsembleSchema
 
 
-def test_amber_rogfp2_digest(amber_rogfp2_sim_paths):
+def test_digest_amber_rogfp2(amber_rogfp2_sim_paths):
     """
     Test the digestion of Amber simulations using the roGFP2 ensemble.
 
