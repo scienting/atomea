@@ -3,8 +3,10 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from ...io import IOBase
 
-class AmberSchemaBase(BaseModel):
+
+class AmberSchemaBase(BaseModel, IOBase):
     r"""Validate Amber contexts."""
 
     imin: Literal[0, 1] = Field(default=0)

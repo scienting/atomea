@@ -1,10 +1,10 @@
 from pydantic import BaseModel, Field
 
-from ..io import YamlIO
+from ..io import IOBase
 from .molecule import MoleculeSchema
 
 
-class EnsembleSchema(BaseModel, YamlIO):
+class EnsembleSchema(BaseModel, IOBase):
     """The EnsembleSchema class is a Pydantic model designed to represent a
     collection of molecular structures, referred to as frames. This class is used to
     manage and validate an ensemble of molecular data, facilitating the handling of

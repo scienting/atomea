@@ -3,7 +3,7 @@ from typing import Any
 import yaml
 
 
-class YamlIO:
+class IOBase:
     def update(self, data: dict[str, Any]) -> None:
         """Update the fields of the Schema instance with the provided data.
 

@@ -1,7 +1,9 @@
 from pydantic import BaseModel, Field
 
+from ..io import IOBase
 
-class TopologySchema(BaseModel):
+
+class TopologySchema(BaseModel, IOBase):
     """Information that specifies the physical atomistic system."""
 
     ff_atom_type: list[str] | None = Field(default=None)

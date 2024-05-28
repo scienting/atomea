@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
-from .io import YamlIO
+from .io import IOBase
 
 
-class SlurmSchema(BaseModel, YamlIO):
+class SlurmSchema(BaseModel, IOBase):
     """Context manager for Slurm job submission scripts.
 
     This class provides a structured way to define and manage the configuration for

@@ -1,13 +1,13 @@
 from pydantic import BaseModel, Field
 
 from ..id import IdentificationSchema
-from ..io import YamlIO
+from ..io import IOBase
 from .qc import QCSchema
 from .system import SystemSchema
 from .topology import TopologySchema
 
 
-class MoleculeSchema(BaseModel, YamlIO):
+class MoleculeSchema(BaseModel, IOBase):
     """The MoleculeSchema class is a Pydantic model designed to represent a molecule in
     a structured and validated format. This class integrates various aspects of a
     molecule, including its identification, quantum chemistry properties,

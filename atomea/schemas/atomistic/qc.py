@@ -1,7 +1,9 @@
 from pydantic import BaseModel, Field
 
+from ..io import IOBase
 
-class QCSchema(BaseModel):
+
+class QCSchema(BaseModel, IOBase):
     """This section encompasses data pertaining to quantum mechanical descriptions or
     calculations that are not covered in the [system documentation](./system.md).
     It includes specialized parameters and results specific to quantum mechanics that
