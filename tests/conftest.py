@@ -6,10 +6,19 @@ from google.cloud import storage
 from atomea import enable_logging
 
 TEST_DIR = os.path.dirname(__file__)
+TMP_DIR = os.path.join(TEST_DIR, "tmp")
 CACHE_DIR = os.path.join(TEST_DIR, "cache")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv(
     "GOOGLE_APPLICATION_CREDENTIALS", ""
 )
+
+
+def pytest_sessionstart(session):  # pytest_configure(config)
+    r"""Called after the Session object has been created and
+    before performing collection and entering the run test loop.
+    """
+    # Creates a tmp directory for writing files.
+    os.makedirs(TMP_DIR, exist_ok=True)
 
 
 def download_from_gcs(bucket_name, source_blob_name, destination_file_name):
