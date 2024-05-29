@@ -6,45 +6,120 @@ from ...io import IOBase
 
 
 class AmberInputsBase(BaseModel, IOBase):
-    imin: Literal[0, 1] = Field(default=0)
+    imin: Literal[0, 1, 5, 6, 7] = Field(default=0)
     """Flag for running the energy minimization procedure.
 
-    -   `0`: Perform molecular dynamics (MD) simulation. This mode generates
-        configurations by integrating Newtonian equations of motion, allowing the
-        system to sample more configurational space and cross small potential energy
-        barriers.
-    -   `1`: Perform energy minimization. This mode iteratively moves the atoms down
-        the energy gradient to relax the structure until a sufficiently low average
-        gradient is obtained. Minimization is useful for preparing a system before
-        MD simulations to remove bad contacts and high-energy configurations.
+    **`0`**
+
+    Perform molecular dynamics (MD) simulation. This mode generates
+    configurations by integrating Newtonian equations of motion, allowing the
+    system to sample more configurational space and cross small potential energy
+    barriers.
+
+    **`1`**
+
+    Perform energy minimization. This mode iteratively moves the atoms down
+    the energy gradient to relax the structure until a sufficiently low average
+    gradient is obtained. Minimization is useful for preparing a system before
+    MD simulations to remove bad contacts and high-energy configurations.
+
+    **`5`**
+
+    Read in a trajectory for analysis using the minimization algorithms.
+
+    Although sander will write energy information in the output files (using `ntpr`), it is often
+    desirable to calculate the energies of a set of structures at a later point. In particular, one may
+    wish to post-process a set of structures using a different energy function than was used to
+    generate the structures. An example of this is MM-PBSA analysis, where the explicit water
+    is removed and replaced with a continuum model.
+
+    If `imin` is set to `5`, sander will read a trajectory file (the `inptraj` argument, specified using
+    -y on the command line), and will perform the functions described in the mdin file (e.g.,
+    an energy minimization) for each of the structures in this file. The final structure from each
+    minimization will be written out to the normal mdcrd file. If you wish to read in a binary
+    (i.e., NetCDF format) trajectory, be sure to set ioutfm to 1 (see below). Note that this will
+    result in the output trajectory having NetCDF format as well.
+
+    For example, when imin = 5 and maxcyc = 1000, sander will minimize each structure in the
+    trajectory for 1000 steps and write a minimized coordinate set for each frame to the mdcrd
+    file. If maxcyc = 1, the output file can be used to extract the energies of each of the coordinate
+    sets in the inptraj file.
+
+    Trajectories containing box coordinates can be post-processed. In order to read trajectories
+    with box coordinates, ntb should be greater than 0.
+
+
+    **`6`**
+
+    Read in a trajectory for analysis using the molecular dynamics driver.
+
+    Like imin=5, this option reads a trajectory file for analysis (the “inptraj” argument, spec-
+    ified using -y on the command line). Instead of minimizing the potential energy of each
+    coordinate set, it instead initiates dynamics from each frame as if it were read as a restart
+    file without initial velocities. That is, this option is equivalent to outputting each frame as a
+    restart file and starting the dynamics with irest=0. If nstlim=0, then this effectively performs
+    a single point energy for each frame.
+
+    **`7`**
+
+    Listen to the selected internet socket and return energies and forces when instructed by an
+    external server.
+
+    When this option is set, sander does not perform MD; instead, it listens for messages from
+    a server instructing it to compute the potential energy and forces of a system. The server
+    IP address and port number are provided as command line arguments -host and -port. The
+    default values are -host 127.0.0.1 and -port 31415. The communication pattern follows the
+    protocol implemented in the i-PI software. The i-PI program is a molecular dynamics driver
+    used to perform classical and centroid path integral molecular dynamics. When i-PI performs
+    classical MD, one can instantiate a single sander process to evaluate the potential. However,
+    when i-PI is used to perform PIMD, which involves calculating potential energies for several
+    “beads” at each time step, multiple instances of sander can be launched to simultaneously
+    evaluate the required potential energies. The current implementation of the interface is lim-
+    ited to simulations in the NVE an NVT ensembles; therefore, one should launch sander with
+    a restart file whose unit cell lattice vectors are consistent with the input structure supplied to
+    i-PI.
     """
 
     irest: Literal[0, 1] = Field(default=0)
     """Flag to restart a simulation from a previously saved restart file.
-
-    -   `0`: Do not restart the simulation. The simulation will start from initial
-        coordinates and velocities as specified in the input files.
-    -   `1`: Restart the simulation from a previous run using data from the restart
-        file (e.g., coordinates, velocities, box dimensions). This is useful for
-        continuing long simulations in segments or for resuming simulations after
-        an interruption.
-
     Restarting a simulation can help in managing large simulations by breaking them
     into smaller, manageable segments and allows for continued simulation from the
     point of interruption without losing progress.
+
+    **`0`**
+
+    Do not restart the simulation; instead, run as a new simulation. Velocities in the
+    input coordinate file, if any, will be ignored, and the time step count will be set
+    to 0 (unless overridden by t; see below).
+
+
+    **`1`**
+
+    Restart the simulation, reading coordinates and velocities from a previously saved
+    restart file. The velocity information is necessary when restarting, so ntx must be
+    5 (for Amber versions much older than 20, ntx must be greater than or equal to 4),
+    if irest = 1.
     """
 
-    ntx: Literal[1, 2] = Field(default=1)
-    """Option to read the coordinates from the “inpcrd” file. Only options 1 and 2 are
-    supported in this releases. Other options will cause pbsa to issue a warning though
-    it does not affect the energy calculation.
+    ntx: Literal[1, 5] = Field(default=1)
+    """Option to read the initial coordinates, velocities, and box size from the
+    inpcrd file.
 
-    -   `1`: File is read with no initial velocity information. Suitable for
-        starting simulations with new systems where velocities are generated based
-        on `tempi`.
-    -   `2`: File is read unformatted with no initial velocity information. This is
-        less common and mainly used for specific needs when dealing with unformatted
-        coordinate files.
+    **`1`**
+
+     File is read with no initial velocity information. Suitable for
+    starting simulations with new systems where velocities are generated based
+    on `tempi`
+    Option 1 must be used when one is starting from minimized or model-built
+    coordinates.
+
+    **`5`**
+
+    File is read unformatted with no initial velocity information. This is
+    less common and mainly used for specific needs when dealing with unformatted
+    coordinate files.
+    If an MD restrt file is specified for inpcrd then option 5 is generally used
+    (unless you explicitly wish to ignore the velocities that are present).
     """
 
     ntmin: Literal[0, 1, 2, 3, 4] = Field(default=1)
@@ -52,23 +127,37 @@ class AmberInputsBase(BaseModel, IOBase):
     Flag for selecting minimization type. Determines the algorithm used for energy
     minimization.
 
-    -   `0`: Full conjugate gradient minimization. The first four cycles are steepest
-        descent at the start of the run and after every nonbonded pair list update.
-        Conjugate gradient is slower than steepest descent when far from a minimum
-        but becomes more efficient when close to the minimum.
-    -   `1`: For `ncyc` cycles, the steepest descent method is used, then the conjugate
-        gradient is switched on. This option combines the robustness of steepest
-        descent with the efficiency of conjugate gradient, making it a recommended
-        choice for many scenarios.
-    -   `2`: Only the steepest descent method is used. This algorithm is popular
-        because it is robust and easy to implement. It is generally effective for
-        systems far from equilibrium.
-    -   `3`: The XMIN method is used. This method leverages advanced optimization
-        algorithms for more efficient minimization, especially useful for large or
-        complex systems.
-    -   `4`: The LMOD method is used. This approach uses Low-Mode Conformational
-        Search combined with XMIN for energy relaxation and minimization, particularly
-        effective for exploring conformational space in flexible molecules.
+    **`0`**
+
+    Full conjugate gradient minimization. The first four cycles are steepest
+    descent at the start of the run and after every nonbonded pair list update.
+    Conjugate gradient is slower than steepest descent when far from a minimum
+    but becomes more efficient when close to the minimum.
+
+    **`1`**
+
+    For `ncyc` cycles, the steepest descent method is used, then the conjugate
+    gradient is switched on. This option combines the robustness of steepest
+    descent with the efficiency of conjugate gradient, making it a recommended
+    choice for many scenarios.
+
+    **`2`**
+
+    Only the steepest descent method is used. This algorithm is popular
+    because it is robust and easy to implement. It is generally effective for
+    systems far from equilibrium.
+
+    **`3`**
+
+    The XMIN method is used. This method leverages advanced optimization
+    algorithms for more efficient minimization, especially useful for large or
+    complex systems.
+
+    **`4`**
+
+    The LMOD method is used. This approach uses Low-Mode Conformational
+    Search combined with XMIN for energy relaxation and minimization, particularly
+    effective for exploring conformational space in flexible molecules.
     """
 
     maxcyc: int = Field(default=9999)
@@ -129,7 +218,7 @@ class AmberInputsBase(BaseModel, IOBase):
             starting velocities.
     """
 
-    dt: float = Field(default=0.002)
+    dt: float = Field(default=0.001)
     """
     The time step in picoseconds. This parameter defines the interval of time between
     each step in the simulation.
@@ -142,6 +231,12 @@ class AmberInputsBase(BaseModel, IOBase):
     Since longer simulations are usually desired, the maximum value is typically used.
     However, values lower than the maximum can be used if necessary for the phenomena of
     interest, such as high-frequency motions or other specific needs.
+
+    The use of Hydrogen Mass Repartitioning (HMR) (see [125] and references therein for more in-
+    formation), together with SHAKE, allows the time step to be increased in a stable fashion by about
+    a factor of two (up to .004) by slowing down the high frequency hydrogen motion in the system.
+    To use HMR, the masses in the topology file need to be altered before starting the simulation.
+    ParmEd can do this automatically with the HMassRepartition option.
 
     tip:
         -   Use `0.002` ps when using SHAKE (`ntc = 2`) for most standard simulations, as this
@@ -193,16 +288,19 @@ class AmberInputsBase(BaseModel, IOBase):
     ntr: Literal[0, 1] = Field(default=0)
     """
     Flag for restraining positions of specified atoms using a harmonic potential.
+    Ensure that `restraintmask` is properly defined to specify the atoms that require constraints.
 
-    -   `0`: No constraints. The positions of all atoms are free to move according to the simulation dynamics.
-    -   `1`: Constrain atoms specified in `restraintmask`. This applies a harmonic potential to the atoms
-        defined in `restraintmask`, effectively fixing their positions relative to the rest of the system.
+    **`0`**
 
-    tip:
-        -   Use `0` for fully flexible simulations where no positional restraints are needed.
-        -   Use `1` when specific atoms need to be restrained, such as in cases where you want to focus on a
-            particular region of the system while keeping another region fixed or minimally perturbed.
-        -   Ensure that `restraintmask` is properly defined to specify the atoms that require constraints.
+    No constraints. The positions of all atoms are free to move according to the simulation dynamics.
+    Use `0` for fully flexible simulations where no positional restraints are needed.
+
+    **`1`**
+
+    Constrain atoms specified in `restraintmask`. This applies a harmonic potential to the atoms
+    defined in `restraintmask`, effectively fixing their positions relative to the rest of the system.
+    Use `1` when specific atoms need to be restrained, such as in cases where you want to focus on a
+    particular region of the system while keeping another region fixed or minimally perturbed.
     """
 
     restraint_wt: float = Field(default=4.0, gt=0.0)
@@ -224,7 +322,7 @@ class AmberInputsBase(BaseModel, IOBase):
             nature and behavior of the atoms under restraint.
     """
 
-    restraintmask: str = Field(default="!(@H=)")
+    restraintmask: str = Field(default="")
     """
     Strings that specify the restricted atoms when `ntr = 1`. To see what atoms will be restrained, you can use
     `ambmask -p mol.prmtop -c mol.inpcrd -out pdb -find "RESTRAINT_STRING"` in `ambertools`. Here are some examples
@@ -250,27 +348,63 @@ class AmberInputsBase(BaseModel, IOBase):
     Flag for periodic boundary conditions when computing non-bonded interactions.
     Bonds that cross the boundary are not supported.
 
-    -   `0`: No periodic boundary conditions. This is suitable for simulations where boundary effects are not a concern, such as in isolated systems or gas-phase simulations.
-    -   `1`: Constant volume. This maintains a fixed simulation box size, appropriate for systems where volume changes are not expected or desired.
-    -   `2`: Constant pressure. This allows the simulation box to fluctuate in size to maintain constant pressure, suitable for more realistic simulations of condensed-phase systems where pressure control is needed.
+    **`0`**
+
+    No periodic boundary conditions. This is suitable for simulations where boundary effects are not a concern, such as in isolated systems or gas-phase simulations.
+
+    **`1`**
+
+    Constant volume. This maintains a fixed simulation box size, appropriate for systems where volume changes are not expected or desired.
+
+    **`2`**
+
+    Constant pressure. This allows the simulation box to fluctuate in size to maintain constant pressure, suitable for more realistic simulations of condensed-phase systems where pressure control is needed.
     """
 
     ntf: Literal[1, 2, 3] = Field(default=1)
     """
     Force evaluation type. This parameter determines which interactions are considered during the force calculations.
 
-    -   `1`: All contributions. This option includes all types of interactions in the force evaluation and is required for minimization.
-    -   `2`: Ignore bond interactions involving hydrogens. This option is typically used when `ntc = 2`, meaning constraints are applied to bonds involving hydrogens (e.g., SHAKE algorithm).
-    -   `3`: All bond interactions are omitted. This option is used when `ntc = 3`, which implies constraints are applied to all bonds.
+    **`1`**
+
+    All contributions. This option includes all types of interactions in the force evaluation and is required for minimization.
+
+    **`2`**
+
+    Ignore bond interactions involving hydrogens. This option is typically used when `ntc = 2`, meaning constraints are applied to bonds involving hydrogens (e.g., SHAKE algorithm).
+
+
+    **`3`**
+
+    All bond interactions are omitted. This option is used when `ntc = 3`, which implies constraints are applied to all bonds.
     """
 
     ntc: Literal[1, 2, 3] = Field(default=1)
     """
-    Flag for SHAKE to perform bond length constraints.
+    Flag for SHAKE to perform bond length constraints.[474] (See also NTF in the Potential function section. In particular, typically NTF = NTC.) The SHAKE option should be used for most
+    MD calculations. The size of the MD timestep is determined by the fastest motions in the system.
+    SHAKE removes the bond stretching freedom, which is the fastest motion, and consequently allows a larger timestep to be used. For water models, a special "three-point" algorithm is used.[475]
+    Consequently, to employ TIP3P set NTF = NTC = 2.
 
-    -   `1`: No SHAKE. This option does not apply any bond length constraints and is required for minimization.
-    -   `2`: Bonds involving hydrogen are constrained. This is the recommended setting for molecular dynamics (MD) simulations as it allows for larger time steps while maintaining stability.
-    -   `3`: All bonds are constrained. This setting applies constraints to all bonds, providing the most rigid structure.
+    Since SHAKE is an algorithm based on dynamics, the minimizer is not aware of what SHAKE
+    is doing; for this reason, minimizations generally should be carried out without SHAKE. One
+    exception is short minimizations whose purpose is to remove bad contacts before dynamics can
+    begin.
+
+    For parallel versions of sander only intramolecular atoms can be constrained. Thus, such atoms
+    must be in the same chain of the originating PDB file.
+
+    **`1`**
+
+    No SHAKE. This option does not apply any bond length constraints and is required for minimization.
+
+    **`2`**
+
+    Bonds involving hydrogen are constrained. This is the recommended setting for molecular dynamics (MD) simulations as it allows for larger time steps while maintaining stability.
+
+    **`3`**
+
+    All bonds are constrained. This setting applies constraints to all bonds, providing the most rigid structure.
 
     (Not available for parallel or qmmm runs in sander).
     """
@@ -303,22 +437,42 @@ class AmberInputsBase(BaseModel, IOBase):
     ntt: Literal[0, 1, 2, 3, 9, 10, 11] = Field(default=3)
     """Switch for temperature scaling.
 
-    -   `0`: Constant total energy (NVE).
-    -   `1`: Constant temperature using the weak-coupling algorithm.
-        A single scaling factor is used for all atoms.
-        Generally not recommended.
-    -   `2`: Andersen-like temperature coupling scheme, in which imaginary "collisions"
-        are performed with heat bath of temperature `temp0` every `vrand` steps.
-    -   `3`: Use Langevin dynamics with the collision frequency `gamma_ln`.
-        Since Langevin simulations are highly susceptible to "synchronization"
-        artifacts, you should explicitly set `ig` to a different value every
-        restart (e.g., `-1`). **[ recommended ]**
-    -   `9`: Optimized Isokinetic Nose-Hoover chain ensemble (OIN).
-        Implemented mainly for 3D-RISM and RESPA simulations.
-    -   `10`: Stochastic Isokinetic Nose-Hoover RESPA integrator.
-        Mainly used for RESPA simulations.
-    -   `11`: Stochastic version of Berendsen thermostat, also known as the
-        Bussi thermostat.
+    **`0`**
+
+    Constant total energy (NVE).
+
+    **`1`**
+
+    Constant temperature using the weak-coupling algorithm.
+    A single scaling factor is used for all atoms.
+    Generally not recommended.
+
+    **`2`**
+
+    Andersen-like temperature coupling scheme, in which imaginary "collisions"
+    are performed with heat bath of temperature `temp0` every `vrand` steps.
+
+    **`3`**
+
+    Use Langevin dynamics with the collision frequency `gamma_ln`.
+    Since Langevin simulations are highly susceptible to "synchronization"
+    artifacts, you should explicitly set `ig` to a different value every
+    restart (e.g., `-1`).
+
+    **`9`**
+
+    Optimized Isokinetic Nose-Hoover chain ensemble (OIN).
+    Implemented mainly for 3D-RISM and RESPA simulations.
+
+    **`10`**
+
+    Stochastic Isokinetic Nose-Hoover RESPA integrator.
+    Mainly used for RESPA simulations.
+
+    **`11`**
+
+    Stochastic version of Berendsen thermostat, also known as the
+    Bussi thermostat.
     """
 
     tempi: float = Field(default=100.0)
@@ -371,21 +525,44 @@ class AmberInputsBase(BaseModel, IOBase):
     more realistic dynamics.
     """
 
-    ntp: Literal[0, 1, 2] = Field(default=1)
+    ntp: Literal[0, 1, 2, 3, 4] = Field(default=0)
     """
     Flag for constant pressure dynamics. This parameter controls how pressure is
     managed during the simulation.
 
-    -   `0`: No pressure scaling. The system is run at constant volume, and no
-        adjustments are made to maintain a specific pressure.
-    -   `1`: Isotropic position scaling. This is the recommended setting for most
-        simulations as it scales the simulation box uniformly in all directions to
-        maintain constant pressure.
-    -   `2`: Anisotropic pressure scaling. This option allows different scaling factors
-        for each dimension and can only be used for orthogonal boxes. It is typically
-        used in membrane simulations where different surface tensions exist in the
-        x, y, and z directions. Solutes dissolved in water should not use this
-        setting as it can introduce artifacts.
+    **`0`**
+
+    No pressure scaling. The system is run at constant volume, and no
+    adjustments are made to maintain a specific pressure.
+
+    **`1`**
+
+    Isotropic position scaling. This is the recommended setting for most
+    simulations as it scales the simulation box uniformly in all directions to
+    maintain constant pressure.
+
+    **`2`**
+
+    Anisotropic pressure scaling. This option allows different scaling factors
+    for each dimension and can only be used for orthogonal boxes. It is typically
+    used in membrane simulations where different surface tensions exist in the
+    x, y, and z directions. Solutes dissolved in water should not use this
+    setting as it can introduce artifacts.
+
+    **`3`**
+
+    md with semiisotropic pressure scaling: this is only available with constant surface tension
+    (csurften > 0) and orthogonal boxes. This links the pressure coupling in the two directions
+    tangential to the interface.
+
+    **`4`**
+
+    md towards a targeted volume. This is not for production but for modifying the volume of the
+    system, particularly useful for preparing REMD simulations where the shape of each replica
+    needs to be the same. When ntp=4, the following variables in the “ewald” namelist should be
+    set: “target_n”: Number of target volume iterations to reach the target volume (default 100).
+    “target_a”, “target_b”, “target_c”: the cell dimension of the target volume.
+
     """
 
     barostat: Literal[1, 2] = Field(default=2)
@@ -395,21 +572,25 @@ class AmberInputsBase(BaseModel, IOBase):
     adjusted to maintain the desired pressure. Choosing the right barostat is important
     for the accuracy and stability of the simulation.
 
-    -   `1`: Berendsen barostat. This method scales the box dimensions and atomic
-        coordinates to achieve the desired pressure. It is simpler but can lead to
-        less accurate pressure control and may not generate a true NPT ensemble.
-    -   `2`: Monte Carlo barostat. This method uses Monte Carlo moves to adjust the
-        box volume and is generally more accurate for maintaining constant pressure.
-        It provides better sampling of the NPT ensemble and is recommended for most
-        simulations.
+    **`1`**
+
+    Berendsen barostat. This method scales the box dimensions and atomic
+    coordinates to achieve the desired pressure. It is simpler but can lead to
+    less accurate pressure control and may not generate a true NPT ensemble.
+
+    **`2`**
+
+    Monte Carlo barostat. This method uses Monte Carlo moves to adjust the
+    box volume and is generally more accurate for maintaining constant pressure.
+    It provides better sampling of the NPT ensemble and is recommended for most
+    simulations.
     """
 
     pres0: float = Field(default=1.01325)
     """
     Reference pressure, in bar, at which the system is maintained. This is the target
     pressure for the barostat. This value is almost always used in simulations to
-    mimic standard atmospheric conditions. Default value is`1.01325` bar, which is the
-    standard atmospheric pressure.
+    mimic standard atmospheric conditions.
     """
 
     mcbarint: int = Field(default=100)
@@ -437,10 +618,17 @@ class AmberInputsBase(BaseModel, IOBase):
 
     ntxo: Literal[1, 2] = Field(default=2)
     """
-    Format of the final coordinates, velocities, and box size.
+    Format of the final coordinates, velocities, and box size (if a constant volume or
+    pressure run) written to file "restrt".
 
-    - `1`: ASCII.
-    - `2`: Binary NetCDF file. **[ recommended ]**
+
+    **`1`**
+
+    ASCII.
+
+    **2`**
+
+    Binary NetCDF file. **[ recommended ]**
 
     tip:
         Use `2` for binary NetCDF files for efficient storage and faster read/write
@@ -450,33 +638,40 @@ class AmberInputsBase(BaseModel, IOBase):
 
     ntwr: int = Field(default=1000)
     """
-    Write the restart file every `ntwr` steps.`1000` steps. Restart files allow
-    resuming simulations from intermediate states and can help in recovering from
-    interruptions. Use values between `100` and `2000` to balance file size and the
-    need for frequent checkpoints. Adjust based on the length and criticality of your
-    simulation; shorter intervals provide more frequent recovery points but larger file sizes.
+    Every ntwr steps during dynamics, the “restrt” file will be written, ensuring that recovery from a
+    crash will not be so painful. No matter what the value of ntwr, a restrt file will be written at the
+    end of the run, i.e., after nstlim steps (for dynamics) or maxcyc steps (for minimization). If ntwr
+    < 0, a unique copy of the file, “restrt_<nstep>”, is written every abs(ntwr) steps. This option is
+    useful if for example one wants to run free energy perturbations from multiple starting points or
+    save a series of restrt files for minimization.
     """
 
     ntpr: int = Field(default=1000)
     """
-    Print energy information every `ntpr` steps in a human-readable form.
-    This parameter controls how often energy and other summary information is written
-    to the output file.
+    Print energy information every `ntpr` steps in a human-readable form to files
+    "mdout" and "mdinfo". "mdinfo" is closed and reopened each time, so it always
+    contains the most recent energy and temperature.
     """
 
-    ntwx: int = Field(default=1000)
+    ntwx: int = Field(default=0)
     """
     Coordinates are written every `ntwx` steps to the `mdcrd` file. This parameter
     controls how often the coordinates are saved, which can be used for trajectory
-    analysis.
+    analysis. If ntwx = 0, no coordinate
+    trajectory file will be written.
     """
 
     ioutfm: Literal[0, 1] = Field(default=1)
     """
     Format of coordinate and velocity trajectory files.
 
-    - **`0`**: ASCII.
-    - **`1`**: Binary NetCDF files. **[ recommended ]**
+    **`0`**
+
+    ASCII.
+
+    **`1`**
+
+    Binary NetCDF files.
 
     tip:
         Use `2` for binary NetCDF files for efficient storage and faster read/write
@@ -484,11 +679,322 @@ class AmberInputsBase(BaseModel, IOBase):
         easier human readability is needed.
     """
 
-    iwrap: Literal[0, 1] = Field(default=1)
+    iwrap: Literal[0, 1] = Field(default=0)
     """
     Flag for wrapping coordinates around the periodic boundary.
 
-    -   **`0`**: No wrapping.
-    -   **`1`**: If atoms move across the periodic boundary, Amber will wrap them around
-        to the other side. **[ recommended ]**
+    **`0`**
+
+    No wrapping will be performed, in which case it is typical to use cpptraj as a
+    post-processing program to translate molecules back to the primary box.
+
+    **`1`**
+
+    The coordinates written to the restart and trajectory files will be "wrapped" into
+    a primary box. This means that for each molecule, its periodic image closest to the middle of
+    the "primary box" (with x coordinates between 0 and a, y coordinates between 0 and b, and z
+    coordinates between 0 and c) will be the one written to the output file. This often makes the
+    resulting structures look better visually, but has no effect on the energy or forces. Performing such
+    wrapping, however, can mess up diffusion and other calculations.
+
+    For very long runs, setting iwrap = 1 may be required to
+    keep the coordinate output from overflowing the trajectory and restart file formats, especially if
+    trajectories are written in ASCII format instead of NetCDF (see also the ioutfm option).
+    """
+
+    nmropt: Literal[0, 1, 2] = Field(default=0)
+    """
+
+    **`0`**
+
+    No nmr-type analysis will be done.
+
+    **`1`**
+
+    NMR restraints and weight changes will be read.
+
+    **`2`**
+
+    NMR restraints, weight changes, NOESY volumes, chemical shifts and residual dipolar
+    restraints will be read.
+    """
+
+    ntave: int = Field(default=0)
+    """Every ntave steps of dynamics, running averages of average energies and
+    fluctuations over the last ntave steps will be printed out. A value of 0 disables
+    this printout. Setting ntave to a value 1/2 or 1/4 of nstlim provides a simple way
+    to look at convergence during the simulation.
+    """
+
+    ntwv: int = Field(default=0)
+    """
+    Every ntwv steps, the velocities will be written to the mdvel file. If ntwv = 0, no velocity trajectory
+    file will be written. If ntwv = -1, velocities will be written to mdcrd, which then becomes a com-
+    bined coordinate/velocity trajectory file, at the interval defined by ntwx. This option is available
+    only for binary NetCDF output (ioutfm = 1). Most users will have no need for a velocity trajectory
+    file and so can safely leave ntwv at the default. Note that dumping velocities fre-
+    quently, like forces or coordinates, will introduce potentially significant I/O and communication
+    overhead, hurting both performance and parallel scaling.
+    """
+
+    ionstepvelocities: Literal[0, 1] = Field(default=0)
+    """Controls whether to print the half-step-ahead velocities (**`0`**) or on-step velocities
+    (**```**).  The half-step-ahead velocities can potentially be used to restart calculations, but the on-step
+    velocities correspond to calculated kinetic energy/temperature.
+    """
+
+    ntwf: int = Field(default=0)
+    """
+    Every ntwf steps, the forces will be written to the mdfrc file. If ntwf = 0, no force trajectory file
+    will be written. If ntwf = -1, forces will be written to the mdcrd, which then becomes a combind
+    coordinate/force trajectory file, at the interval defined by ntwx. This option is available only for
+    binary NetCDF output (ioutfm = 1). Most users will have no need for a force trajectory file and
+    so can safely leave ntwf at the default. Default = 0. Note that dumping forces frequently, like
+    velocities or coordinates, will introduce potentially significant I/O and communication overhead,
+    hurting both performance and parallel scaling.
+    """
+
+    ntwe: int = Field(default=0)
+    """
+    Every ntwe steps, the energies and temperatures will be written to file "mden" in a compact form. If
+    ntwe = 0 then no mden file will be written. Note that energies in the mden file are not synchronized
+    with coordinates or velocities in the mdcrd or mdvel file(s). Assuming identical ntwe and ntwx
+    values the energies are one time step before the coordinates (as well as the velocities which are
+    synchronized with the coordinates). Consequently, an mden file is rarely written.
+    """
+
+    ntwprt: int = Field(default=0, ge=0)
+    """
+    The number of atoms to include in trajectory files (mdcrd and mdvel). This flag can be used to decrease the
+    size of the these files, by including only the first part of the system, which is usually of greater interest (for
+    instance, one might include only the solute and not the solvent).
+
+    **`0`**
+
+    Include all atoms of the system when writing trajectories.
+
+    **`> 0`**
+
+    Include only atoms 1 to ntwprt when writing trajectories.
+    """
+
+    idecomp: Literal[0, 1, 2, 3, 4] = Field(default=0)
+    """
+    Perform energy decomposition according to a chosen scheme. In former distributions this option was
+    only really useful in conjunction with mm_pbsa, where it is turned on automatically if required. Now, a
+    decomposition of ⟨∂V/∂ λ⟩ on a per-residue basis in thermodynamic integration (TI) simulations is also
+    possible.
+
+    If energy decomposition is requested, residues may be chosen by the RRES and/or LRES card. The RES card
+    is used to select the residues about which information is written out.
+
+    **`0`**
+
+    Do not decompose energies.
+
+    **`1`**
+
+    Decompose energies on a per-residue basis; 1-4 EEL + 1-4 VDW are added to internal (bond, angle,
+    dihedral) energies.
+
+    **`2`**
+
+    Decompose energies on a per-residue basis; 1-4 EEL + 1-4 VDW are added to EEL and VDW.
+
+    **`3`**
+
+    Decompose energies on a pairwise per-residue basis; otherwise equivalent to idecomp = 1. Not available
+    in TI simulations.
+
+    **`4`**
+
+    Decompose energies on a pairwise per-residue basis; otherwise equivalent to idecomp = 2. Not available
+    in TI simulations.
+    """
+
+    ibelly: Literal[0, 1] = Field(default=0)
+    """
+    Flag for belly type dynamics. If set to 1, a subset of the atoms in the system will be allowed
+    to move, and the coordinates of the rest will be frozen. The moving atoms are specified with
+    bellymask. This option is not available when igb>0. When belly type dynamics is in use, bonded
+    energy terms, vdW interactions, and direct space electrostatic interactions are not calculated for
+    pairs of frozen atoms. Note that this does not provide any significant speed advantage. Freezing
+    atoms can be useful for some applications but is maintained primarily for backwards compatibility
+    with older versions of Amber. Most applications should use the ntr variable instead to restrain
+    parts of the system to stay close to some initial configuration.
+    """
+
+    bellymask: str = Field(default="")
+    """String that specifies the moving atoms when ibelly=1."""
+
+    dx0: float = Field(default=0.01)
+    """
+    The initial step length. If the initial step length is too big then will give a huge energy; however
+    the minimizer is smart enough to adjust itself.
+    """
+
+    drms: float = Field(default=0.0001)
+    """
+    The convergence criterion for the energy Derivative: minimization will halt when the Root-Mean-
+    Square of the Cartesian elements of the gradient of the energy is less than this.
+    """
+
+    t: float = Field(default=0.0)
+    """The time at the start (psec) this is for your own reference and is not critical. Start time is taken
+    from the coordinate input file if IREST=1.
+    """
+
+    nrespa: int = Field(default=1, ge=1)
+    """
+    This variable allows the user to evaluate slowly-varying terms in the force field less frequently.
+    For PME, "slowly-varying" (now) means the reciprocal sum. For generalized Born runs, the
+    "slowly-varying" forces are those involving derivatives with respect to the effective radii, and
+    pair interactions whose distances are greater than the "inner" cutoff, currently hard-wired at 8 Å.
+    If NRESPA>1 these slowly-varying forces are evaluated every nrespa steps. The forces are ad-
+    justed appropriately, leading to an impulse at that step. If nrespa*dt is less than or equal to 4 fs
+    then the energy conservation is not seriously compromised. However if nrespa*dt > 4 fs then the
+    simulation becomes less stable. Note that energies and related quantities are only accessible every
+    nrespa steps, since the values at other times are meaningless.
+    """
+
+    temp0les: int = Field(default=-1)
+    """This is the target temperature for all LES particles (see Chapter 6). If temp0les<0, a single tem-
+    perature bath is used for all atoms, otherwise separate thermostats are used for LES and non-LES
+    particles. Default is -1, corresponding to a single (weak-coupling) temperature bath.
+    """
+
+    tautp: float = Field(default=1.0)
+    """
+    Time constant, in ps, for heat bath coupling for the system, if ntt = 1. Default is 1.0. Generally,
+    values for TAUTP should be in the range of 0.5-5.0 ps, with a smaller value providing tighter
+    coupling to the heat bath and, thus, faster heating and a less natural trajectory. Smaller values of
+    TAUTP result in smaller fluctuations in kinetic energy, but larger fluctuations in the total energy.
+    Values much larger than the length of the simulation result in a return to constant energy conditions.
+    """
+
+    vrand: int = Field(default=1000)
+    """
+    If vrand>0 and ntt=2, the velocities will be randomized to temperature TEMP0 every vrand steps.
+    """
+
+    vlimit: float = Field(default=20.0)
+    """
+    If not equal to 0.0, then any component of the velocity that is greater than abs(VLIMIT) will
+    be reduced to VLIMIT (preserving the sign). This can be used to avoid occasional instabilities in
+    molecular dynamics runs. VLIMIT should generally be set to a value like 20 (the default), which is
+    well above the most probable velocity in a Maxwell-Boltzmann distribution at room temperature.
+    A warning message will be printed whenever the velocities are modified. Runs that have more
+    than a few such warnings should be carefully examined.
+    """
+
+    nkija: int = Field(default=1)
+    """
+    For use with ntt=9 and ntt=10., For ntt=9, this the number of substeps of dt when integrating
+    the thermostat equations of motion, for greater accuracy. For ntt=10, this specifies the number
+    of additional auxiliary velocity variables v1 and v2, which will total nkija×v1 +nkija×v2
+    """
+
+    sinrtau: float = Field(default=1.0)
+    """
+    For the SINR (Stochastic Isokinetic Nose-Hoover RESPA) integrator (ntt=10), this specifies the
+    time scale for determining the masses associated with the two auxiliary velocity variables v1 and
+    v2 (e.g. thermostat velocities) and hence the magnitude of the coupling of the physical velocities
+    with the auxiliary velocities. Generally this should be related to the time scale of the system.
+    """
+
+    baroscalingdir: Literal[0, 1, 2, 3] = Field(default=0)
+    """
+    Flag for pressure scaling direction control. Applicable when using Monte Carlo barostat
+    (barostat = 2) with anisotropic pressure scaling (ntp = 2).
+
+    **`0`**
+
+    box size scales randomly (x, y or z) each scaling step
+
+    **`1`**
+
+    box scales only along x-direction, dimensions along y-, z-axes are fixed
+
+    **`2`**
+
+    box scales only along y-direction, dimensions along x-, z-axes are fixed
+
+    **`3`**
+
+    box scales only along z-direction, dimensions along x-, y-axes are fixed
+    """
+
+    csurften: Literal[0, 1, 2, 3] = Field(default=0)
+    """
+    Flag for constant surface tension dynamics.
+
+    **`0`**
+
+    No constant surface tension.
+
+    **`1`**
+
+    Constant surface tension with interfaces in the yz plane
+
+    **`2`**
+
+    Constant surface tension with interfaces in the xz plane
+
+    **`3`**
+
+    Constant surface tension with interfaces in the xy plane
+    """
+
+    gamma_ten: float = Field(default=0.0)
+    """Surface tension value in units of dyne/cm. Default value is 0.0 dyne/cm."""
+
+    ninterface: int = Field(default=2)
+    """Number of interfaces in the periodic box. There must be at least two interfaces in the periodic box.
+    Two interfaces is appropriate for a lipid bilayer system and is the default value.
+    """
+
+    tol: float = Field(default=0.00001)
+    """Relative geometrical tolerance for coordinate resetting in shake. Recommended maximum:
+<0.00005 Angstrom Default 0.00001.
+    """
+
+    jfastw: Literal[0, 4] = Field(default=0)
+    """Fast water definition flag. By default, the system is searched for water residues, and special routines are used to SHAKE these systems.
+
+    **`0`**
+
+    Waters are identified by the default names (given below), unless they are
+    redefined, as described below.
+
+    **`4`**
+
+    Do not use the fast SHAKE routines for waters.
+
+    !!! info
+        The following variables allow redefinition of the default residue and atom names used by the
+        program to determine which residues are waters.
+
+        -   WATNAM The residue name the program expects for water. Default `WAT`.
+        -   OWTNM The atom name the program expects for the oxygen of water. Default `O`.
+        -   HWTNM1 The atom name the program expects for the 1st H of water. Default `H1`.
+        -   HWTNM2 The atom name the program expects for the 2nd H of water. Default `H2`.
+    """
+
+    noshakemask: str = Field(default="")
+    """
+    String that specifies atoms that are not to be shaken (assuming that ntc>1). Any bond that would
+    otherwise be shaken by virtue of the ntc flag, but which involves an atom flagged here, will *not*
+    be shaken. The syntax for this string is given in Chap. 13.5. Default is an empty string, which
+    matches nothing. A typical use would be to remove SHAKE constraints from all or part of a
+    solute, while still shaking rigid water models like TIPnP or SPC/E. Another use would be to turn
+    off SHAKE constraints for the parts of the system that are being changed with thermodynamic
+    integration, or which are the EVB or quantum regions of the system.
+
+    If this option is invoked, then all parts of the potential must be evaluated, that is, ntf must be one.
+    The code enforces this by setting ntf to 1 when a noshakemask string is present in the input.
+
+    If you want the noshakemask to apply to all or part of the water molecules, you must also set
+    jfastw=4, to turn off the special code for water SHAKE. (If you are not shaking waters, you
+    presumably also want to issue the "set default FlexibleWater on" command in LEaP; see that
+    chapter for more information.)
     """
