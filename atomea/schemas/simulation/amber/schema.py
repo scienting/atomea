@@ -1,4 +1,3 @@
-"""Simulation contexts for Amber"""
 from typing import Any
 
 from loguru import logger

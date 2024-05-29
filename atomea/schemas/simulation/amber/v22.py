@@ -1,13 +1,17 @@
-"""Simulation contexts for Amber"""
 from typing import Literal
 
 from pydantic import Field
 
+from .cli import AmberCLIBase
 from .inputs import AmberInputsBase
 from .schema import AmberSchemaBase
 
 
 class Amber22Inputs(AmberInputsBase):
+    pass
+
+
+class Amber22CLI(AmberCLIBase):
     pass
 
 

@@ -1,11 +1,15 @@
-"""Simulation contexts for Amber"""
 from pydantic import Field
 
+from .cli import AmberCLIBase
 from .inputs import AmberInputsBase
 from .schema import AmberSchemaBase
 
 
 class Amber20Inputs(AmberInputsBase):
+    pass
+
+
+class Amber20CLI(AmberCLIBase):
     pass
 
 
