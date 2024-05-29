@@ -11,7 +11,7 @@ class SlurmSchema(BaseModel, IOBase):
     specific Slurm configuration parameter or job setup step.
     """
 
-    job_name: str = "subpex_job"
+    job_name: str = "job"
     """Unique name for the Slurm job.
 
     This should be descriptive to help identify the job among many others in the queue.

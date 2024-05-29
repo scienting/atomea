@@ -3,7 +3,7 @@ from collections.abc import MutableSequence
 from pydantic import BaseModel, Field
 
 
-class EnvVars(BaseModel):
+class WestpaEnvVars(BaseModel):
     WEST_SIM_ROOT: str = Field(default="$PWD")
     """path to the base directory containing the WESTPA install"""
     SIM_NAME: str = Field(default="$(basename $WEST_SIM_ROOT)")
@@ -32,7 +32,7 @@ class WestpaEnv(BaseModel):
     to create the `env.sh` script for setting up the WESTPA environment.
     """
 
-    vars: EnvVars = Field(default_factory=EnvVars)
+    vars: WestpaEnvVars = Field(default_factory=WestpaEnvVars)
     """Keys and values for the environment variables to be set in the `env.sh` script.
 
     Additional environment variables can be added with the following syntax:
