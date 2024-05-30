@@ -1,6 +1,4 @@
-docs/schemas/*
-!docs/schemas/index.md
-!docs/schemas/.pages
+docs/api
 
 .env
 
