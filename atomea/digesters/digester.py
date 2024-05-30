@@ -4,6 +4,8 @@ import inspect
 from abc import ABC, abstractmethod
 from collections.abc import Collection
 
+from loguru import logger
+
 from ..schemas.atomistic import EnsembleSchema, MoleculeSchema
 
 
@@ -13,6 +15,9 @@ class Digester(ABC):
     provides a framework for processing, parsing, and validating data extracted from
     simulations, geometry optimizations, and other computational methods.
     """
+
+    def __init__(self, *args, **kwargs):
+        pass
 
     @classmethod
     def checks(cls):
@@ -42,8 +47,9 @@ class Digester(ABC):
         """
         raise NotImplementedError
 
+    @classmethod
     def digest(
-        self, ensemble_schema: EnsembleSchema, *args: Any, **kwargs: Collection[Any]
+        cls, ensemble_schema: EnsembleSchema, *args: Any, **kwargs: Collection[Any]
     ) -> EnsembleSchema:
         """Start processing, parsing, and validating data extracted from the provided simulations.
 
@@ -59,14 +65,15 @@ class Digester(ABC):
         Returns:
             EnsembleSchema: The updated schema with all frames extracted from a simulation.
         """
-        self.checks()
-        inputs = self.prepare_step_inputs(*args, **kwargs)
-        for mol_step in self.digest_step(**inputs):
+        cls.checks()
+        inputs = cls.prepare_step_inputs(*args, **kwargs)
+        for mol_step in cls.digest_step(**inputs):
             ensemble_schema.frames.append(mol_step)
         return ensemble_schema
 
+    @classmethod
     def digest_step(
-        self, *args: Any, **kwargs: Collection[Any]
+        cls, *args: Any, **kwargs: Collection[Any]
     ) -> Generator[MoleculeSchema, None, None]:
         """Digest a single step of a simulation.
 
@@ -82,8 +89,11 @@ class Digester(ABC):
             Generator[MoleculeSchema, None, None]: A generator yielding `MoleculeSchema` instances.
         """
         mol_schema: MoleculeSchema = MoleculeSchema()
-        for name, method in inspect.getmembers(self, predicate=inspect.isfunction):
+        for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
+            if name[:2] == "__":
+                continue
             if name not in ["digest_step", "prepare_step_inputs", "digest", "checks"]:
+                logger.debug(f"Digesting data: {name}")
                 _data = method(*args, **kwargs)
                 mol_schema.update(_data)
         yield mol_schema
