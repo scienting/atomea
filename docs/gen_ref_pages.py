@@ -21,7 +21,8 @@ for path in sorted(Path(SRC_DIR).rglob("*.py")):  #
     parts = list(module_path.parts)
 
     if parts[-1] == "__init__":  #
-        parts = parts[:-1]
+        # parts = parts[:-1]
+        continue
     elif parts[-1] == "__main__":
         continue
 
