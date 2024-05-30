@@ -38,7 +38,7 @@ class MDAnalysisDigester(Digester):
             raise ImportError("MDAnalysis is not installed")
 
     @classmethod
-    def prepare_step_inputs(
+    def prepare_inputs_digester(
         cls, *args: Any, **kwargs: Collection[Any]
     ) -> dict[str, mda.Universe]:
         """Prepare and return the inputs necessary for the MDAnalysis digestion process.
@@ -66,37 +66,54 @@ class MDAnalysisDigester(Digester):
         inputs = {"u": u}
         return inputs
 
-    @staticmethod
-    def coordinates(u: mda.Universe) -> dict[str, npt.NDArray[np.float64]]:
-        """Return the coordinates of the atoms in the MDAnalysis Universe.
+    @classmethod
+    def get_inputs_frame(cls, inputs_digester: dict[str, Any]) -> dict[str, Any]:
+        inputs_frame = {"atoms": inputs_digester["u"].atoms}
+        return inputs_frame
+
+    @classmethod
+    def next_frame(cls, inputs_digester: dict[str, Any]) -> dict[str, Any]:
+        """Move the MDAnalysis Universe to the next trajectory frame.
 
         Args:
-            u (mda.Universe): The MDAnalysis Universe containing the atoms.
+            inputs: A dictionary of inputs for the digestion process.
 
         Returns:
-            dict[str, npt.NDArray[np.float64]]: A dictionary with the key
-                "system.coordinates" and the value being a numpy array of atom
-                coordinates.
+            A dictionary of inputs for the digestion process.
+        """
+        next(inputs_digester["u"].trajectory)
+        return inputs_digester
+
+    @staticmethod
+    def coordinates(atoms: mda.AtomGroup) -> dict[str, npt.NDArray[np.float64]]:
+        """Return the coordinates of the atoms.
+
+        Args:
+            atoms: The MDAnalysis atoms object associated with the frame.
+
+        Returns:
+            A dictionary with the key `"system.coordinates"` and the value being a NumPy
+            array of atom coordinates.
 
         Raises:
             ValueError: If the coordinates are not a numpy array.
         """
-        v = u.atoms.positions
+        v = atoms.positions
         if isinstance(v, np.ndarray):
             return {"system.coordinates": v}
         else:
             raise ValueError("Coordinates must be a numpy array.")
 
     @staticmethod
-    def ff_atom_type(u: mda.Universe) -> dict[str, list[str]]:
-        """Return the force field atom types of the atoms in the MDAnalysis Universe.
+    def ff_atom_type(atoms: mda.AtomGroup) -> dict[str, list[str]]:
+        """Return the force field atom types of the atoms.
 
         Args:
-            u (mda.Universe): The MDAnalysis Universe containing the atoms.
+            atoms: The MDAnalysis atoms object associated with the frame.
 
         Returns:
-            dict[str, list[str]]: A dictionary with the key "topology.ff_atom_type"
-                and the value being a list of atom types.
+            A dictionary with the key `"topology.ff_atom_type"` and the value being a
+            list of atom types.
         """
-        atom_types: list[str] = u.atoms.accumulate("types", function=accumulate_things)
+        atom_types: list[str] = atoms.accumulate("types", function=accumulate_things)
         return {"topology.ff_atom_type": atom_types}

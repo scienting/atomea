@@ -1,8 +1,8 @@
-from typing import Any, Generator
+from typing import Any, Collection, Generator
 
 import inspect
 from abc import ABC, abstractmethod
-from collections.abc import Collection
+from concurrent.futures import ThreadPoolExecutor
 
 from loguru import logger
 
@@ -30,51 +30,168 @@ class Digester(ABC):
 
     @classmethod
     @abstractmethod
-    def prepare_step_inputs(
+    def prepare_inputs_digester(
         cls, *args: Any, **kwargs: Collection[Any]
     ) -> dict[str, Any]:
-        """Prepare and return the inputs necessary for the digestion process.
+        """Prepare and return the inputs necessary to start the digestion process.
 
         This abstract method must be implemented in any child class. It should
-        return a dictionary of inputs that will be used by the `digest_step` method.
+        return a dictionary of inputs that will be used by
+        [`get_inputs_frame`][digesters.digester.Digester.get_inputs_frame].
 
         Args:
             *args: Variable length argument list.
             **kwargs: Arbitrary keyword arguments.
 
         Returns:
-            dict[str, Any]: A dictionary of inputs for the digestion process.
+            A dictionary of inputs for the frame digesting process.
         """
         raise NotImplementedError
 
     @classmethod
     def digest(
-        cls, ensemble_schema: EnsembleSchema, *args: Any, **kwargs: Collection[Any]
+        cls,
+        digester_args: tuple[Any, ...] = tuple(),
+        digester_kwargs: dict[str, Any] = dict(),
+        parallelize: bool = False,
+        max_workers: int | None = None,
     ) -> EnsembleSchema:
-        """Start processing, parsing, and validating data extracted from the provided simulations.
+        """
+        Given the inputs in `digester_args` and `digester_kwargs`, digest all possible
+        atomistic frames and populate an
+        [`EnsembleSchema`][schemas.atomistic.EnsembleSchema].
 
-        This method calls the `checks` method to perform preliminary checks, prepares the
-        inputs for digestion by calling the `prepare_step_inputs` method, and iterates through
-        each step of the digestion process to append frames to the `ensemble_schema`.
+        This method initializes an [`EnsembleSchema`][schemas.atomistic.EnsembleSchema],
+        calls the [`checks`][digesters.digester.Digester.checks] method to
+        perform preliminary checks, prepares the inputs for digestion by calling the
+        [`prepare_inputs_digester`][digesters.digester.Digester.prepare_inputs_digester]
+        method, and iterates through each step of the digestion process to append
+        frames to the [`EnsembleSchema`][schemas.atomistic.EnsembleSchema].
+
+        This method keeps the entire
+        [`EnsembleSchema`][schemas.atomistic.EnsembleSchema] in memory. If you have
+        a large amount of data, consider using
+        [`digest_chunks`][digesters.digester.Digester.digest_chunks].
 
         Args:
-            ensemble_schema (EnsembleSchema): The schema to which frames will be appended.
+            ensemble_schema: The schema to which frames will be appended.
             *args: Variable length argument list.
             **kwargs: Arbitrary keyword arguments.
 
         Returns:
-            EnsembleSchema: The updated schema with all frames extracted from a simulation.
+            The updated schema with frames extracted from a digester.
         """
+        ensemble_schema = EnsembleSchema()
         cls.checks()
-        inputs = cls.prepare_step_inputs(*args, **kwargs)
-        for mol_step in cls.digest_step(**inputs):
-            ensemble_schema.frames.append(mol_step)
+        inputs_digester = cls.prepare_inputs_digester(*digester_args, **digester_kwargs)
+
+        if not parallelize:
+            for inputs_frame in cls.generate_inputs_frame(inputs_digester):
+                mol_step = cls.digest_frame(inputs_frame)
+                ensemble_schema.frames.append(mol_step)
+        else:
+            # TODO: Currently not working; the data seems out of order.
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                for mol_step in executor.map(
+                    cls.digest_frame, cls.generate_inputs_frame(inputs_digester)
+                ):
+                    ensemble_schema.frames.append(mol_step)
+
         return ensemble_schema
 
     @classmethod
-    def digest_step(
-        cls, *args: Any, **kwargs: Collection[Any]
-    ) -> Generator[MoleculeSchema, None, None]:
+    def digest_chunks(
+        cls,
+        digester_args: tuple[Any, ...] = tuple(),
+        digester_kwargs: dict[str, Any] = dict(),
+        chunk_size: int = 100,
+        parallelize: bool = False,
+        max_workers: int | None = None,
+    ) -> Generator[EnsembleSchema, None, None]:
+        """Same as [`digest`][digesters.digester.Digester.digest], but
+        instead of returning a whole
+        [`EnsembleSchema`][schemas.atomistic.EnsembleSchema], it will yield ones
+        with a specified `chunk_size`.
+        """
+        cls.checks()
+        inputs_digester = cls.prepare_inputs_digester(*digester_args, **digester_kwargs)
+
+        if not parallelize:
+            ensemble_schema = EnsembleSchema()
+            count = 0
+            for inputs_frame in cls.generate_inputs_frame(inputs_digester):
+                if count > chunk_size:
+                    ensemble_schema = EnsembleSchema()
+                    count = 0
+
+                mol_step = cls.digest_frame(inputs_frame)
+                ensemble_schema.frames.append(mol_step)
+                count += 1
+
+                if count == chunk_size:
+                    yield ensemble_schema
+        else:
+            # TODO: Currently not working; the data seems out of order.
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                for mol_step in executor.map(
+                    cls.digest_frame, cls.generate_inputs_frame(inputs_digester)
+                ):
+                    ensemble_schema.frames.append(mol_step)
+
+    @classmethod
+    @abstractmethod
+    def get_inputs_frame(cls, inputs_digester: dict[str, Any]) -> dict[str, Any]:
+        """Get the inputs for the next frame in the digestion process.
+
+        Args:
+            inputs_digester: A dictionary of inputs for the digestion process.
+
+        Returns:
+            A dictionary of inputs for the digestion process.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def next_frame(cls, inputs_digester: dict[str, Any]) -> dict[str, Any]:
+        """Advance the digester inputs to the next frame in the data. This abstract
+        method must be implemented in any child class as each data source may have a
+        different way of advancing to the next frame.
+
+        Args:
+            inputs: A dictionary of inputs for the digestion process.
+
+        Returns:
+            A dictionary of inputs for the digestion process.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def generate_inputs_frame(
+        cls, inputs_digester: dict[str, Any]
+    ) -> Generator[dict[str, Any], None, None]:
+        """Generate inputs for each frame starting from a specific frame.
+
+        Args:
+            inputs_digester: The initial inputs for the digestion process.
+
+        Yields:
+            A generator yielding input dictionaries for each frame.
+        """
+        yield cls.get_inputs_frame(inputs_digester)
+        while True:
+            try:
+                inputs_digester = cls.next_frame(inputs_digester)
+                inputs_frame = cls.get_inputs_frame(inputs_digester)
+                yield inputs_frame
+            except StopIteration:
+                break
+            except Exception as e:
+                logger.error(f"Error generating frame inputs: {e}")
+                break
+
+    @classmethod
+    def digest_frame(cls, inputs_frame: dict[str, Any]) -> MoleculeSchema:
         """Digest a single step of a simulation.
 
         This method calls each static method implemented in the child class. The static
@@ -82,18 +199,26 @@ class Digester(ABC):
         to update and the value to update it with.
 
         Args:
-            *args: Variable length argument list.
-            **kwargs: Arbitrary keyword arguments.
+            inputs_frame: TODO
 
         Yields:
-            Generator[MoleculeSchema, None, None]: A generator yielding `MoleculeSchema` instances.
+            A generator yielding `MoleculeSchema` instances.
         """
         mol_schema: MoleculeSchema = MoleculeSchema()
         for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
             if name[:2] == "__":
                 continue
-            if name not in ["digest_step", "prepare_step_inputs", "digest", "checks"]:
+            if name not in [
+                "digest_frame",
+                "prepare_inputs_digester",
+                "digest",
+                "checks",
+                "next_frame",
+                "to_frame",
+                "generate_inputs_frame",
+                "get_inputs_frame",
+            ]:
                 logger.debug(f"Digesting data: {name}")
-                _data = method(*args, **kwargs)
+                _data = method(**inputs_frame)
                 mol_schema.update(_data)
-        yield mol_schema
+        return mol_schema
