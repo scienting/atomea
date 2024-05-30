@@ -79,7 +79,7 @@ patterns = [
 ]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 line-length = 88
 indent-width = 4
 exclude = [
@@ -104,7 +104,7 @@ docstring-code-format = true
 docstring-code-line-length = "dynamic"
 
 [tool.isort]
-py_version = 311
+py_version = 312
 line_length = 88
 known_typing = [
     "typing",
@@ -128,7 +128,7 @@ indent = 4
 color_output = true
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 pretty = true
 show_traceback = true
 color_output = true
