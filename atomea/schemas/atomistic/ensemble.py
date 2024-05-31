@@ -13,9 +13,11 @@ class EnsembleSchema(BaseModel, IOBase):
     """
 
     frames: list[MoleculeSchema] = Field(default=[])
-    """The frames attribute is a list that stores instances of MoleculeSchema. Each
+    """
+    The frames attribute is a list that stores instances of MoleculeSchema. Each
     instance represents a single molecular structure or configuration within the
     ensemble. This attribute allows the EnsembleSchema to manage multiple molecular
     structures collectively, making it easier to handle data from simulations that
     produce multiple frames, such as molecular dynamics trajectories or conformational
-    scans."""
+    scans.
+    """
