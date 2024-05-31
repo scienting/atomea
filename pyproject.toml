@@ -18,7 +18,6 @@ pydantic = "^2.7.1"
 pyyaml = "^6.0.1"
 numpy = "^1.26.2"
 zarr = "^2.16.1"
-pyarrow = "^14.0.2"
 
 [tool.poetry.group.sim.dependencies]
 mdanalysis = "^2.6.1"
