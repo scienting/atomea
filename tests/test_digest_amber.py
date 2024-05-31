@@ -1,15 +1,15 @@
 """Processing AMBER simulations with roGFP2"""
 
 import os
+import shutil
 
 import numpy as np
+import zarr
 
 from atomea.digesters import MDAnalysisDigester
+from atomea.io.backends._zarr import ZarrManager
 
 from .conftest import TMP_DIR
-
-# from atomea.io.backends._zarr import ZarrStorage
-# from atomea.io.write import DataProcessor
 
 
 def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
@@ -39,27 +39,22 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     assert np.allclose(ensemble_data.frames[-1].system.coordinates[78][0], 29.406982)
 
 
-# def test_write_amber_rogfp2(amber_rogfp2_sim_paths):
-#     data_processor = DataProcessor(
-#         digester_cls=MDAnalysisDigester,
-#         storage_cls=ZarrStorage,
-#         chunk_size=100,
-#     )
-#     zarr_path = os.path.join(TMP_DIR, "amber_rogfp2.zarr")
-#     if os.path.exists(zarr_path):
-#         os.remove(zarr_path)
+def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
+    digester = MDAnalysisDigester()
+    digester_args = (
+        amber_rogfp2_sim_paths["mol.prmtop"],
+        amber_rogfp2_sim_paths["07_relax_npt.nc"],
+    )
+    digester_kwargs = {"topology_format": "PRMTOP", "format": "NC"}
+    digest_kwargs = {"digester_args": digester_args, "digester_kwargs": digester_kwargs}
+    storage_path = os.path.join(TMP_DIR, "amber_rogfp2_serial.zarr")
+    if os.path.exists(storage_path):
+        shutil.rmtree(storage_path)
+    storage_manager = ZarrManager()
 
-#     digester_args = (
-#         amber_rogfp2_sim_paths["mol.prmtop"],
-#         amber_rogfp2_sim_paths["07_relax_npt.nc"],
-#     )
-#     digester_kwargs = {"topology_format": "PRMTOP", "format": "NC"}
+    store = storage_manager.digest_and_store(digester, digest_kwargs, storage_path)
 
-#     data_processor.process_data(
-#         zarr_path,
-#         digester_args=digester_args,
-#         digester_kwargs=digester_kwargs,
-#         parallelism=4,
-#     )
-
-#     assert os.path.exists(zarr_path)
+    coordinates = zarr.Array(store=store, path="/system/coordinates")
+    assert np.allclose(coordinates.get_basic_selection((0, 0, 0)), 33.924496)
+    assert np.allclose(coordinates.get_basic_selection((0, 32, 0)), 27.2496)
+    assert np.allclose(coordinates.get_basic_selection((-1, 78, 0)), 29.406982)
