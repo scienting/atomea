@@ -217,3 +217,7 @@ docker-build-env:
 .PHONY: docker-push-env
 docker-push-env:
 	docker push registry.gitlab.com/oasci/software/atomea:env
+
+.PHONY: uuid
+uuid:
+	$(CONDA) python -c "import uuid; print(uuid.uuid4())"
