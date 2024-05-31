@@ -1,6 +1,5 @@
 from typing import Any, Collection, Generator
 
-import inspect
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 
@@ -21,12 +20,22 @@ class Digester(ABC):
 
     @classmethod
     def checks(cls):
-        """Perform basic checks to raise warnings or errors before digesting.
+        """
+        Perform basic checks to raise warnings or errors before digesting.
 
         This method should be overridden in the child class to include specific
         checks required for the particular type of data being processed.
         """
         pass
+
+    @classmethod
+    @abstractmethod
+    def get_uuid_map(cls):
+        """
+        Update the function UUID map by inspecting the class methods
+        decorated with @SchemaUUID.
+        """
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
@@ -178,6 +187,7 @@ class Digester(ABC):
         Yields:
             A generator yielding input dictionaries for each frame.
         """
+        # Return first frame before starting loop until the end of frames
         yield cls.get_inputs_frame(inputs_digester)
         while True:
             try:
@@ -191,7 +201,9 @@ class Digester(ABC):
                 break
 
     @classmethod
-    def digest_frame(cls, inputs_frame: dict[str, Any]) -> MoleculeSchema:
+    def digest_frame(
+        cls, inputs_frame: dict[str, Any], mol_schema: MoleculeSchema | None = None
+    ) -> MoleculeSchema:
         """Digest a single step of a simulation.
 
         This method calls each static method implemented in the child class. The static
@@ -199,26 +211,32 @@ class Digester(ABC):
         to update and the value to update it with.
 
         Args:
-            inputs_frame: TODO
+            inputs_frame: The inputs for the MDAnalysis digester.
 
-        Yields:
-            A generator yielding `MoleculeSchema` instances.
+        Returns:
+            An instance of MoleculeSchema populated with the digested data.
         """
-        mol_schema: MoleculeSchema = MoleculeSchema()
-        for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
-            if name[:2] == "__":
+        if mol_schema is None:
+            mol_schema = MoleculeSchema()
+
+        uuid_map = cls.get_uuid_map()
+        for key_to_field, field in mol_schema.generate_fields(mol_schema):
+            if not hasattr(field, "metadata") or len(field.metadata) == 0:
+                logger.trace("This field does not contain any metadata")
                 continue
-            if name not in [
-                "digest_frame",
-                "prepare_inputs_digester",
-                "digest",
-                "checks",
-                "next_frame",
-                "to_frame",
-                "generate_inputs_frame",
-                "get_inputs_frame",
-            ]:
-                logger.debug(f"Digesting data: {name}")
-                _data = method(**inputs_frame)
-                mol_schema.update(_data)
+
+            field_uuid = field.metadata[0].get("uuid")
+            field_cadence = field.metadata[0].get("cadence")
+
+            if field_cadence == "molecule":
+                logger.debug(f"Working on molecule cadence of UUID {field_uuid}")
+                if field_uuid not in uuid_map.keys():
+                    logger.debug("Could not find method match of UUID")
+                    continue
+                method = getattr(cls, uuid_map[field_uuid])
+                data = method(**inputs_frame)
+                mol_schema.update({key_to_field: data})
+            else:
+                logger.trace("Cadence is not molecule; skipping.")
+
         return mol_schema
