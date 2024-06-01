@@ -1,6 +1,5 @@
 from typing import Any
 
-import inspect
 from collections.abc import Collection
 
 import numpy as np
@@ -15,7 +14,7 @@ except ImportError:
     HAS_MDANALYSIS = False
 
 from .digester import Digester
-from .ids import SchemaUUID
+from .uuids import SchemaUUID
 
 
 def accumulate_things(*args, **kwargs):
@@ -25,23 +24,6 @@ def accumulate_things(*args, **kwargs):
 
 
 class MDAnalysisDigester(Digester):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    @classmethod
-    def get_uuid_map(cls) -> dict[str, str]:
-        """
-        Update the function UUID map by inspecting the class methods
-        decorated with @SchemaUUID.
-        """
-        uuid_map = {}
-        for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
-            if name[:2] == "__":
-                continue
-            if callable(method) and hasattr(method, "__uuid__"):
-                uuid_map[method.__uuid__] = name
-        return uuid_map
-
     @staticmethod
     def checks():
         """Perform checks to ensure MDAnalysis is installed.
