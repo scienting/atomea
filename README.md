@@ -1,16 +1,12 @@
 <h1 align="center">atomea</h1>
-
 <h4 align="center">Extensible schema for atomistic simulations and calculations.</h4>
-
-<h4 align="center" style="padding-bottom: 0.5em;"><a href="https://atomea.oasci.org">Documentation</a></h4>
-
 <p align="center">
     <a href="https://gitlab.com/oasci/software/atomea/-/pipelines">
         <img src="https://gitlab.com/oasci/software/atomea/badges/main/pipeline.svg" alt="Build Status ">
     </a>
     <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/atomea">
-    <a href="https://codecov.io/gh/oasci/atomea">
-        <img src="https://codecov.io/gh/oasci/atomea/branch/main/graph/badge.svg?token=74wLrsOMTD" alt="codecov">
+    <a href="https://codecov.io/gl/oasci:software/atomea">
+        <img src="https://codecov.io/gl/oasci:software/atomea/graph/badge.svg?token=KVGB7NU117" alt="codecov">
     </a>
     <a href="https://github.com/oasci/atomea/releases">
         <img src="https://img.shields.io/github/v/release/oasci/atomea" alt="GitHub release (latest by date)">
@@ -31,17 +27,18 @@
         <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Black style">
     </a>
 </p>
+<h4 align="center"><a href="https://atomea.oasci.org">Documentation</a></h4>
 
 ## Overview
 
 **atomea** is a Python package designed to simplify and standardize the setup and data management for atomistic simulations and calculations.
-It leverages the power of Pydantic for schema definition and Jinja2 templates for input file generation, making it easy to automate, document, and prepare input files for various computational chemistry and biology tools.
+It leverages the power of [Pydantic][pydantic] for schema definition and [Jinja2][jinja] templates for input file generation, making it easy to automate, document, and prepare input files for various computational chemistry and biology tools.
 
-## Key Features
+## Key features
 
--   **Extensible Schema Definition:** Easily define schemas for various computational packages using Pydantic.
--   **Automated Input File Preparation:** Generate input files with Jinja2 templates to ensure consistency and reproducibility.
--   **Data Digestion:** Convert raw output files into optimized storage formats (HDF5, Parquet, Zarr) with a consistent interface.
+-   **Extensible Schema Definition:** Easily define schemas for various computational packages using [Pydantic][pydantic].
+-   **Automated Input File Preparation:** Generate input files with [Jinja2][jinja] templates to ensure consistency and reproducibility.
+-   **Data Digestion:** Convert raw output files into optimized storage formats (e.g., [Zarr][zarr]) with a consistent interface.
 -   **YAML Integration:** Save and load configurations and data in YAML format for easy sharing and reproducibility.
 
 ## Installation
@@ -72,3 +69,9 @@ git push --follow-tags
 ## License
 
 This project is released under the Apache-2.0 License as specified in [`LICENSE.md`](https://gitlab.com/oasci/software/atomea/-/blob/main/LICENSE.md).
+
+<!-- REFERENCES -->
+
+[pydantic]: https://docs.pydantic.dev/latest/
+[jinja]: https://palletsprojects.com/p/jinja/
+[zarr]: https://zarr.dev/
