@@ -8,6 +8,32 @@ from ..io import IOBase
 class TopologySchema(BaseModel, IOBase):
     """Information that specifies the physical atomistic system."""
 
+    ids_entity: Annotated[
+        list[int] | None,
+        {"cadence": "molecule", "uuid": "b490f2db-548e-4c92-a71a-8222c041ca54"},
+    ] = Field(default=None)
+    """A uniquely identifying integer specifying what atoms belong to which entities.
+    Entities can be a related set of atoms, molecules, or functional group.
+    For example, a water and methanol molecule could be `[0, 0, 0, 1, 1, 1, 1, 1, 1]`.
+
+    **Cadence:** `molecule`
+
+    **UUID:** `b490f2db-548e-4c92-a71a-8222c041ca54`
+    """
+
+    ids_component: Annotated[
+        list[str] | None,
+        {"cadence": "molecule", "uuid": "cf39af62-d372-4747-a431-cf2fa0c8e119"},
+    ] = Field(default=None)
+    """Relates ``entity_id`` to a fragment label for chemical components or species.
+    Labels could be WAT or h2o for water, MeOH for methanol, bz for benzene, etc.
+    There are no standardized labels for species.
+
+    **Cadence:** `molecule`
+
+    **UUID:** `cf39af62-d372-4747-a431-cf2fa0c8e119`
+    """
+
     ff_atom_type: Annotated[
         list[str] | None,
         {"cadence": "ensemble", "uuid": "e34c0e1b-0eaa-4679-b060-3fcfe737aa15"},
