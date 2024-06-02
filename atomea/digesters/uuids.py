@@ -6,7 +6,7 @@ from functools import wraps
 # pylint: disable-next=invalid-name
 def SchemaUUID(uuid_str: str) -> Callable[..., Any]:
     """
-    Decorator to assign a specific Universally unique identifier (UUID) to a method,
+    Decorator to assign a specific Universally Unique Identifier (UUID) to a method,
     particularly a digester method for extracting data from frame inputs.
 
     The UUID is stored in the private attribute `__uuid__` of the method, which can
