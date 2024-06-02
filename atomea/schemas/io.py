@@ -3,7 +3,7 @@ from abc import ABC
 import yaml
 
 
-class IO(ABC):
+class YamlIO(ABC):
     """Handles YAML inputs and outputs."""
 
     def from_yaml(self, yaml_paths: str | list[str]) -> None:
@@ -35,7 +35,7 @@ class IO(ABC):
             file_path: Path to the YAML file to write the serialized data to.
 
         Raises:
-            IOError: If the file cannot be written to.
+            YamlIOError: If the file cannot be written to.
         """
         config_dict = self.dict()  # type: ignore # pylint: disable=no-member
         with open(file_path, "w", encoding="utf-8") as f:

@@ -4,13 +4,13 @@ from pydantic import BaseModel, Field
 
 from ..data import Data
 from ..id import IdentificationSchema
-from ..io import IO
+from ..io import YamlIO
 from .qc import QCSchema
 from .system import SystemSchema
 from .topology import TopologySchema
 
 
-class EnsembleSchema(BaseModel, IO, Data):
+class EnsembleSchema(BaseModel, YamlIO, Data):
     """
     The `EnsembleSchema` class is a Pydantic model designed to represent a
     collection of molecular structures, referred to as frames. This class is used to

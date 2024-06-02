@@ -3,10 +3,10 @@ from typing import Any
 from loguru import logger
 from pydantic import BaseModel
 
-from ...io import IO
+from ....io import YamlIO
 
 
-class AmberSchemaBase(BaseModel, IO):
+class AmberSchemaBase(BaseModel, YamlIO):
     r"""Validate Amber contexts."""
 
     inputs: Any = NotImplemented

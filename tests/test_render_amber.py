@@ -1,6 +1,6 @@
 import os
 
-from atomea.schemas.simulation.amber import Amber22Schema
+from atomea.schemas.workflow.simulation.amber import Amber22Schema
 
 from .conftest import TMP_DIR
 

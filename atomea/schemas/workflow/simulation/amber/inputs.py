@@ -2,10 +2,10 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from ...io import IO
+from ....io import YamlIO
 
 
-class AmberInputsBase(BaseModel, IO):
+class AmberInputsBase(BaseModel, YamlIO):
     imin: Literal[0, 1, 5, 6, 7] = Field(default=0)
     """Flag for running the energy minimization procedure.
 

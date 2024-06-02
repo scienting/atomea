@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
-from ...io import IO
+from ....io import YamlIO
 
 
-class AmberCLIBase(BaseModel, IO):
+class AmberCLIBase(BaseModel, YamlIO):
     mdin: str | None = None
     """input control data for the min/md run"""
     mdout: str | None = None
