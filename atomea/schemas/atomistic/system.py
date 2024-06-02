@@ -4,10 +4,10 @@ import numpy as np
 import numpy.typing as npt
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from ..io import IOBase
+from ..io import IO
 
 
-class SystemSchema(BaseModel, IOBase):
+class SystemSchema(BaseModel, IO):
     """Information that specifies the physical atomistic system."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

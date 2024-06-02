@@ -2,10 +2,10 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field
 
-from ..io import IOBase
+from ..io import IO
 
 
-class TopologySchema(BaseModel, IOBase):
+class TopologySchema(BaseModel, IO):
     """Information that specifies the physical atomistic system."""
 
     ids_entity: Annotated[

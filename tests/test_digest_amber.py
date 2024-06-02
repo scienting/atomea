@@ -31,12 +31,11 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     ensemble_data = digester.digest(
         digester_args=digester_args, digester_kwargs=digester_kwargs
     )
-    assert len(ensemble_data.frames) == 100
-    assert ensemble_data.frames[0].system.coordinates is not None
-    assert np.allclose(ensemble_data.frames[0].system.coordinates[0][0], 33.924496)
-    assert np.allclose(ensemble_data.frames[0].system.coordinates[32][0], 27.2496)
-    assert ensemble_data.frames[-1].system.coordinates is not None
-    assert np.allclose(ensemble_data.frames[-1].system.coordinates[78][0], 29.406982)
+    assert ensemble_data.system.coordinates is not None
+    assert ensemble_data.system.coordinates.shape[0] == 100
+    assert np.allclose(ensemble_data.system.coordinates[0][0][0], 33.924496)
+    assert np.allclose(ensemble_data.system.coordinates[0][32][0], 27.2496)
+    assert np.allclose(ensemble_data.system.coordinates[-1][78][0], 29.406982)
 
 
 def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):

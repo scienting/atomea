@@ -1,4 +1,4 @@
-from typing import Any, Collection, Generator
+from typing import Any, Collection, Generator, Literal
 
 import inspect
 from abc import ABC, abstractmethod
@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from loguru import logger
 
-from ..schemas.atomistic import EnsembleSchema, MoleculeSchema
+from ..schemas.atomistic import EnsembleSchema
 
 
 class Digester(ABC):
@@ -143,18 +143,28 @@ class Digester(ABC):
         cls.checks()
         inputs_digester = cls.prepare_inputs_digester(*digester_args, **digester_kwargs)
 
+        schema_map = ensemble_schema.get_schema_map(ensemble_schema)
+        mol_index = 0
+        # Digest all frames with a cadence of molecule
         if not parallelize:
             for inputs_frame in cls.gen_inputs_frame(inputs_digester):
-                mol_frame = cls.digest_frame(inputs_frame)
-                ensemble_schema.frames.append(mol_frame)
+                mol_data = cls.digest_frame(inputs_frame, schema_map)
+                mol_index = ensemble_schema.update(
+                    mol_data, schema_map=schema_map, mol_index=mol_index
+                )
         else:
             logger.error("Parallel operation is not yet supported.")
             # TODO: Currently not working; the data seems out of order.
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                for mol_frame in executor.map(
-                    cls.digest_frame, cls.gen_inputs_frame(inputs_digester)
-                ):
-                    ensemble_schema.frames.append(mol_frame)
+            # with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            #     for mol_frame in executor.map(
+            #         cls.digest_frame, cls.gen_inputs_frame(inputs_digester)
+            #     ):
+            #         ensemble_schema.frames.append(mol_frame)
+
+        # Cleanup molecule arrays, must be done before ensemble.
+        ensemble_schema._trim_molecule_arrays(mol_index, schema_map)
+
+        # Digest all ensemble-cadence properties using the last frame
 
         return ensemble_schema
 
@@ -195,6 +205,8 @@ class Digester(ABC):
         cls.checks()
         inputs_digester = cls.prepare_inputs_digester(*digester_args, **digester_kwargs)
 
+        schema_map = ensemble_schema.get_schema_map(ensemble_schema)
+        mol_index = 0
         if not parallelize:
             ensemble_schema = ensemble_schema_orig.copy()
             count = 0
@@ -203,20 +215,22 @@ class Digester(ABC):
                     ensemble_schema = ensemble_schema_orig.copy()
                     count = 0
 
-                mol_frame = cls.digest_frame(inputs_frame)
-                ensemble_schema.frames.append(mol_frame)
+                mol_data = cls.digest_frame(inputs_frame, schema_map)
+                mol_index = ensemble_schema.update(
+                    mol_data, schema_map=schema_map, mol_index=mol_index
+                )
                 count += 1
 
                 if count == chunk_size:
                     yield ensemble_schema
         else:
-            # TODO: Currently not working; the data seems out of order.
             logger.error("Parallel operation is not yet supported.")
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                for mol_frame in executor.map(
-                    cls.digest_frame, cls.gen_inputs_frame(inputs_digester)
-                ):
-                    ensemble_schema.frames.append(mol_frame)
+            # TODO: Currently not working; the data seems out of order.
+            # with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            #     for mol_frame in executor.map(
+            #         cls.digest_frame, cls.gen_inputs_frame(inputs_digester)
+            #     ):
+            #         ensemble_schema.frames.append(mol_frame)
 
     @classmethod
     @abstractmethod
@@ -274,8 +288,11 @@ class Digester(ABC):
 
     @classmethod
     def digest_frame(
-        cls, inputs_frame: dict[str, Any], mol_schema: MoleculeSchema | None = None
-    ) -> MoleculeSchema:
+        cls,
+        inputs_frame: dict[str, Any],
+        schema_map: dict[str, dict[str, str]],
+        cadence_eval: Literal["molecule", "ensemble"] = "molecule",
+    ) -> dict[str, Any]:
         """
         Digest a single frame of input data into a
         [`MoleculeSchema`][schemas.atomistic.MoleculeSchema].
@@ -291,14 +308,13 @@ class Digester(ABC):
             inputs_frame: The inputs for the frame digestion process.
                 This dictionary should contain all necessary data for processing a
                 single frame.
-            mol_schema: An optional MoleculeSchema instance
-                to be populated with the digested data. If not provided, a new
-                [`MoleculeSchema`][schemas.atomistic.MoleculeSchema] instance will be
-                created.
+            schema_map: A mapping of UUIDs to field keys from
+                [`get_schema_map`][schemas.atomistic.ensemble.EnsembleSchema.get_schema_map]
+            cadence_eval: Cadence of properties to evaluate and digest.
 
         Returns:
-            An instance of MoleculeSchema populated with the
-            processed data from the input frame.
+            Data parsed or computed for this frame. Keys are field keys and values
+            are the data from this frame.
 
         Raises:
             AttributeError: If the static method corresponding to a field's UUID
@@ -322,27 +338,21 @@ class Digester(ABC):
             field in MoleculeSchema.
 
         """
-        if mol_schema is None:
-            mol_schema = MoleculeSchema()
+        digester_map = cls.get_uuid_map()
+        mol_data = {}
+        for field_uuid, field_info in schema_map.items():
+            field_cadence = field_info["cadence"]
+            field_key = field_info["field_key"]
 
-        uuid_map = cls.get_uuid_map()
-        for key_to_field, field in mol_schema.generate_fields(mol_schema):
-            if not hasattr(field, "metadata") or len(field.metadata) == 0:
-                logger.trace("This field does not contain any metadata")
-                continue
-
-            field_uuid = field.metadata[0].get("uuid")
-            field_cadence = field.metadata[0].get("cadence")
-
-            if field_cadence == "molecule":
-                logger.debug(f"Working on molecule cadence of UUID {field_uuid}")
-                if field_uuid not in uuid_map.keys():
+            if field_cadence == cadence_eval:
+                logger.debug(f"Working on {cadence_eval} cadence of UUID {field_uuid}")
+                if field_uuid not in digester_map.keys():
                     logger.debug("Could not find method match of UUID")
                     continue
-                method = getattr(cls, uuid_map[field_uuid])
+                method = getattr(cls, digester_map[field_uuid])
                 data = method(**inputs_frame)
-                mol_schema.update({key_to_field: data})
+                mol_data[field_key] = data
             else:
-                logger.trace("Cadence is not molecule; skipping.")
+                logger.trace(f"Cadence is not {cadence_eval}; skipping.")
 
-        return mol_schema
+        return mol_data

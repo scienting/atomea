@@ -6,7 +6,7 @@ import numpy as np
 import numpy.typing as npt
 from loguru import logger
 
-from ..schemas.atomistic import EnsembleSchema, MoleculeSchema
+from ..schemas.atomistic import EnsembleSchema
 
 
 class StorageManager(ABC):
@@ -46,14 +46,6 @@ class StorageManager(ABC):
         raise NotImplementedError
 
     @classmethod
-    def process_molecule(
-        cls, molecule: MoleculeSchema, store: Any, prefix: str = ""
-    ) -> None:
-        """Add molecule data to storage."""
-        molecule_dict = molecule.model_dump(exclude_none=True)
-        cls._process_nested_dict(molecule_dict, store, prefix)
-
-    @classmethod
     def _process_nested_dict(cls, nested_dict, store, prefix):
         """Recursively create groups and arrays in `store` from `nested_dict`."""
         for key, value in nested_dict.items():
@@ -72,17 +64,20 @@ class StorageManager(ABC):
                             object if isinstance(value[0], (str, dict, list)) else None
                         ),
                     )
-                else:
-                    value = np.array([value])
+                if value.ndim == 2:
+                    value = value[None, ...]
+                value = np.array(value)
                 logger.debug(f"Value is: {repr(value)}")
                 cls.append_array(value, store, new_key)
 
     @classmethod
-    def process_ensemble(cls, ensemble_data: EnsembleSchema, store: Any) -> Any:
+    def process_ensemble(
+        cls, ensemble_data: EnsembleSchema, store: Any, prefix: str = ""
+    ) -> Any:
         """Add multiple molecules to `store` from `EnsembleSchema.frames`."""
         logger.debug("Processing ensemble")
-        for molecule in ensemble_data.frames:
-            cls.process_molecule(molecule, store)
+        ensemble_dict = ensemble_data.model_dump(exclude_none=True)
+        cls._process_nested_dict(ensemble_dict, store, prefix)
         return store
 
     @classmethod
