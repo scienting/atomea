@@ -34,6 +34,7 @@ requests = "^2.31.0"
 ruff = "^0.4.5"
 types-pyyaml = "^6.0.12.20240311"
 twine = "^5.1.0"
+pylint = "^3.2.2"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.2"
