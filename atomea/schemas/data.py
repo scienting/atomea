@@ -34,14 +34,16 @@ class Data(ABC):
             The updated molecule index after processing the input data.
 
         Example:
-            >>> molecule = MoleculeSchema()
-            >>> update_data = {
-            >>>     "identification.name": "Water",
-            >>>     "qc.energy": -76.4,
-            >>>     "system.coordinates": [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
-            >>>     "topology.bonds": [(0, 1), (0, 2)]
-            >>> }
-            >>> molecule.update(update_data, schema_map)
+            ```python
+            mol_schema = MoleculeSchema()
+            schema_map = mol_schema.get_schema_map()
+            data = {
+                "qc.energy": -76.4,
+                "system.coordinates": [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
+                "topology.bonds": [(0, 1), (0, 2)]
+            }
+            molecule.update(data, schema_map)
+            ```
 
         Raises:
             AttributeError: If a specified attribute does not exist in the schema.
@@ -67,7 +69,7 @@ class Data(ABC):
                 raise ValueError(f"Unknown cadence: {cadence}")
         return mol_index
 
-    def _set_field(self, key: str, value: Any) -> None:
+    def _set_field(self, key: str, value: Any, separator: str = ".") -> None:
         """
         Set a single field in the schema.
 
@@ -75,8 +77,9 @@ class Data(ABC):
             key: The key of the field to update. Can use dot notation for nested
                 attributes.
             value: The value to set for the specified field.
+            separator: The string used to separate nested keys.
         """
-        keys = key.split(".")
+        keys = key.split(separator)
         if len(keys) > 1:
             sub_model = self
             for sub_key in keys[:-1]:

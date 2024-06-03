@@ -28,48 +28,48 @@ class AmberInputsBase(BaseModel, YamlIO):
     Read in a trajectory for analysis using the minimization algorithms.
 
     Although sander will write energy information in the output files
-    (using [`ntpr`][schemas.simulation.amber.inputs.AmberInputsBase.ntpr]),
+    (using [`ntpr`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntpr]),
     it is often desirable to calculate the energies of a set of structures at a
     later point. In particular, one may wish to post-process a set of structures using
     a different energy function than was used to generate the structures.
     An example of this is MM-PBSA analysis, where the explicit water is removed and
     replaced with a continuum model.
 
-    If [`imin`][schemas.simulation.amber.inputs.AmberInputsBase.imin] is set to
+    If [`imin`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.imin] is set to
     `5`, sander will read a trajectory file (the `inptraj` argument, specified using
     `-y` on the command line), and will perform the functions described in the `mdin`
     file (e.g., an energy minimization) for each of the structures in this file.
     The final structure from each minimization will be written out to the normal
     `mdcrd` file. If you wish to read in a binary (i.e., NetCDF format) trajectory,
-    be sure to set [`ioutfm`][schemas.simulation.amber.inputs.AmberInputsBase.ioutfm]
+    be sure to set [`ioutfm`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ioutfm]
     to `1`. Note that this will result in the output trajectory having NetCDF format
     as well.
 
-    For example, when [`imin`][schemas.simulation.amber.inputs.AmberInputsBase.imin]
-    is `5` and [`maxcyc`][schemas.simulation.amber.inputs.AmberInputsBase.maxcyc] is
+    For example, when [`imin`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.imin]
+    is `5` and [`maxcyc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.maxcyc] is
     `1000`, sander will minimize each structure in the trajectory for 1000 steps and
     write a minimized coordinate set for each frame to the `mdcrd` file.
-    If [`maxcyc`][schemas.simulation.amber.inputs.AmberInputsBase.maxcyc] is `1`, the
+    If [`maxcyc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.maxcyc] is `1`, the
     output file can be used to extract the energies of each of the coordinate
     sets in the `inptraj` file.
 
     Trajectories containing box coordinates can be post-processed. In order to read
     trajectories with box coordinates,
-    [`ntb`][schemas.simulation.amber.inputs.AmberInputsBase.ntb] should be greater
+    [`ntb`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntb] should be greater
     than `0`.
 
     **`6`**
 
     Read in a trajectory for analysis using the molecular dynamics driver.
 
-    Like when [`imin`][schemas.simulation.amber.inputs.AmberInputsBase.imin] is `5`,
+    Like when [`imin`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.imin] is `5`,
     this option reads a trajectory file for analysis (the `inptraj` argument,
     specified using `-y` on the command line). Instead of minimizing the potential
     energy of each coordinate set, it instead initiates dynamics from each frame as
     if it were read as a restart file without initial velocities. That is, this
     option is equivalent to outputting each frame as a restart file and starting the
-    dynamics with [`irest`][schemas.simulation.amber.inputs.AmberInputsBase.irest]
-    is `0`. If [`nstlim`][schemas.simulation.amber.inputs.AmberInputsBase.nstlim] is
+    dynamics with [`irest`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.irest]
+    is `0`. If [`nstlim`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nstlim] is
     `0`, then this effectively performs a single point energy for each frame.
 
     **`7`**
@@ -105,18 +105,18 @@ class AmberInputsBase(BaseModel, YamlIO):
     Do not restart the simulation; instead, run as a new simulation. Velocities in the
     input coordinate file, if any, will be ignored, and the time step count will be set
     to `0` (unless overridden by
-    [`t`][schemas.simulation.amber.inputs.AmberInputsBase.t]).
+    [`t`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.t]).
 
 
     **`1`**
 
     Restart the simulation, reading coordinates and velocities from a previously saved
     restart file. The velocity information is necessary when restarting, so
-    [`ntx`][schemas.simulation.amber.inputs.AmberInputsBase.ntx] must be
+    [`ntx`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntx] must be
     `5` (for Amber versions much older than 20,
-    [`ntx`][schemas.simulation.amber.inputs.AmberInputsBase.ntx] must be greater than
+    [`ntx`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntx] must be greater than
     or equal to `4`),
-    if [`irest`][schemas.simulation.amber.inputs.AmberInputsBase.irest] is `1`.
+    if [`irest`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.irest] is `1`.
     """
 
     ntx: Literal[1, 5] = Field(default=1)
@@ -127,7 +127,7 @@ class AmberInputsBase(BaseModel, YamlIO):
 
     File is read with no initial velocity information. Suitable for
     starting simulations with new systems where velocities are generated based
-    on [`tempi`][schemas.simulation.amber.inputs.AmberInputsBase.tempi]
+    on [`tempi`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.tempi]
     Option `1` must be used when one is starting from minimized or model-built
     coordinates.
 
@@ -155,7 +155,7 @@ class AmberInputsBase(BaseModel, YamlIO):
 
     **`1`**
 
-    For [`ncyc`][schemas.simulation.amber.inputs.AmberInputsBase.ncyc] cycles, the
+    For [`ncyc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ncyc] cycles, the
     steepest descent method is used, then the conjugate gradient is switched on.
     This option combines the robustness of steepest descent with the efficiency of
     conjugate gradient, making it a recommended choice for many scenarios.
@@ -201,10 +201,10 @@ class AmberInputsBase(BaseModel, YamlIO):
 
     ncyc: int = Field(default=10)
     """
-    If [`ntmin`][schemas.simulation.amber.inputs.AmberInputsBase.ntmin] is `1`,
+    If [`ntmin`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntmin] is `1`,
     then the minimization method will be switched from steepest descent
     to conjugate gradient after
-    [`ncyc`][schemas.simulation.amber.inputs.AmberInputsBase.ncyc] cycles.
+    [`ncyc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ncyc] cycles.
     Values typically range from `5` to `100`.
 
     Lower values will switch to conjugate gradient sooner, which can be more efficient
@@ -229,7 +229,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     """
     The seed for the pseudo-random number generator. This affects the starting velocities
     for MD simulations if
-    [`tempi`][schemas.simulation.amber.inputs.AmberInputsBase.tempi] is nonzero.
+    [`tempi`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.tempi] is nonzero.
     If this is `-1`, a random seed will be computed based on the current date and time.
     This should almost always be `-1` unless you are reproducing a run.
 
@@ -238,7 +238,7 @@ class AmberInputsBase(BaseModel, YamlIO):
             providing varied initial conditions for better sampling.
         -   Use a specific integer value if you need to reproduce an exact simulation
             run for debugging or verification purposes.
-        -   Ensure that [`tempi`][schemas.simulation.amber.inputs.AmberInputsBase.tempi]
+        -   Ensure that [`tempi`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.tempi]
             is set appropriately when using this option to affect starting velocities.
     """
 
@@ -248,7 +248,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     each step in the simulation.
 
     -   With SHAKE
-        ([`ntc`][schemas.simulation.amber.inputs.AmberInputsBase.ntc] is `2`):
+        ([`ntc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntc] is `2`):
         The maximum value is `0.002` ps (2 fs). SHAKE constrains bond lengths
         involving hydrogen atoms, allowing for a larger time step.
     -   Without SHAKE: The maximum value is `0.001` ps (1 fs). Without bond constraints,
@@ -272,20 +272,20 @@ class AmberInputsBase(BaseModel, YamlIO):
     nstlim: int = Field(default=1, gt=0)
     """
     Number of MD steps to perform. Multiply
-    [`nstlim`][schemas.simulation.amber.inputs.AmberInputsBase.nstlim] and
-    [`dt`][schemas.simulation.amber.inputs.AmberInputsBase.dt] to get the duration
+    [`nstlim`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nstlim] and
+    [`dt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.dt] to get the duration
     of the MD simulation in picoseconds.
 
     tip:
         -   For short equilibration runs or quick tests, use lower values of
-            [`nstlim`][schemas.simulation.amber.inputs.AmberInputsBase.nstlim], such as
+            [`nstlim`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nstlim], such as
             `5000` to `50000`.
         -   For production runs aimed at sampling equilibrium states or studying
             slower processes, higher values of
-            [`nstlim`][schemas.simulation.amber.inputs.AmberInputsBase.nstlim] are
+            [`nstlim`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nstlim] are
             recommended, typically in the range of `1000000` to `50000000`
             (corresponding to 2 ns to 100 ns for `dt = 0.002`).
-        -   Adjust [`nstlim`][schemas.simulation.amber.inputs.AmberInputsBase.nstlim]
+        -   Adjust [`nstlim`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nstlim]
             based on the specific requirements of your study, considering both
             the computational resources available and the timescale of the phenomena
             you are investigating.
@@ -294,9 +294,9 @@ class AmberInputsBase(BaseModel, YamlIO):
     nscm: int = Field(default=1000)
     """
     Flag for the removal of translational and rotational center-of-mass motion every
-    [`nscm`][schemas.simulation.amber.inputs.AmberInputsBase.nscm] steps.
+    [`nscm`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nscm] steps.
     For periodic simulations
-    ([`ntb`][schemas.simulation.amber.inputs.AmberInputsBase.ntb] is `1` or `2`),
+    ([`ntb`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntb] is `1` or `2`),
     only the translational center-of-mass motion is removed.
     Reasonable values are between `100` and `2000`. Lower values ensure
     more frequent removal of center-of-mass motion, which can be beneficial
@@ -316,7 +316,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     """
     Flag for restraining positions of specified atoms using a harmonic potential.
     Ensure that
-    [`restraintmask`][schemas.simulation.amber.inputs.AmberInputsBase.restraintmask]
+    [`restraintmask`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.restraintmask]
     is properly defined to specify the atoms that require constraints.
 
     **`0`**
@@ -328,9 +328,9 @@ class AmberInputsBase(BaseModel, YamlIO):
     **`1`**
 
     Constrain atoms specified in
-    [`restraintmask`][schemas.simulation.amber.inputs.AmberInputsBase.restraintmask].
+    [`restraintmask`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.restraintmask].
     This applies a harmonic potential to the atoms defined in
-    [`restraintmask`][schemas.simulation.amber.inputs.AmberInputsBase.restraintmask],
+    [`restraintmask`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.restraintmask],
     effectively fixing their positions relative to the rest of the system.
     Use `1` when specific atoms need to be restrained, such as in cases where you want to focus on a
     particular region of the system while keeping another region fixed or minimally perturbed.
@@ -339,7 +339,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     restraint_wt: float = Field(default=4.0, gt=0.0)
     """
     The weight (in kcal mol<sup>-1</sup> Å<sup>-2</sup>) when
-    [`ntr`][schemas.simulation.amber.inputs.AmberInputsBase.ntr] is `1`. The form of
+    [`ntr`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntr] is `1`. The form of
     the restraint is
     $k (\Delta x)^2$ where $\Delta x$ is the deviation of the atom's coordinate
     from the reference position.
@@ -356,7 +356,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     restraintmask: str = Field(default="")
     """
     Strings that specify the restricted atoms when
-    [`ntr`][schemas.simulation.amber.inputs.AmberInputsBase.ntr] is `1`. To see what
+    [`ntr`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntr] is `1`. To see what
     atoms will be restrained, you can use
     `ambmask -p mol.prmtop -c mol.inpcrd -out pdb -find "RESTRAINT_STRING"`
     in `ambertools`. Here are some examples of `restraintmask`s and their descriptions.
@@ -406,14 +406,14 @@ class AmberInputsBase(BaseModel, YamlIO):
     **`2`**
 
     Ignore bond interactions involving hydrogens. This option is typically used when
-    [`ntc`][schemas.simulation.amber.inputs.AmberInputsBase.ntc] is `2`, meaning
+    [`ntc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntc] is `2`, meaning
     constraints are applied to bonds involving hydrogens (e.g., SHAKE algorithm).
 
 
     **`3`**
 
     All bond interactions are omitted. This option is used when
-    [`ntc`][schemas.simulation.amber.inputs.AmberInputsBase.ntc] is `3`, which
+    [`ntc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntc] is `3`, which
     implies constraints are applied to all bonds.
     """
 
@@ -424,8 +424,8 @@ class AmberInputsBase(BaseModel, YamlIO):
     fastest motions in the system. SHAKE removes the bond stretching freedom, which
     is the fastest motion, and consequently allows a larger timestep to be used.
     For water models, a special "three-point" algorithm is used. Consequently, to
-    employ TIP3P set [`ntf`][schemas.simulation.amber.inputs.AmberInputsBase.ntf] and
-    [`ntc`][schemas.simulation.amber.inputs.AmberInputsBase.ntc] to 2.
+    employ TIP3P set [`ntf`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntf] and
+    [`ntc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntc] to 2.
 
     Since SHAKE is an algorithm based on dynamics, the minimizer is not aware of
     what SHAKE is doing; for this reason, minimizations generally should be carried
@@ -498,16 +498,16 @@ class AmberInputsBase(BaseModel, YamlIO):
 
     Andersen-like temperature coupling scheme, in which imaginary "collisions"
     are performed with heat bath of temperature
-    [`temp0`][schemas.simulation.amber.inputs.AmberInputsBase.temp0] every
-    [`vrand`][schemas.simulation.amber.inputs.AmberInputsBase.vrand] steps.
+    [`temp0`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.temp0] every
+    [`vrand`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.vrand] steps.
 
     **`3`**
 
     Use Langevin dynamics with the collision frequency
-    [`gamma_ln`][schemas.simulation.amber.inputs.AmberInputsBase.gamma_ln].
+    [`gamma_ln`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.gamma_ln].
     Since Langevin simulations are highly susceptible to "synchronization"
     artifacts, you should explicitly set
-    [`ig`][schemas.simulation.amber.inputs.AmberInputsBase.ig] to a different value
+    [`ig`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ig] to a different value
     every restart (e.g., `-1`).
 
     **`9`**
@@ -531,13 +531,13 @@ class AmberInputsBase(BaseModel, YamlIO):
     Initialization temperature in Kelvin. This parameter sets the initial temperature
     for the system at the start of the simulation.
 
-    -   If [`ntx`][schemas.simulation.amber.inputs.AmberInputsBase.ntx] is `1`, the
+    -   If [`ntx`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntx] is `1`, the
         initial velocities of the atoms are assigned from a
         Maxwellian distribution corresponding to the temperature
-        [`tempi`][schemas.simulation.amber.inputs.AmberInputsBase.tempi]. This is
+        [`tempi`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.tempi]. This is
         typically used to start a new simulation where the initial conditions need to
         be defined.
-    -   If [`ntx`][schemas.simulation.amber.inputs.AmberInputsBase.ntx] is `5`, this
+    -   If [`ntx`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntx] is `5`, this
         parameter has no effect because the velocities are read from the input
         coordinates file, meaning the system continues from a previously
         equilibrated state.
@@ -564,7 +564,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     gamma_ln: float = Field(default=2.0)
     """
     The collision frequency, $\gamma$, when
-    [`ntt`][schemas.simulation.amber.inputs.AmberInputsBase.ntt] is `3`. This parameter
+    [`ntt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntt] is `3`. This parameter
     is used in Langevin dynamics to control the rate of coupling between the system
     and a heat bath, thereby regulating the temperature.
 
@@ -612,7 +612,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     for modifying the volume of the system, particularly useful for preparing
     replica-exchange molecular dynamics simulations where the shape of each replica
     needs to be the same. When
-    [`ntp`][schemas.simulation.amber.inputs.AmberInputsBase.ntp] is `4`, the following
+    [`ntp`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntp] is `4`, the following
     variables in the “ewald” namelist should be set:
 
     -   `target_n`: Number of target volume iterations to reach the target volume
@@ -658,7 +658,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     comp: float = Field(default=44.6)
     """
     Compressibility of the system when
-    [`ntp`][schemas.simulation.amber.inputs.AmberInputsBase.ntp] > `0` in units of
+    [`ntp`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntp] > `0` in units of
     10<sup>-6</sup> bar<sup>-1</sup>. 44.6` x 10<sup>-6</sup> bar<sup>-1</sup>,
     appropriate for water. This value is used in pressure regulation to account for the
     compressibility of the solvent or system being simulated.
@@ -667,7 +667,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     taup: float = Field(default=1.0)
     """
     Pressure relaxation time in picoseconds when
-    [`ntp`][schemas.simulation.amber.inputs.AmberInputsBase.ntp] > `0`.
+    [`ntp`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntp] > `0`.
     Recommended values are between `1.0` and `5.0` ps. This parameter controls how
     quickly the pressure adjusts to the target value. Start with `1.0` ps.
     If your simulations are unstable, consider increasing this value.
@@ -690,16 +690,16 @@ class AmberInputsBase(BaseModel, YamlIO):
 
     ntwr: int = Field(default=1000)
     """
-    Every [`ntwr`][schemas.simulation.amber.inputs.AmberInputsBase.ntwr] steps
+    Every [`ntwr`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwr] steps
     during dynamics, the `restrt` file will be written, ensuring that recovery from a
     crash will not be so painful. No matter what the value of
-    [`ntwr`][schemas.simulation.amber.inputs.AmberInputsBase.ntwr], a `restrt` file
+    [`ntwr`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwr], a `restrt` file
     will be written at the end of the run, i.e., after
-    [`nstlim`][schemas.simulation.amber.inputs.AmberInputsBase.nstlim] steps
+    [`nstlim`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nstlim] steps
     (for dynamics) or
-    [`maxcyc`][schemas.simulation.amber.inputs.AmberInputsBase.maxcyc] steps
+    [`maxcyc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.maxcyc] steps
     (for minimization). If
-    [`ntwr`][schemas.simulation.amber.inputs.AmberInputsBase.ntwr] < `0`, a unique
+    [`ntwr`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwr] < `0`, a unique
     copy of the file, `restrt_<nstep>`, is written every `abs(ntwr)` steps.
     This option is useful if for example one wants to run free energy perturbations
     from multiple starting points or save a series of `restrt` files for minimization.
@@ -708,7 +708,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     ntpr: int = Field(default=1000)
     """
     Print energy information every
-    [`ntpr`][schemas.simulation.amber.inputs.AmberInputsBase.ntpr] steps in a
+    [`ntpr`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntpr] steps in a
     human-readable form to files `mdout` and `mdinfo`. `mdinfo` is closed and
     reopened each time, so it always contains the most recent energy and temperature.
     """
@@ -716,10 +716,10 @@ class AmberInputsBase(BaseModel, YamlIO):
     ntwx: int = Field(default=0)
     """
     Coordinates are written every
-    [`ntwx`][schemas.simulation.amber.inputs.AmberInputsBase.ntwx] steps to the
+    [`ntwx`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwx] steps to the
     `mdcrd` file. This parameter controls how often the coordinates are saved,
     which can be used for trajectory analysis. If
-    [`ntwx`][schemas.simulation.amber.inputs.AmberInputsBase.ntwx] is `0`, no coordinate
+    [`ntwx`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwx] is `0`, no coordinate
     trajectory file will be written.
     """
 
@@ -756,11 +756,11 @@ class AmberInputsBase(BaseModel, YamlIO):
     wrapping, however, can mess up diffusion and other calculations.
 
     For very long runs, setting
-    [`iwrap`][schemas.simulation.amber.inputs.AmberInputsBase.iwrap] is `1` may be
+    [`iwrap`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.iwrap] is `1` may be
     required to keep the coordinate output from overflowing the trajectory and
     restart file formats, especially if trajectories are written in ASCII format
     instead of NetCDF (see also the
-    [`ioutfm`][schemas.simulation.amber.inputs.AmberInputsBase.ioutfm] option).
+    [`ioutfm`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ioutfm] option).
     """
 
     nmropt: Literal[0, 1, 2] = Field(default=0)
@@ -781,28 +781,28 @@ class AmberInputsBase(BaseModel, YamlIO):
     """
 
     ntave: int = Field(default=0)
-    """Every [`ntave`][schemas.simulation.amber.inputs.AmberInputsBase.ntave] steps of
+    """Every [`ntave`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntave] steps of
     dynamics, running averages of average energies and fluctuations over the last
-    [`ntave`][schemas.simulation.amber.inputs.AmberInputsBase.ntave] steps will be
+    [`ntave`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntave] steps will be
     printed out. A value of `0` disables this printout. Setting
-    [`ntave`][schemas.simulation.amber.inputs.AmberInputsBase.ntave] to a value
+    [`ntave`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntave] to a value
     1/2 or 1/4 of nstlim provides a simple way to look at convergence during the
     simulation.
     """
 
     ntwv: int = Field(default=0)
     """
-    Every [`ntwv`][schemas.simulation.amber.inputs.AmberInputsBase.ntwv] steps,
+    Every [`ntwv`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwv] steps,
     the velocities will be written to the `mdvel` file. If
-    [`ntwv`][schemas.simulation.amber.inputs.AmberInputsBase.ntwv] is `0`, no
+    [`ntwv`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwv] is `0`, no
     velocity trajectory file will be written. If
-    [`ntwv`][schemas.simulation.amber.inputs.AmberInputsBase.ntwv] is `-1`, velocities
+    [`ntwv`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwv] is `-1`, velocities
     will be written to mdcrd, which then becomes a combined coordinate/velocity
     trajectory file, at the interval defined by ntwx. This option is available
     only for binary NetCDF output
-    ([`ioutfm`][schemas.simulation.amber.inputs.AmberInputsBase.ioutfm] is `1`).
+    ([`ioutfm`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ioutfm] is `1`).
     Most users will have no need for a velocity trajectory file and so can safely
-    leave [`ntwv`][schemas.simulation.amber.inputs.AmberInputsBase.ntwv] at the default.
+    leave [`ntwv`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwv] at the default.
     Note that dumping velocities frequently, like forces or coordinates, will introduce
     potentially significant I/O and communication overhead, hurting both performance
     and parallel scaling.
@@ -817,18 +817,18 @@ class AmberInputsBase(BaseModel, YamlIO):
 
     ntwf: int = Field(default=0)
     """
-    Every [`ntwf`][schemas.simulation.amber.inputs.AmberInputsBase.ntwf] steps, the
+    Every [`ntwf`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwf] steps, the
     forces will be written to the mdfrc file. If
-    [`ntwf`][schemas.simulation.amber.inputs.AmberInputsBase.ntwf] is `0`, no force
+    [`ntwf`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwf] is `0`, no force
     trajectory file will be written. If
-    [`ntwf`][schemas.simulation.amber.inputs.AmberInputsBase.ntwf] is `-1`, forces
+    [`ntwf`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwf] is `-1`, forces
     will be written to the mdcrd, which then becomes a combind coordinate/force
     trajectory file, at the interval defined by
-    [`ntwx`][schemas.simulation.amber.inputs.AmberInputsBase.ntwx].
+    [`ntwx`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwx].
     This option is available only for binary NetCDF output
-    ([`ioutfm`][schemas.simulation.amber.inputs.AmberInputsBase.ioutfm] is `1`).
+    ([`ioutfm`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ioutfm] is `1`).
     Most users will have no need for a force trajectory file and so can safely
-    leave [`ntwf`][schemas.simulation.amber.inputs.AmberInputsBase.ntwf] at the default.
+    leave [`ntwf`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwf] at the default.
     Note that dumping forces frequently, like velocities or coordinates, will introduce
     potentially significant I/O and communication overhead, hurting both performance
     and parallel scaling.
@@ -836,13 +836,13 @@ class AmberInputsBase(BaseModel, YamlIO):
 
     ntwe: int = Field(default=0)
     """
-    Every [`ntwe`][schemas.simulation.amber.inputs.AmberInputsBase.ntwe] steps,
+    Every [`ntwe`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwe] steps,
     the energies and temperatures will be written to file `mden` in a compact form. If
-    [`ntwe`][schemas.simulation.amber.inputs.AmberInputsBase.ntwe] is `0` then no
+    [`ntwe`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwe] is `0` then no
     `mden` file will be written. Note that energies in the `mden` file are not
     synchronized with coordinates or velocities in the `mdcrd` or `mdvel` file(s).
-    Assuming identical [`ntwe`][schemas.simulation.amber.inputs.AmberInputsBase.ntwe]
-    and [`ntwx`][schemas.simulation.amber.inputs.AmberInputsBase.ntwx] values the
+    Assuming identical [`ntwe`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwe]
+    and [`ntwx`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwx] values the
     energies are one time step before the coordinates (as well as the velocities
     which are synchronized with the coordinates). Consequently, an `mden` file is
     rarely written.
@@ -862,7 +862,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     **`> 0`**
 
     Include only atoms 1 to
-    [`ntwprt`][schemas.simulation.amber.inputs.AmberInputsBase.ntwprt] when writing
+    [`ntwprt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntwprt] when writing
     trajectories.
     """
 
@@ -895,13 +895,13 @@ class AmberInputsBase(BaseModel, YamlIO):
     **`3`**
 
     Decompose energies on a pairwise per-residue basis; otherwise equivalent to
-    [`idecomp`][schemas.simulation.amber.inputs.AmberInputsBase.idecomp] is `1`.
+    [`idecomp`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.idecomp] is `1`.
     Not available in TI simulations.
 
     **`4`**
 
     Decompose energies on a pairwise per-residue basis; otherwise equivalent to
-    [`idecomp`][schemas.simulation.amber.inputs.AmberInputsBase.idecomp] is `2`.
+    [`idecomp`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.idecomp] is `2`.
     Not available in TI simulations.
     """
 
@@ -910,7 +910,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     Flag for belly type dynamics. If set to `1`, a subset of the atoms in the system
     will be allowed to move, and the coordinates of the rest will be frozen.
     The moving atoms are specified with
-    [`bellymask`][schemas.simulation.amber.inputs.AmberInputsBase.bellymask].
+    [`bellymask`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.bellymask].
     This option is not available when
     `igb` > `0`. When belly
     type dynamics is in use, bonded energy terms, vdW interactions, and direct
@@ -918,13 +918,13 @@ class AmberInputsBase(BaseModel, YamlIO):
     Note that this does not provide any significant speed advantage. Freezing
     atoms can be useful for some applications but is maintained primarily for
     backwards compatibility with older versions of Amber. Most applications should
-    use the [`ntr`][schemas.simulation.amber.inputs.AmberInputsBase.ntr] variable
+    use the [`ntr`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntr] variable
     instead to restrain parts of the system to stay close to some initial configuration.
     """
 
     bellymask: str = Field(default="")
     """String that specifies the moving atoms when
-    [`ibelly`][schemas.simulation.amber.inputs.AmberInputsBase.ibelly] is `1`.
+    [`ibelly`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ibelly] is `1`.
     """
 
     dx0: float = Field(default=0.01)
@@ -943,7 +943,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     t: float = Field(default=0.0)
     """The time at the start (psec) this is for your own reference and is not critical.
     Start time is taken from the coordinate input file if
-    [`irest`][schemas.simulation.amber.inputs.AmberInputsBase.irest] is `1`.
+    [`irest`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.irest] is `1`.
     """
 
     nrespa: int = Field(default=1, ge=1)
@@ -954,25 +954,25 @@ class AmberInputsBase(BaseModel, YamlIO):
     derivatives with respect to the effective radii, and pair interactions whose
     distances are greater than the "inner" cutoff, currently hard-wired at 8 Å.
 
-    If [`nrespa`][schemas.simulation.amber.inputs.AmberInputsBase.nrespa] > `1`
+    If [`nrespa`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nrespa] > `1`
     these slowly-varying forces are evaluated every
-    [`nrespa`][schemas.simulation.amber.inputs.AmberInputsBase.nrespa] steps.
+    [`nrespa`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nrespa] steps.
     The forces are adjusted appropriately, leading to an impulse at that step.
-    If [`nrespa`][schemas.simulation.amber.inputs.AmberInputsBase.nrespa]
-    $\times$ [`dt`][schemas.simulation.amber.inputs.AmberInputsBase.dt]
+    If [`nrespa`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nrespa]
+    $\times$ [`dt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.dt]
     is less than or equal to `4` fs then the energy conservation is not seriously
     compromised. However if
-    [`nrespa`][schemas.simulation.amber.inputs.AmberInputsBase.nrespa] $\times$
-    [`dt`][schemas.simulation.amber.inputs.AmberInputsBase.dt] > `4` fs then the
+    [`nrespa`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nrespa] $\times$
+    [`dt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.dt] > `4` fs then the
     simulation becomes less stable. Note that energies and related quantities are
     only accessible every
-    [`nrespa`][schemas.simulation.amber.inputs.AmberInputsBase.nrespa] steps, since
+    [`nrespa`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.nrespa] steps, since
     the values at other times are meaningless.
     """
 
     temp0les: int = Field(default=-1)
     """This is the target temperature for all LES particles. If
-    [`temp0les`][schemas.simulation.amber.inputs.AmberInputsBase.temp0les] < `0`,
+    [`temp0les`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.temp0les] < `0`,
     a single temperature bath is used for all atoms, otherwise separate thermostats
     are used for LES and non-LES particles. Default is -1, corresponding to a single
     (weak-coupling) temperature bath.
@@ -981,12 +981,12 @@ class AmberInputsBase(BaseModel, YamlIO):
     tautp: float = Field(default=1.0)
     """
     Time constant, in ps, for heat bath coupling for the system, if
-    [`ntt`][schemas.simulation.amber.inputs.AmberInputsBase.ntt] is `1`.
+    [`ntt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntt] is `1`.
     Generally, values for
-    [`tautp`][schemas.simulation.amber.inputs.AmberInputsBase.tautp] should be in the
+    [`tautp`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.tautp] should be in the
     range of `0.5` to `5.0` ps, with a smaller value providing tighter coupling to the
     heat bath and, thus, faster heating and a less natural trajectory. Smaller values of
-    [`tautp`][schemas.simulation.amber.inputs.AmberInputsBase.tautp] result in
+    [`tautp`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.tautp] result in
     smaller fluctuations in kinetic energy, but larger fluctuations in the total energy.
     Values much larger than the length of the simulation result in a return
     to constant energy conditions.
@@ -994,11 +994,11 @@ class AmberInputsBase(BaseModel, YamlIO):
 
     vrand: int = Field(default=1000)
     """
-    If [`vrand`][schemas.simulation.amber.inputs.AmberInputsBase.vrand] > `0`
-    and [`ntt`][schemas.simulation.amber.inputs.AmberInputsBase.ntt] is `2`, the
+    If [`vrand`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.vrand] > `0`
+    and [`ntt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntt] is `2`, the
     velocities will be randomized to temperature
-    [`temp0`][schemas.simulation.amber.inputs.AmberInputsBase.temp0] every
-    [`vrand`][schemas.simulation.amber.inputs.AmberInputsBase.vrand] steps.
+    [`temp0`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.temp0] every
+    [`vrand`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.vrand] steps.
     """
 
     vlimit: float = Field(default=20.0)
@@ -1014,11 +1014,11 @@ class AmberInputsBase(BaseModel, YamlIO):
 
     nkija: int = Field(default=1)
     r"""
-    For use with [`ntt`][schemas.simulation.amber.inputs.AmberInputsBase.ntt] if `9` or 10.
-    For [`ntt`][schemas.simulation.amber.inputs.AmberInputsBase.ntt] is `9`, this the
-    number of substeps of [`dt`][schemas.simulation.amber.inputs.AmberInputsBase.dt]
+    For use with [`ntt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntt] if `9` or 10.
+    For [`ntt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntt] is `9`, this the
+    number of substeps of [`dt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.dt]
     when integrating the thermostat equations of motion, for greater accuracy.
-    For [`ntt`][schemas.simulation.amber.inputs.AmberInputsBase.ntt] is `10`, this
+    For [`ntt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntt] is `10`, this
     specifies the number of additional auxiliary velocity variables v1 and v2, which
     will total `nkija` $\times$ v1 + `nkija` $\times$ v2
     """
@@ -1026,7 +1026,7 @@ class AmberInputsBase(BaseModel, YamlIO):
     sinrtau: float = Field(default=1.0)
     """
     For the SINR (Stochastic Isokinetic Nose-Hoover RESPA) integrator
-    ([`ntt`][schemas.simulation.amber.inputs.AmberInputsBase.ntt] is `10`), this
+    ([`ntt`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntt] is `10`), this
     specifies the time scale for determining the masses associated with the two
     auxiliary velocity variables v1 and v2 (e.g. thermostat velocities) and hence
     the magnitude of the coupling of the physical velocities with the auxiliary
@@ -1036,9 +1036,9 @@ class AmberInputsBase(BaseModel, YamlIO):
     baroscalingdir: Literal[0, 1, 2, 3] = Field(default=0)
     """
     Flag for pressure scaling direction control. Applicable when using Monte Carlo
-    barostat ([`barostat`][schemas.simulation.amber.inputs.AmberInputsBase.barostat]
+    barostat ([`barostat`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.barostat]
     is `2`) with anisotropic pressure scaling
-    ([`ntp`][schemas.simulation.amber.inputs.AmberInputsBase.ntp] is `2`).
+    ([`ntp`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntp] is `2`).
 
     **`0`**
 
@@ -1121,9 +1121,9 @@ class AmberInputsBase(BaseModel, YamlIO):
     noshakemask: str = Field(default="")
     """
     String that specifies atoms that are not to be shaken
-    (assuming that [`ntc`][schemas.simulation.amber.inputs.AmberInputsBase.ntc]>1).
+    (assuming that [`ntc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntc]>1).
     Any bond that would otherwise be shaken by virtue of the
-    [`ntc`][schemas.simulation.amber.inputs.AmberInputsBase.ntc] flag, but which
+    [`ntc`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntc] flag, but which
     involves an atom flagged here, will **not** be shaken.
     Default is an empty string, which matches nothing. A typical use would be to remove
     SHAKE constraints from all or part of a solute, while still shaking rigid water
@@ -1132,14 +1132,14 @@ class AmberInputsBase(BaseModel, YamlIO):
     which are the EVB or quantum regions of the system.
 
     If this option is invoked, then all parts of the potential must be evaluated,
-    that is, [`ntf`][schemas.simulation.amber.inputs.AmberInputsBase.ntf] must be `1`.
+    that is, [`ntf`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntf] must be `1`.
     The code enforces this by setting
-    [`ntf`][schemas.simulation.amber.inputs.AmberInputsBase.ntf] to `1` when a
+    [`ntf`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntf] to `1` when a
     noshakemask string is present in the input.
 
     If you want the noshakemask to apply to all or part of the water molecules,
     you must also set
-    [`jfastw`][schemas.simulation.amber.inputs.AmberInputsBase.jfastw] to `4`, to turn
+    [`jfastw`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.jfastw] to `4`, to turn
     off the special code for water SHAKE. (If you are not shaking waters, you
     presumably also want to issue the "set default FlexibleWater on" command in LEaP;
     see that chapter for more information.)

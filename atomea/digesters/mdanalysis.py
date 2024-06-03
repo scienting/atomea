@@ -49,7 +49,7 @@ class MDAnalysisDigester(Digester):
             **kwargs: Arbitrary keyword arguments.
 
         Returns:
-            dict[str, mda.Universe]: A dictionary containing the MDAnalysis Universe.
+            A dictionary containing the MDAnalysis Universe.
         """
         logger.info("Preparing inputs for MDAnalysis digesters.")
         logger.debug(f"Loading universe with {args} and {kwargs}")
@@ -85,20 +85,24 @@ class MDAnalysisDigester(Digester):
     @staticmethod
     @SchemaUUID("81c7cec9-beec-4126-b6d8-91bee28951d6")
     def coordinates(atoms: mda.AtomGroup) -> npt.NDArray[np.float64]:
-        """Return the coordinates of the atoms.
+        """Return the atomic coordinates in Angstroms.
+
+        **Schema UUID:** [`81c7cec9-beec-4126-b6d8-91bee28951d6`]
+        [schemas.atomistic.system.SystemSchema.coordinates]
 
         Args:
             atoms: The MDAnalysis atoms object associated with the frame.
 
         Returns:
-            A dictionary with the key `"system.coordinates"` and the value being a NumPy
-            array of atom coordinates.
+            A 2D array containing the Cartesian coordinates of all atoms in.
 
         Raises:
-            ValueError: If the coordinates are not a numpy array.
+            ValueError: If the coordinates are not a 2D NumPy array.
         """
         v = atoms.positions
         if isinstance(v, np.ndarray):
+            if v.ndim != 2:
+                raise ValueError("Coordinates are not two dimensions")
             return v
         else:
             raise ValueError("Coordinates must be a numpy array.")
@@ -108,12 +112,14 @@ class MDAnalysisDigester(Digester):
     def ff_atom_type(atoms: mda.AtomGroup) -> list[str]:
         """Return the force field atom types of the atoms.
 
+        **Schema UUID:** [`e34c0e1b-0eaa-4679-b060-3fcfe737aa15`]
+        [schemas.atomistic.topology.TopologySchema.ff_atom_type]
+
         Args:
             atoms: The MDAnalysis atoms object associated with the frame.
 
         Returns:
-            A dictionary with the key `"topology.ff_atom_type"` and the value being a
-            list of atom types.
+            Force field atom types.
         """
         atom_types: list[str] = atoms.accumulate("types", function=accumulate_things)
         return atom_types

@@ -45,10 +45,8 @@ class SystemSchema(BaseModel, YamlIO):
         list[str] | None,
         {"cadence": "ensemble", "uuid": "81c21a83-4b72-48c6-a576-4541b468eb90"},
     ] = Field(default=None)
-    """The atomic number is a fundamental property of an atom and is denoted by the
-    symbol $Z$. It is defined as the number of protons in the nucleus of an atom.
-    In a neutral atom, the atomic number also corresponds to the number of electrons
-    orbiting the nucleus.
+    """Elemental symbol based on [`atom_z`]
+    [schemas.atomistic.system.SystemSchema.atom_z].
 
     **Cadence:** `ensemble`
 

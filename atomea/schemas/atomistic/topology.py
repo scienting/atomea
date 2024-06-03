@@ -25,9 +25,10 @@ class TopologySchema(BaseModel, YamlIO):
         list[str] | None,
         {"cadence": "molecule", "uuid": "cf39af62-d372-4747-a431-cf2fa0c8e119"},
     ] = Field(default=None)
-    """Relates ``entity_id`` to a fragment label for chemical components or species.
-    Labels could be WAT or h2o for water, MeOH for methanol, bz for benzene, etc.
-    There are no standardized labels for species.
+    """Relates [`ids_entity`][schemas.atomistic.topology.TopologySchema.ids_entity]
+    to a fragment label for chemical components or species.
+    Labels could be `WAT` or `h2o` for water, `MeOH` for methanol, `bz` for benzene,
+    etc. There are no standardized labels for species.
 
     **Cadence:** `molecule`
 

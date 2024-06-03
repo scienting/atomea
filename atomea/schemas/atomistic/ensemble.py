@@ -79,10 +79,11 @@ class EnsembleSchema(BaseModel, YamlIO, Data):
         Returns:
             Keys are the UUID of a single field and values are
 
-            -   `field_key`: key to the model field from
-                [`generate_fields`][schemas.atomistic.ensemble.EnsembleSchema.generate_fields].
-            -   `cadence`: The frequency of when this data would change; per molecule
-                or ensemble basis.
+                -   `field_key`: key to the model field from
+                    [`generate_fields`]
+                    [schemas.atomistic.ensemble.EnsembleSchema.generate_fields].
+                -   `cadence`: The frequency of when this data would change; per molecule
+                    or ensemble basis.
         """
         uuid_mapping = {}
         for key, field in cls.generate_fields(model):
