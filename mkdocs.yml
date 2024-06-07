@@ -89,6 +89,9 @@ plugins:
 
 extra:
   generator: false
+  analytics:
+    provider: plausible
+    domain: atomea
 
 extra_css:
   - css/base.css
