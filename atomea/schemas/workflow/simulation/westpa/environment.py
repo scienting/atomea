@@ -17,7 +17,8 @@ class WestpaEnvVars(BaseModel):
     WEST_CURRENT_SEG_ID: int = Field(ge=0, default=0)
     """Current segment ID"""
     WEST_CURRENT_SEG_DATA_REF: str | None = Field(default=None)
-    """General-purpose reference, based on current segment information, configured in west.cfg. Usually used for storage paths. """
+    """General-purpose reference, based on current segment information,
+    configured in `west.cfg`. Usually used for storage paths."""
     WEST_PARENT_ID: int | None = Field(default=None)
     """Segment ID of parent segment. Negative for initial points."""
     WEST_PCOORD_RETURN: str | None = Field(default=None)
@@ -49,7 +50,8 @@ class WestpaEnv(BaseModel):
     """
 
     purge_modules: bool = Field(default=True)
-    """If True, remove all loaded modules before loading the modules in `load_modules`."""
+    """If True, remove all loaded modules before loading the modules in `load_modules`.
+    """
 
     load_modules: MutableSequence[str] = Field(default=[])
     """List of modules to load before running WESTPA simulation.
