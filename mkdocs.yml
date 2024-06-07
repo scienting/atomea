@@ -91,7 +91,7 @@ extra:
   generator: false
   analytics:
     provider: plausible
-    domain: atomea
+    domain: atomea.oasci.org
 
 extra_css:
   - css/base.css
