@@ -37,6 +37,14 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     assert np.allclose(ensemble_data.system.coordinates[0][32][0], 27.2496)
     assert np.allclose(ensemble_data.system.coordinates[-1][78][0], 29.406982)
 
+    assert ensemble_data.system.atom_symbol is not None
+    assert ensemble_data.system.atom_symbol[0] == "N"
+    assert ensemble_data.system.atom_symbol[8324] == "H"
+    assert ensemble_data.system.atom_symbol[-1] == "H"
+
+    assert ensemble_data.topology.ff_atom_type is not None
+    assert ensemble_data.topology.ff_atom_type[0] == "N3"
+
 
 def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     digester = MDAnalysisDigester()

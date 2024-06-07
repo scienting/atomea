@@ -165,6 +165,10 @@ class Digester(ABC):
         ensemble_schema._trim_molecule_arrays(mol_index, schema_map)
 
         # Digest all ensemble-cadence properties using the last frame
+        ensemble_data = cls.digest_frame(
+            inputs_frame, schema_map, cadence_eval="ensemble"
+        )
+        ensemble_schema.update(ensemble_data, schema_map=schema_map)
 
         return ensemble_schema
 
@@ -220,6 +224,15 @@ class Digester(ABC):
                     mol_data, schema_map=schema_map, mol_index=mol_index
                 )
                 count += 1
+
+                # Cleanup molecule arrays, must be done before ensemble.
+                ensemble_schema._trim_molecule_arrays(mol_index, schema_map)
+
+                # Digest all ensemble-cadence properties using the last frame
+                ensemble_data = cls.digest_frame(
+                    inputs_frame, schema_map, cadence_eval="ensemble"
+                )
+                ensemble_schema.update(ensemble_data, schema_map=schema_map)
 
                 if count == chunk_size:
                     yield ensemble_schema
