@@ -1,11 +1,37 @@
 from typing import Literal
 
+from loguru import logger
 from pydantic import BaseModel, Field
 
 from ....io import YamlIO
+from ....render import Render
 
 
-class AmberInputsBase(BaseModel, YamlIO):
+class AmberInputsBase(BaseModel, YamlIO, Render):
+    def render(self) -> list[str]:
+        """Render AMBER input file."""
+        lines = ["", "&cntrl"]
+
+        for key, value in self.model_dump(exclude_none=True).items():
+            if key in (
+                "restraintmask",
+                "timask1",
+                "scmask1",
+                "timask2",
+                "scmask2",
+                "noshakemask",
+                "bellymask",
+            ):
+                if value == "":
+                    continue
+                value = f'"{value}"'
+            line_to_add = f"    {key}={value},"
+            logger.debug(f"Adding input line: {line_to_add.strip()}")
+            lines.append(line_to_add)
+
+        lines.extend(["&end", ""])
+        return lines
+
     imin: Literal[0, 1, 5, 6, 7] = Field(default=0)
     """Flag for running the energy minimization procedure.
 

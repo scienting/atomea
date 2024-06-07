@@ -1,15 +1,27 @@
+import os
+
+from jinja2 import Environment, FileSystemLoader
 from pydantic import BaseModel
 
 from ..io import YamlIO
+from ..render import Render
 
 
-class SlurmSchema(BaseModel, YamlIO):
+class SlurmSchema(BaseModel, YamlIO, Render):
     """Context manager for Slurm job submission scripts.
 
     This class provides a structured way to define and manage the configuration for
     submitting jobs to a Slurm workload manager. Each attribute corresponds to a
     specific Slurm configuration parameter or job setup step.
     """
+
+    def render(self) -> list[str]:
+        template_dir = os.path.join(os.path.dirname(__file__), "../..", "templates/")
+        environment = Environment(loader=FileSystemLoader(template_dir))
+        template = environment.get_template("workload_managers/job.sbatch")
+        kwargs = self.model_dump(exclude_none=True)
+        render_content = template.render(**kwargs).split("\n")
+        return render_content
 
     job_name: str = "job"
     """Unique name for the Slurm job.

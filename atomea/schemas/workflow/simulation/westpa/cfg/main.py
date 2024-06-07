@@ -1,14 +1,20 @@
 from pydantic import BaseModel, Field
 
+from .....render import Render
 from .data import DataConfig
 from .executable import ExecutableConfig
 from .propagation import PropagationConfig
 from .system import SystemConfig
 
 
-class WestpaConfigConfig(BaseModel):
+class WestpaConfigConfig(BaseModel, Render):
     """
-    Configuration class for wrapping WESTPA configuration options.
+    Configuration class for wrapping WESTPA configuration options. These options
+    are scattered across a variety of sources shown below. We do our best to aggregate
+    and explain each parameter.
+
+    -   [GitHub wiki](https://github.com/westpa/westpa/wiki/Configuration-File),
+    -   [readthedocs](https://westpa.readthedocs.io/en/latest/users_guide/west/setup.html#configuration-file),
 
     Attributes:
         system (SystemConfig): Configuration options for the system.

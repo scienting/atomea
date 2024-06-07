@@ -14,4 +14,4 @@ def test_render_amber_to_yaml():
 def test_render_amber_write_input():
     schema_amber = Amber22Schema()
     input_path = os.path.join(TMP_DIR, "amber22.in")
-    schema_amber.write_input(input_path)
+    schema_amber.inputs.write_render(input_path)
