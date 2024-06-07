@@ -20,8 +20,18 @@ class AmberSchemaBase(BaseModel, YamlIO):
         """
         input_lines = ["", "&cntrl"]
 
-        for key, value in self.inputs.model_dump().items():
-            if key in ("restraintmask", "timask1", "scmask1", "timask2", "scmask2"):
+        for key, value in self.inputs.model_dump(exclude_none=True).items():
+            if key in (
+                "restraintmask",
+                "timask1",
+                "scmask1",
+                "timask2",
+                "scmask2",
+                "noshakemask",
+                "bellymask",
+            ):
+                if value == "":
+                    continue
                 value = f'"{value}"'
             line_to_add = f"    {key}={value},"
             logger.debug(f"Adding input line: {line_to_add.strip()}")
