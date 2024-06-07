@@ -165,7 +165,7 @@ build-remove:
 	rm -rf build/
 
 .PHONY: cleanup
-cleanup: pycache-remove dsstore-remove mypycache-remove ipynbcheckpoints-remove pytestcache-remove
+cleanup: pycache-remove dsstore-remove mypycache-remove ipynbcheckpoints-remove pytestcache-remove pytest-coverage
 
 
 
@@ -203,6 +203,8 @@ docs:
 .PHONY: open-docs
 open-docs:
 	xdg-open public/index.html 2>/dev/null
+
+
 
 ###   DOCKER   ###
 
