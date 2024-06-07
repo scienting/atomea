@@ -105,7 +105,27 @@ class MDAnalysisDigester(Digester):
                 raise ValueError("Coordinates are not two dimensions")
             return v
         else:
-            raise ValueError("Coordinates must be a numpy array.")
+            raise TypeError("Coordinates must be a numpy array.")
+
+    @staticmethod
+    @SchemaUUID("81c21a83-4b72-48c6-a576-4541b468eb90")
+    def atom_symbols(atoms: mda.AtomGroup) -> npt.NDArray[np.str_]:
+        """Return the atomic coordinates in Angstroms.
+
+        **Schema UUID:** [`81c21a83-4b72-48c6-a576-4541b468eb90`]
+        [schemas.atomistic.system.SystemSchema.atom_symbol]
+
+        Args:
+            atoms: The MDAnalysis atoms object associated with the frame.
+
+        Returns:
+            A 1D array containing the atomic symbols.
+        """
+        v = atoms.elements
+        if isinstance(v, np.ndarray):
+            return v.astype(np.str_)
+        else:
+            raise TypeError("atom_symbols must be a numpy array.")
 
     @staticmethod
     @SchemaUUID("e34c0e1b-0eaa-4679-b060-3fcfe737aa15")
