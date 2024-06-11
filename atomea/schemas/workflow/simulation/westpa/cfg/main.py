@@ -15,15 +15,21 @@ class WestpaConfigConfig(BaseModel, Render):
 
     -   [GitHub wiki](https://github.com/westpa/westpa/wiki/Configuration-File),
     -   [readthedocs](https://westpa.readthedocs.io/en/latest/users_guide/west/setup.html#configuration-file),
-
-    Attributes:
-        system (SystemConfig): Configuration options for the system.
-        propagation (PropagationConfig): Configuration options for the propagation.
-        data (DataConfig): Configuration options for the data.
-        executable (ExecutableConfig): Configuration options for the executable.
     """
 
     system: SystemConfig = Field(default_factory=SystemConfig)
+    """
+    Configuration options for the physical systems we are simulating.
+    """
     propagation: PropagationConfig = Field(default_factory=PropagationConfig)
+    """
+    How to propagate the simulations.
+    """
     data: DataConfig = Field(default_factory=DataConfig)
+    """
+    Specify what, and how, data should be stored.
+    """
     executable: ExecutableConfig = Field(default_factory=ExecutableConfig)
+    """
+    Provides information for the executable.
+    """
