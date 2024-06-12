@@ -4,15 +4,38 @@ from ....io import YamlIO
 
 
 class AmberCLIBase(BaseModel, YamlIO):
-    mdin: str | None = None
+    mdin: str
     """
+    **Sander option:** `-i`
+
     Path to input file for controlling AMBER calculations and operations. Options
     specified in [`AmberInputsBase`]
     [schemas.workflow.simulation.amber.inputs.AmberInputsBase] should be in this file.
+
+    Below is a non-working example of what this file should look like.
+
+    ```text
+
+    &cntrl
+        imin=0,
+        irest=0,
+        ntx=1,
+        ntmin=1,
+        ntave=0,
+        ntwv=0,
+        ionstepvelocities=0,
+        ntwf=0,
+        ntwe=0,
+        ntwprt=0,
+    &end
+    ```
     """
 
-    mdout: str | None = None
-    """Output user readable state info and diagnostics. `-o stdout` will send output to
+    mdout: str
+    """
+    **Sander option:** `-o`
+
+    Output user readable state info and diagnostics. `-o stdout` will send output to
     stdout (i.e., the terminal) instead of to a file. This stream will contain the
     following information.
 
@@ -100,71 +123,172 @@ class AmberCLIBase(BaseModel, YamlIO):
     -   `Density`: System density in g/cm<sup>3</sup>.
     """
 
-    mdinfo: str | None = None
-    """output latest mdout-format energy info
+    mdinfo: str
+    """
+    **Sander option:** `-inf`
+
+    Path to store the latest
+    [`mdout`][schemas.workflow.simulation.amber.cli.AmberCLIBase.mdout] and other
+    simulation progress information. An example is shown below.
+
+    ```text
+
+    NSTEP =   494000   TIME(PS) =    2008.000  TEMP(K) =   301.01  PRESS =     0.0
+    Etot   =   -103688.2116  EKtot   =     19750.7918  EPtot      =   -123439.0034
+    BOND   =       691.6081  ANGLE   =      1937.7561  DIHED      =      1279.1292
+    UB     =         0.0000  IMP     =         0.0000  CMAP       =       142.8106
+    1-4 NB =       795.8815  1-4 EEL =     10392.2564  VDWAALS    =     18105.7369
+    EELEC  =   -156784.1822  EHBOND  =         0.0000  RESTRAINT  =         0.0000
+    EKCMT  =         0.0000  VIRIAL  =         0.0000  VOLUME     =    317340.9390
+                                                        Density    =         1.0364
+    Ewald error estimate:   0.8100E-04
+    ------------------------------------------------------------------------------
+    | Current Timing Info
+    | -------------------
+    | Total steps:    500000 | Completed:    494000 ( 98.8%) | Remaining:      6000
+    |
+    | Average timings for last   25500 steps:
+    |     Elapsed(s) =      59.89 Per Step(ms) =       2.35
+    |         ns/day =      73.58   seconds/ns =    1174.27
+    |
+    | Average timings for all steps:
+    |     Elapsed(s) =    1142.43 Per Step(ms) =       2.31
+    |         ns/day =      74.72   seconds/ns =    1156.31
+    |
+    |
+    | Estimated time remaining:      13.9 seconds.
+    ------------------------------------------------------------------------------
+
+    ```
     """
 
-    prmtop: str | None = None
-    """input molecular topology, force field, periodic box type, atom and residue names
+    prmtop: str
+    """
+    **Sander option:** `-p`
+
+    Path to a file containing input molecular topology, force field,
+    periodic box type, atom and residue names.
     """
 
-    inpcrd: str | None = None
-    """input initial coordinates and (optionally) velocities and periodic box size
+    inpcrd: str
     """
+    **Sander option:** `-c`
+
+    Path to file containing input initial coordinates and (optionally) velocities
+    and periodic box size.
+    """
+
     refc: str | None = None
-    """input (optional) reference coords for position restraints; also used for targeted MD
     """
+    **Sander option:** `-ref`
+
+    input (optional) reference coords for position restraints; also used for targeted MD
+    """
+
     mtmd: str | None = None
-    """input (optional) containing list of files and parameters for targeted MD to
+    """
+    **Sander option:** `-mtmd`
+
+    input (optional) containing list of files and parameters for targeted MD to
     multiple targets
     """
+
     mdcrd: str | None = None
-    """output coordinate sets saved over trajectory
     """
+    **Sander option:** `-x`
+
+    output coordinate sets saved over trajectory
+    """
+
     inptraj: str | None = None
-    """input coordinate sets in trajectory format, when imin=5 or 6
     """
+    **Sander option:** `-y`
+
+    input coordinate sets in trajectory format, when imin=5 or 6
+    """
+
     mdvel: str | None = None
-    """output velocity sets saved over trajectory
     """
+    **Sander option:** `-v`
+
+    output velocity sets saved over trajectory
+    """
+
     mdfrc: str | None = None
-    """output force sets saved over trajectory
     """
+    **Sander option:** `-frc`
+
+    output force sets saved over trajectory
+    """
+
     mden: str | None = None
-    """output extensive energy data over trajectory (not synchronized with mdcrd or mdvel)
     """
+    **Sander option:** `-e`
+
+    output extensive energy data over trajectory (not synchronized with mdcrd or mdvel)
+    """
+
     restrt: str | None = None
-    """output final coordinates, velocity, and box dimensions if any - for restarting run
     """
-    inpdip: str | None = None
-    """input polarizable dipole file, when indmeth=3
+    **Sander option:** `-r`
+
+    output final coordinates, velocity, and box dimensions if any - for restarting run
     """
-    rstdip: str | None = None
-    """output polarizable dipole file, when indmeth=3
-    """
+
     cpin: str | None = None
-    """input protonation state definitions
     """
+    **Sander option:** `-cpin`
+
+    input protonation state definitions
+    """
+
     cprestrt: str | None = None
-    """protonation state definitions, final protonation states for restart
+    """
+    **Sander option:** `-cprestart`
+
+    protonation state definitions, final protonation states for restart
     (same format as cpin)
     """
+
     cpout: str | None = None
-    """output protonation state data saved over trajectory
     """
+    **Sander option:** `-cpout`
+
+    output protonation state data saved over trajectory
+    """
+
     cein: str | None = None
-    """input redox state definitions
     """
+    **Sander option:** `-cein`
+
+    input redox state definitions
+    """
+
     cerestrt: str | None = None
-    """redox state definitions, final redox states for restart (same format as cein)
     """
+    **Sander option:** `-cerestrt`
+
+    redox state definitions, final redox states for restart (same format as cein)
+    """
+
     ceout: str | None = None
-    """output redox state data saved over trajectory
     """
+    **Sander option:** `-ceout`
+
+    output redox state data saved over trajectory
+    """
+
     evbin: str | None = None
-    """input input for EVB potentials
     """
+    **Sander option:** `-evbin`
+
+    input input for EVB potentials
+    """
+
     suffix: str | None = None
-    """output this string will be added to all unspecified output files that are
+    """
+    **Sander option:** `-suffix`
+
+    output this string will be added to all unspecified output files that are
     printed (for multisander runs, it will append this suffix to all output files)
     """
