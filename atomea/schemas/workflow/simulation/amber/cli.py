@@ -1,9 +1,57 @@
+from typing import Literal
+
+from loguru import logger
 from pydantic import BaseModel
 
 from ....io import YamlIO
+from ....render import Render
+
+AMBER_CLI_MAPPING = {
+    "mdin": "i",
+    "mdout": "o",
+    "mdinfo": "inf",
+    "prmtop": "p",
+    "inpcrd": "c",
+    "refc": "refc",
+    "mtmd": "mtmd",
+    "mdcrd": "x",
+    "inptraj": "y",
+    "mdvel": "v",
+    "mdfrc": "frc",
+    "mden": "e",
+    "restrt": "r",
+    "cpin": "cpin",
+    "cprestrt": "cprestart",
+    "cpout": "cpout",
+    "cein": "cein",
+    "cerestrt": "cerestrt",
+    "ceout": "ceout",
+    "evbin": "evbin",
+    "suffix": "suffix",
+}
+"""
+Maps keys from `AmberCLIBase` to Amber command-line options.
+"""
 
 
-class AmberCLIBase(BaseModel, YamlIO):
+class AmberCLIBase(BaseModel, YamlIO, Render):
+    def render(self) -> list[str]:
+        """Render the bash command to run an Amber simulation."""
+        line = self.module
+
+        for key, value in self.model_dump(exclude_none=True).items():
+            if key == "module":
+                continue
+            add_option = f" -{AMBER_CLI_MAPPING[key]} {value}"
+            logger.debug(f"Adding option: {add_option}")
+            line += add_option
+
+        return [line]
+
+    module: Literal["sander", "pmemd", "pmemd.MPI", "pmemd.cuda", "pmemd.cuda.MPI"] = (
+        "pmemd"
+    )
+
     mdin: str
     """
     **Sander option:** `-i`
