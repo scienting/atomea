@@ -2,6 +2,7 @@ from typing import Literal
 
 from pydantic import Field
 
+from ..ff import ForcefieldSchemaBase
 from .cli import AmberCLIBase
 from .inputs import AmberInputsBase
 from .schema import AmberSchemaBase
@@ -12,15 +13,13 @@ class Amber22Inputs(AmberInputsBase):
 
 
 class Amber22CLI(AmberCLIBase):
+    """Amber 22 command-line interface"""
+
     pass
 
 
-class Amber22Schema(AmberSchemaBase):
-    r"""Amber 22 schema for simulation contexts."""
-
-    inputs: Amber22Inputs = Field(default_factory=Amber22Inputs)
-
-    ff_protein: Literal[
+class Amber22Forcefield(ForcefieldSchemaBase):
+    protein: Literal[
         "ff19SB",
         "ff14SB",
         "ff99SB",
@@ -30,32 +29,15 @@ class Amber22Schema(AmberSchemaBase):
     ] = Field(default="ff19SB")
     r"""Options for protein force fields.
 
-    ### ff19SB
-
-    DOI:  [10.1021/acs.jctc.9b00591](https://doi.org/10.1021/acs.jctc.9b00591)
-
-    ### ff14SB
-
-    DOI:  [10.1021/acs.jctc.5b00255](https://doi.org/10.1021/acs.jctc.5b00255)
-
-    ### ff99SB
-
-    DOI:  [10.1002/prot.21123](https://doi.org/10.1002/prot.21123)
-
-    ### ff15ipq
-
-    DOI:  [10.1021/acs.jctc.6b00567](https://doi.org/10.1021/acs.jctc.6b00567)
-
-    ### fb15
-
-    DOI:  [10.1021/acs.jpcb.7b02320](https://doi.org/10.1021/acs.jpcb.7b02320)
-
-    ### ff03ua
-
-    DOI:  [10.1021/jp060163v](https://doi.org/10.1021/jp060163v)
+    -   [ff19SB](https://md.crumblearn.org/mm/examples/protein/sb/19/)
+    -   [ff14SB](https://md.crumblearn.org/mm/examples/protein/sb/14/)
+    -   [ff99SB](https://md.crumblearn.org/mm/examples/protein/sb/99/)
+    -   [ff15ipq](https://md.crumblearn.org/mm/examples/protein/ipq/15/)
+    -   [fb15](https://md.crumblearn.org/mm/examples/protein/fb/15/)
+    -   ff03ua
     """
 
-    ff_water: Literal[
+    water: Literal[
         "tip4p",
         "tip4pew",
         "tip5p",
@@ -64,9 +46,18 @@ class Amber22Schema(AmberSchemaBase):
         "opc",
         "opc3",
         "opc3pol",
-        "opc3pol",
         "pol3",
         "tip3pfb",
         "tip4pfb",
     ] = Field(default="opc3")
     r"""Options for water force fields."""
+
+
+class Amber22Schema(AmberSchemaBase):
+    r"""Amber 22 schema for simulation contexts."""
+
+    inputs: Amber22Inputs = Field(default_factory=Amber22Inputs)  # type: ignore
+
+    cli: Amber22CLI = Field(default_factory=Amber22CLI)
+
+    ff: Amber22Forcefield = Field(default_factory=Amber22Forcefield)

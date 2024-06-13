@@ -8,4 +8,8 @@ from ...io import YamlIO
 class AmberSchemaBase(BaseModel, YamlIO):
     r"""Validate Amber contexts."""
 
-    inputs: Any = NotImplemented
+    inputs: Any = NotImplementedError
+
+    cli: Any = NotImplementedError
+
+    ff: Any = NotImplementedError

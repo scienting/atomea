@@ -52,7 +52,7 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
         "pmemd"
     )
 
-    mdin: str
+    mdin: str = "md.in"
     """
     **Sander option:** `-i`
 
@@ -79,7 +79,7 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
     ```
     """
 
-    mdout: str
+    mdout: str = "md.out"
     """
     **Sander option:** `-o`
 
@@ -171,7 +171,7 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
     -   `Density`: System density in g/cm<sup>3</sup>.
     """
 
-    mdinfo: str
+    mdinfo: str = "md.info"
     """
     **Sander option:** `-inf`
 
@@ -210,7 +210,7 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
     ```
     """
 
-    prmtop: str
+    prmtop: str = "mol.prmtop"
     """
     **Sander option:** `-p`
 
@@ -218,7 +218,7 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
     periodic box type, atom and residue names.
     """
 
-    inpcrd: str
+    inpcrd: str = "mol.inpcrd"
     """
     **Sander option:** `-c`
 
