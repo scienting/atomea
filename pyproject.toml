@@ -67,7 +67,7 @@ search = "\\[Unreleased\\]"
 replace = "[Unreleased]\n\n## [{new_version}] - {now:%Y-%m-%d}"
 
 [tool.poetry-dynamic-versioning]
-enable = false
+enable = true
 vcs = "git"
 format-jinja = "{%- if distance == 0 -%}{{ serialize_pep440(base) }}{%- else -%}{{ serialize_pep440(base, post=distance) }}{%- endif -%}"
 
@@ -140,6 +140,13 @@ include_trailing_comma = true
 multi_line_output = 3
 indent = 4
 color_output = true
+
+[tool.black]
+target-version = [
+    "py312",
+]
+line-length = 88
+color = true
 
 [tool.mypy]
 python_version = "3.12"
