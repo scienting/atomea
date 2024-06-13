@@ -1,5 +1,3 @@
-import os
-
 from pydantic import BaseModel
 
 from ..io import YamlIO
@@ -18,7 +16,6 @@ class SlurmSchema(BaseModel, YamlIO, Render):
         lines = ["#!/bin/bash", ""]
 
         for key, value in self.model_dump(exclude_none=True).items():
-
             # Skip keys that we have to manually handle
             if key in (
                 "modules",
