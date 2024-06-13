@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from .....render import Render
+from ....render import Render
 from .data import DataConfig
 from .executable import ExecutableConfig
 from .propagation import PropagationConfig

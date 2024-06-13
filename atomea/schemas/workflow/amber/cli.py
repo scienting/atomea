@@ -3,8 +3,8 @@ from typing import Literal
 from loguru import logger
 from pydantic import BaseModel
 
-from ....io import YamlIO
-from ....render import Render
+from ...io import YamlIO
+from ...render import Render
 
 AMBER_CLI_MAPPING = {
     "mdin": "i",
@@ -37,7 +37,7 @@ Maps keys from `AmberCLIBase` to Amber command-line options.
 class AmberCLIBase(BaseModel, YamlIO, Render):
     def render(self) -> list[str]:
         """Render the bash command to run an Amber simulation."""
-        line = self.module
+        line: str = self.module
 
         for key, value in self.model_dump(exclude_none=True).items():
             if key == "module":
@@ -58,7 +58,7 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
 
     Path to input file for controlling AMBER calculations and operations. Options
     specified in [`AmberInputsBase`]
-    [schemas.workflow.simulation.amber.inputs.AmberInputsBase] should be in this file.
+    [schemas.workflow.amber.inputs.AmberInputsBase] should be in this file.
 
     Below is a non-working example of what this file should look like.
 
@@ -121,7 +121,7 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
     Then it will provide any notes and information about the chosen methods and system.
 
     Afterwords, system information will be printed every
-    [`ntpr`][schemas.workflow.simulation.amber.inputs.AmberInputsBase.ntpr] steps.
+    [`ntpr`][schemas.workflow.amber.inputs.AmberInputsBase.ntpr] steps.
 
     ```text
     NSTEP =      500   TIME(PS) =    1021.000  TEMP(K) =   300.64  PRESS =     0.0
@@ -176,7 +176,7 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
     **Sander option:** `-inf`
 
     Path to store the latest
-    [`mdout`][schemas.workflow.simulation.amber.cli.AmberCLIBase.mdout] and other
+    [`mdout`][schemas.workflow.amber.cli.AmberCLIBase.mdout] and other
     simulation progress information. An example is shown below.
 
     ```text
