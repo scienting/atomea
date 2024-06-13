@@ -1,6 +1,5 @@
 import os
 
-from jinja2 import Environment, FileSystemLoader
 from pydantic import BaseModel
 
 from ..io import YamlIO
@@ -16,43 +15,84 @@ class SlurmSchema(BaseModel, YamlIO, Render):
     """
 
     def render(self) -> list[str]:
-        template_dir = os.path.join(os.path.dirname(__file__), "../..", "templates/")
-        environment = Environment(loader=FileSystemLoader(template_dir))
-        template = environment.get_template("workload_managers/job.sbatch")
-        kwargs = self.model_dump(exclude_none=True)
-        render_content = template.render(**kwargs).split("\n")
-        return render_content
+        lines = ["#!/bin/bash", ""]
+
+        for key, value in self.model_dump(exclude_none=True).items():
+
+            # Skip keys that we have to manually handle
+            if key in (
+                "modules",
+                "env_vars",
+                "commands_pre",
+                "commands_run",
+                "commands_post",
+            ):
+                continue
+
+            key = key.replace("_", "-")
+            line = f"#SBATCH --{key}={value}"
+            lines.append(line)
+
+        lines.extend(self.commands_pre)
+        for module in self.modules:
+            lines.append(f"module load {module}")
+        for key, var in self.env_vars.items():
+            lines.append(f"export {key}={var}")
+        lines.extend(self.commands_run)
+        lines.extend(self.commands_post)
+        lines.append("")
+
+        return lines
 
     job_name: str = "job"
-    """Unique name for the Slurm job.
+    """Specify a name for the job allocation. The specified name will appear along
+    with the job id number when querying running jobs on the system. The default is
+    the name of the batch script, or just "sbatch" if the script is read on sbatch's
+    standard input.
 
-    This should be descriptive to help identify the job among many others in the queue.
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_job-name)
 
     Example:
         `"data_analysis_job"`
     """
 
     nodes: int = 1
-    """Number of nodes to use for the Slurm job.
+    """The minimum number of nodes to use for the Slurm job.
 
     Adjust this based on the job's resource requirements. For instance, a large parallel
     job might need several nodes, while a smaller job might only need one.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_nodes)
 
     Example:
         `4`
     """
 
-    ntasks_per_node: int = 8
-    """Number of tasks to run per node.
+    ntasks_per_node: int | None = None
+    """Request that `ntasks` be invoked on each node.
 
-    This typically corresponds to the number of CPU cores to use on each node. Adjust this
-    based on the node's capabilities and the parallelism of your job.
+    This typically corresponds to the number of CPU cores to use on each node. Adjust
+    this based on the node's capabilities and the parallelism of your job.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_ntasks-per-node)
 
     Example:
         `16`
     """
 
-    output_path: str = "slurm-%j.out"
+    ntasks: int | None = None
+    """sbatch does not launch tasks, it requests an allocation of resources and
+    submits a batch script. This option advises the Slurm controller that job steps
+    run within the allocation will launch a maximum of number tasks and to provide
+    for sufficient resources.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_ntasks)
+
+    Example:
+        `16`
+    """
+
+    output: str = "slurm-%j.out"
     """Path for the job's standard output file.
 
     Use `%j` to include the job ID in the filename, ensuring that each job's output is
@@ -62,7 +102,7 @@ class SlurmSchema(BaseModel, YamlIO, Render):
         `"logs/job_output_%j.out"`
     """
 
-    error_path: str = "slurm-%j.err"
+    error: str = "slurm-%j.err"
     """Path for the job's error output file.
 
     Similar to `output_path`, using `%j` in the filename ensures that errors for each
@@ -98,18 +138,105 @@ class SlurmSchema(BaseModel, YamlIO, Render):
     Choose an appropriate partition based on resource needs and availability. Partitions
     can have different resource limits and policies.
 
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_partition)
+
     Example:
         `"short"`
     """
 
     account: str | None = None
-    """Account name for job submission.
+    """Charge resources used by this job to specified account. The account is an
+    arbitrary string.
 
     Set this to your project's account name to properly attribute resource usage, or
     leave it as `None` if not needed.
 
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_account)
+
     Example:
         `"research_project_123"`
+    """
+
+    constraint: str | None = None
+    """Nodes can have features assigned to them by the Slurm administrator. Users can
+    specify which of these features are required by their job using the constraint
+    option.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_constraint)
+    """
+
+    cores_per_socket: int | None = None
+    """Restrict node selection to nodes with at least the specified number of cores per
+    socket.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_cores-per-socket)
+    """
+
+    cpus_per_gpu: int | None = None
+    """Request that ncpus processors be allocated per allocated GPU. Steps inheriting
+    this value will imply `--exact`. Not compatible with the
+    [`--cpus-per-task`][schemas.workflow.slurm.SlurmSchema.cpus_per_task] option.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_cpus-per-gpu)
+    """
+
+    cpus_per_task: int | None = None
+    """Advise the Slurm controller that ensuing job steps will require `ncpus` number
+    of processors per task. Without this option, the controller will just try to
+    allocate one processor per task.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_cpus-per-task)
+    """
+
+    gpus: int | str | None = None
+    """Specify the total number of GPUs required for the job.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_gpus)
+    """
+
+    gpus_per_node: int | str | None = None
+    """Specify the number of GPUs required for the job on each node included in the
+    job's resource allocation.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_gpus-per-node)
+    """
+
+    gpus_per_socket: int | str | None = None
+    """Specify the number of GPUs required for the job on each socket included in the
+    job's resource allocation.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_gpus-per-socket)
+    """
+
+    gpus_per_task: int | str | None = None
+    """Specify the number of GPUs required for the job on each task to be spawned in
+    the job's resource allocation.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_gpus-per-task)
+    """
+
+    gres: str | None = None
+    """Specifies a comma-delimited list of generic consumable resources. The format
+    for each entry in the list is `"name[[:type]:count]"`. The name is the type
+    of consumable resource (e.g. gpu). The type is an optional classification for
+    the resource (e.g. a100). The count is the number of those resources with a
+    default value of 1.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_gres)
+    """
+
+    mem: str | None = None
+    """Specify the real memory required per node. Default units are megabytes.
+    Different units can be specified using the suffix [K|M|G|T].
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_mem)
+    """
+
+    mem_per_cpu: str | None = None
+    """Minimum memory required per usable allocated CPU. Default units are megabytes.
+    The default value is `DefMemPerCPU` and the maximum value is `MaxMemPerCPU`.
+
+    [More information](https://slurm.schedmd.com/sbatch.html#OPT_mem-per-cpu)
     """
 
     modules: list[str] = []
