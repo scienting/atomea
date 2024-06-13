@@ -31,7 +31,7 @@
 
 ## Overview
 
-**atomea** is a Python package designed to simplify and standardize the setup and data management for atomistic simulations and calculations.
+Atomea is a Python package designed to simplify and standardize the setup and data management for atomistic simulations and calculations.
 It leverages the power of [Pydantic][pydantic] for schema definition and [Jinja2][jinja] templates for input file generation, making it easy to automate, document, and prepare input files for various computational chemistry and biology tools.
 
 ## Key features
@@ -43,7 +43,7 @@ It leverages the power of [Pydantic][pydantic] for schema definition and [Jinja2
 
 ## Installation
 
-You can install **atomea** via pip:
+You can install atomea via pip:
 
 ```bash
 pip install atomea
