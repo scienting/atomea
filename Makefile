@@ -123,6 +123,7 @@ lint: check-codestyle mypy
 
 .PHONY: build
 build:
+	- rm -r dist
 	$(CONDA) poetry build
 
 .PHONY: publish-test
