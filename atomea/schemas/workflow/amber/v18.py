@@ -23,7 +23,7 @@ class Amber18Forcefield(ForcefieldSchemaBase):
         "ff15ipq",
         "fb15",
         "ff03ua",
-    ] = Field(default="ff19SB")
+    ] = Field(default="ff14SB")
     r"""Options for protein force fields.
 
     -   [ff14SB](https://md.crumblearn.org/mm/examples/protein/sb/14/)
