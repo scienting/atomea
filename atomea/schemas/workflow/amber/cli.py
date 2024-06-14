@@ -37,10 +37,10 @@ Maps keys from `AmberCLIBase` to Amber command-line options.
 class AmberCLIBase(BaseModel, YamlIO, Render):
     def render(self) -> list[str]:
         """Render the bash command to run an Amber simulation."""
-        line: str = self.module
+        line: str = self.compute_platform
 
         for key, value in self.model_dump(exclude_none=True).items():
-            if key == "module":
+            if key == "compute_platform":
                 continue
             add_option = f" -{AMBER_CLI_MAPPING[key]} {value}"
             logger.debug(f"Adding option: {add_option}")
@@ -48,9 +48,9 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
 
         return [line]
 
-    module: Literal["sander", "pmemd", "pmemd.MPI", "pmemd.cuda", "pmemd.cuda.MPI"] = (
-        "pmemd"
-    )
+    compute_platform: Literal[
+        "sander", "pmemd", "pmemd.MPI", "pmemd.cuda", "pmemd.cuda.MPI"
+    ] = "pmemd"
 
     mdin: str = "md.in"
     """
