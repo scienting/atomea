@@ -1,3 +1,5 @@
+from typing import Any
+
 from abc import ABC
 
 import yaml
@@ -5,6 +7,16 @@ import yaml
 
 class YamlIO(ABC):
     """Handles YAML inputs and outputs."""
+
+    def update(self, data: dict[str, Any]) -> None:
+        """Iteratively update pydantic model.
+
+        Args:
+            data: Key-value mapping to update attributes with.
+        """
+        for key, value in data.items():
+            if key in self.__fields__:  # type: ignore # pylint: disable=no-member
+                setattr(self, key, value)
 
     def from_yaml(self, yaml_paths: str | list[str]) -> None:
         """Update the instance's attributes from one or more YAML files.
@@ -22,9 +34,7 @@ class YamlIO(ABC):
         for yaml_path in yaml_paths:
             with open(yaml_path, "r", encoding="utf-8") as f:
                 yaml_data = yaml.safe_load(f)
-                for key, value in yaml_data.items():
-                    if key in self.__fields__:  # type: ignore # pylint: disable=no-member
-                        setattr(self, key, value)
+            self.update(yaml_data)
 
     def to_yaml(self, file_path: str) -> None:
         """Serialize a Pydantic BaseModel instance to a YAML file.

@@ -149,7 +149,7 @@ class Digester(ABC):
         if not parallelize:
             for inputs_frame in cls.gen_inputs_frame(inputs_digester):
                 mol_data = cls.digest_frame(inputs_frame, schema_map)
-                mol_index = ensemble_schema.update(
+                mol_index = ensemble_schema.update_atomistic(
                     mol_data, schema_map=schema_map, mol_index=mol_index
                 )
         else:
@@ -168,7 +168,7 @@ class Digester(ABC):
         ensemble_data = cls.digest_frame(
             inputs_frame, schema_map, cadence_eval="ensemble"
         )
-        ensemble_schema.update(ensemble_data, schema_map=schema_map)
+        ensemble_schema.update_atomistic(ensemble_data, schema_map=schema_map)
 
         return ensemble_schema
 
@@ -220,7 +220,7 @@ class Digester(ABC):
                     count = 0
 
                 mol_data = cls.digest_frame(inputs_frame, schema_map)
-                mol_index = ensemble_schema.update(
+                mol_index = ensemble_schema.update_atomistic(
                     mol_data, schema_map=schema_map, mol_index=mol_index
                 )
                 count += 1
@@ -232,7 +232,7 @@ class Digester(ABC):
                 ensemble_data = cls.digest_frame(
                     inputs_frame, schema_map, cadence_eval="ensemble"
                 )
-                ensemble_schema.update(ensemble_data, schema_map=schema_map)
+                ensemble_schema.update_atomistic(ensemble_data, schema_map=schema_map)
 
                 if count == chunk_size:
                     yield ensemble_schema

@@ -10,7 +10,7 @@ class Data(ABC):
     Assists with updating data with atomistic schemas.
     """
 
-    def update(
+    def update_atomistic(
         self,
         data: dict[str, Any],
         schema_map: dict[str, dict[str, str]],
