@@ -17,14 +17,17 @@ class Amber20CLI(AmberCLIBase):
 
 
 class Amber20Forcefield(ForcefieldSchemaBase):
-    protein: Literal[
-        "ff19SB",
-        "ff14SB",
-        "ff99SB",
-        "ff15ipq",
-        "fb15",
-        "ff03ua",
-    ] = Field(default="ff19SB")
+    protein: (
+        Literal[
+            "ff19SB",
+            "ff14SB",
+            "ff99SB",
+            "ff15ipq",
+            "fb15",
+            "ff03ua",
+        ]
+        | None
+    ) = Field(default=None)
     r"""Options for protein force fields.
 
     -   [ff19SB](https://md.crumblearn.org/mm/examples/protein/sb/19/)
@@ -35,18 +38,21 @@ class Amber20Forcefield(ForcefieldSchemaBase):
     -   ff03ua
     """
 
-    water: Literal[
-        "tip4p",
-        "tip4pew",
-        "tip5p",
-        "spce",
-        "spceb",
-        "opc",
-        "opc3",
-        "pol3",
-        "tip3pfb",
-        "tip4pfb",
-    ] = Field(default="opc3")
+    water: (
+        Literal[
+            "tip4p",
+            "tip4pew",
+            "tip5p",
+            "spce",
+            "spceb",
+            "opc",
+            "opc3",
+            "pol3",
+            "tip3pfb",
+            "tip4pfb",
+        ]
+        | None
+    ) = Field(default=None)
     r"""Options for water force fields."""
 
 
