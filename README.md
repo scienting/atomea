@@ -4,6 +4,9 @@
     <a href="https://gitlab.com/oasci/software/atomea/-/pipelines">
         <img src="https://gitlab.com/oasci/software/atomea/badges/main/pipeline.svg" alt="Build Status ">
     </a>
+    <a href="https://badge.fury.io/py/atomea">
+        <img src="https://badge.fury.io/py/atomea.svg" alt="PyPI version" height="18">
+    </a>
     <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/atomea">
     <a href="https://codecov.io/gl/oasci:software/atomea">
         <img src="https://codecov.io/gl/oasci:software/atomea/graph/badge.svg?token=KVGB7NU117" alt="codecov">
