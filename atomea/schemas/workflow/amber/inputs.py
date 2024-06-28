@@ -35,19 +35,29 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     imin: Literal[0, 1, 5, 6, 7] = Field(default=0)
     """Flag for running the energy minimization procedure.
 
+    <hr>
+
     **`0`**
+
+    Run molecular dynamics without any minimization.
 
     Perform molecular dynamics (MD) simulation. This mode generates
     configurations by integrating Newtonian equations of motion, allowing the
     system to sample more configurational space and cross small potential energy
     barriers.
 
+    <hr>
+
     **`1`**
 
-    Perform energy minimization. This mode iteratively moves the atoms down
-    the energy gradient to relax the structure until a sufficiently low average
-    gradient is obtained. Minimization is useful for preparing a system before
-    MD simulations to remove bad contacts and high-energy configurations.
+    Perform energy minimization.
+
+    This mode iteratively moves the atoms down the energy gradient to relax the
+    structure until a sufficiently low average gradient is obtained. Minimization is
+    useful for preparing a system before MD simulations to remove bad contacts and
+    high-energy configurations.
+
+    <hr>
 
     **`5`**
 
@@ -84,6 +94,8 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     [`ntb`][schemas.workflow.amber.inputs.AmberInputsBase.ntb] should be greater
     than `0`.
 
+    <hr>
+
     **`6`**
 
     Read in a trajectory for analysis using the molecular dynamics driver.
@@ -97,6 +109,8 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     dynamics with [`irest`][schemas.workflow.amber.inputs.AmberInputsBase.irest]
     is `0`. If [`nstlim`][schemas.workflow.amber.inputs.AmberInputsBase.nstlim] is
     `0`, then this effectively performs a single point energy for each frame.
+
+    <hr>
 
     **`7`**
 
@@ -126,6 +140,8 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     into smaller, manageable segments and allows for continued simulation from the
     point of interruption without losing progress.
 
+    <hr>
+
     **`0`**
 
     Do not restart the simulation; instead, run as a new simulation. Velocities in the
@@ -133,6 +149,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     to `0` (unless overridden by
     [`t`][schemas.workflow.amber.inputs.AmberInputsBase.t]).
 
+    <hr>
 
     **`1`**
 
@@ -149,6 +166,8 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     """Option to read the initial coordinates, velocities, and box size from the
     inpcrd file.
 
+    <hr>
+
     **`1`**
 
     File is read with no initial velocity information. Suitable for
@@ -156,6 +175,8 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     on [`tempi`][schemas.workflow.amber.inputs.AmberInputsBase.tempi]
     Option `1` must be used when one is starting from minimized or model-built
     coordinates.
+
+    <hr>
 
     **`5`**
 
@@ -172,12 +193,16 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     Flag for selecting minimization type. Determines the algorithm used for energy
     minimization.
 
+    <hr>
+
     **`0`**
 
     Full conjugate gradient minimization. The first four cycles are steepest
     descent at the start of the run and after every nonbonded pair list update.
     Conjugate gradient is slower than steepest descent when far from a minimum
     but becomes more efficient when close to the minimum.
+
+    <hr>
 
     **`1`**
 
@@ -186,17 +211,23 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     This option combines the robustness of steepest descent with the efficiency of
     conjugate gradient, making it a recommended choice for many scenarios.
 
+    <hr>
+
     **`2`**
 
     Only the steepest descent method is used. This algorithm is popular
     because it is robust and easy to implement. It is generally effective for
     systems far from equilibrium.
 
+    <hr>
+
     **`3`**
 
     The XMIN method is used. This method leverages advanced optimization
     algorithms for more efficient minimization, especially useful for large or
     complex systems.
+
+    <hr>
 
     **`4`**
 
@@ -205,16 +236,13 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     effective for exploring conformational space in flexible molecules.
     """
 
-    maxcyc: int = Field(default=9999)
+    maxcyc: int = Field(default=1, ge=1)
     """
     Maximum number of minimization cycles allowed. This parameter sets the upper limit
     on the number of cycles the minimization algorithm will perform.
     Values typically range from `1000` to `50000`. Lower values may be sufficient for
     small systems or those close to their minimum energy state, while larger values
     can help ensure convergence in more complex or strained systems.
-    The default value is set to `9999`, which is generally appropriate for a wide
-    range of systems, balancing computational efficiency with the need for thorough
-    energy minimization.
 
     tip:
         -   If the system is large or highly strained, consider increasing the value to
@@ -225,7 +253,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
             `maxcyc`, the minimization can be considered complete.
     """
 
-    ncyc: int = Field(default=10)
+    ncyc: int = Field(default=10, ge=1)
     """
     If [`ntmin`][schemas.workflow.amber.inputs.AmberInputsBase.ntmin] is `1`,
     then the minimization method will be switched from steepest descent
@@ -268,7 +296,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
             is set appropriately when using this option to affect starting velocities.
     """
 
-    dt: float = Field(default=0.001)
+    dt: float = Field(default=0.001, gt=0.0)
     """
     The time step in picoseconds. This parameter defines the interval of time between
     each step in the simulation.
@@ -295,7 +323,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
         is critical, a smaller time step might be required.
     """
 
-    nstlim: int = Field(default=1, gt=0)
+    nstlim: int = Field(default=1, ge=1)
     """
     Number of MD steps to perform. Multiply
     [`nstlim`][schemas.workflow.amber.inputs.AmberInputsBase.nstlim] and
@@ -317,7 +345,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
             you are investigating.
     """
 
-    nscm: int = Field(default=1000)
+    nscm: int = Field(default=1000, ge=1)
     """
     Flag for the removal of translational and rotational center-of-mass motion every
     [`nscm`][schemas.workflow.amber.inputs.AmberInputsBase.nscm] steps.
@@ -345,11 +373,15 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     [`restraintmask`][schemas.workflow.amber.inputs.AmberInputsBase.restraintmask]
     is properly defined to specify the atoms that require constraints.
 
+    <hr>
+
     **`0`**
 
     No constraints. The positions of all atoms are free to move according to the
     simulation dynamics. Use `0` for fully flexible simulations where no positional
     restraints are needed.
+
+    <hr>
 
     **`1`**
 
@@ -358,11 +390,12 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     This applies a harmonic potential to the atoms defined in
     [`restraintmask`][schemas.workflow.amber.inputs.AmberInputsBase.restraintmask],
     effectively fixing their positions relative to the rest of the system.
-    Use `1` when specific atoms need to be restrained, such as in cases where you want to focus on a
-    particular region of the system while keeping another region fixed or minimally perturbed.
+    Use `1` when specific atoms need to be restrained, such as in cases where you want
+    to focus on a particular region of the system while keeping another region fixed
+    or minimally perturbed.
     """
 
-    restraint_wt: float = Field(default=4.0, gt=0.0)
+    restraint_wt: float = Field(default=4.0, ge=0.0)
     """
     The weight (in kcal mol<sup>-1</sup> Å<sup>-2</sup>) when
     [`ntr`][schemas.workflow.amber.inputs.AmberInputsBase.ntr] is `1`. The form of
@@ -397,20 +430,26 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     We must include the `!(:WAT)` to avoid restraining oxygen atoms in the water molecules.
     """
 
-    ntb: Literal[0, 1, 2] = Field(default=0)
+    ntb: Literal[0, 1, 2] = Field(default=1)
     """
     Flag for periodic boundary conditions when computing non-bonded interactions.
     Bonds that cross the boundary are not supported.
+
+    <hr>
 
     **`0`**
 
     No periodic boundary conditions. This is suitable for simulations where boundary
     effects are not a concern, such as in isolated systems or gas-phase simulations.
 
+    <hr>
+
     **`1`**
 
     Constant volume. This maintains a fixed simulation box size, appropriate for
     systems where volume changes are not expected or desired.
+
+    <hr>
 
     **`2`**
 
@@ -419,15 +458,19 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     condensed-phase systems where pressure control is needed.
     """
 
-    ntf: Literal[1, 2, 3] = Field(default=1)
+    ntf: Literal[1, 2, 3, 4, 5, 6, 7, 8] = Field(default=1)
     """
     Force evaluation type. This parameter determines which interactions are
     considered during the force calculations.
+
+    <hr>
 
     **`1`**
 
     All contributions. This option includes all types of interactions in the
     force evaluation and is required for minimization.
+
+    <hr>
 
     **`2`**
 
@@ -435,12 +478,43 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     [`ntc`][schemas.workflow.amber.inputs.AmberInputsBase.ntc] is `2`, meaning
     constraints are applied to bonds involving hydrogens (e.g., SHAKE algorithm).
 
+    <hr>
 
     **`3`**
 
     All bond interactions are omitted. This option is used when
     [`ntc`][schemas.workflow.amber.inputs.AmberInputsBase.ntc] is `3`, which
     implies constraints are applied to all bonds.
+
+    <hr>
+
+    **`4`**
+
+    angle involving H-atoms and all bonds are omitted
+
+    <hr>
+
+    **`5`**
+
+    all bond and angle interactions are omitted
+
+    <hr>
+
+    **`6`**
+
+    dihedrals involving H-atoms and all bonds and all angle interactions are omitted
+
+    <hr>
+
+    **`7`**
+
+    all bond, angle and dihedral interactions are omitted
+
+    <hr>
+
+    **`8`**
+
+    all bond, angle, dihedral and non-bonded interactions are omitted
     """
 
     ntc: Literal[1, 2, 3] = Field(default=1)
@@ -461,16 +535,22 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     For parallel versions of sander only intramolecular atoms can be constrained.
     Thus, such atoms must be in the same chain of the originating PDB file.
 
+    <hr>
+
     **`1`**
 
     No SHAKE. This option does not apply any bond length constraints and is
     required for minimization.
+
+    <hr>
 
     **`2`**
 
     Bonds involving hydrogen are constrained. This is the recommended setting for
     molecular dynamics (MD) simulations as it allows for larger time steps while
     maintaining stability.
+
+    <hr>
 
     **`3`**
 
@@ -481,7 +561,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
         Not available for parallel or qmmm runs in sander.
     """
 
-    cut: float = Field(default=8.0)
+    cut: float = Field(default=8.0, gt=0.0)
     """
     Specifies the nonbonded cutoff in Angstroms. This parameter sets the distance
     beyond which nonbonded interactions (such as van der Waals and electrostatic
@@ -510,15 +590,32 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     ntt: Literal[0, 1, 2, 3, 9, 10, 11] = Field(default=3)
     """Switch for temperature scaling.
 
+    <hr>
+
     **`0`**
 
     Constant total energy (NVE).
 
+    <hr>
+
     **`1`**
 
-    Constant temperature using the weak-coupling algorithm.
-    A single scaling factor is used for all atoms.
-    Generally not recommended.
+    Constant temperature, using the weak-coupling algorithm. A single scaling factor
+    is used for all atoms. Note that this algorithm just ensures that the total
+    kinetic energy is appropriate for the desired temperature; it does nothing to
+    ensure that the temperature is even over all parts of the molecule. Atomic
+    collisions will tend to ensure an even temperature distribution, but this is not
+    guaranteed, and there are many subtle problems that can arise with weak
+    temperature coupling.
+
+    Using [`ntt`][schemas.workflow.amber.inputs.AmberInputsBase.ntt] of `1` is
+    especially dangerous for generalized Born simulations, where there are no
+    collisions with solvent to aid in thermalization.
+    Other temperature coupling options (especially
+    [`ntt`][schemas.workflow.amber.inputs.AmberInputsBase.ntt] of `3`) should be
+    used instead.
+
+    <hr>
 
     **`2`**
 
@@ -526,6 +623,15 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     are performed with heat bath of temperature
     [`temp0`][schemas.workflow.amber.inputs.AmberInputsBase.temp0] every
     [`vrand`][schemas.workflow.amber.inputs.AmberInputsBase.vrand] steps.
+
+    note:
+        In between these "massive collisions", the dynamics is Newtonian. Hence, time correlation
+        functions (etc.) can be computed in these sections, and the results averaged over an initial
+        canonical distribution. Note also that too high a collision rate (too small a value of vrand)
+        will slow down the speed at which the molecules explore configuration space, whereas too
+        low a rate means that the canonical distribution of energies will be sampled slowly.
+
+    <hr>
 
     **`3`**
 
@@ -536,23 +642,32 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     [`ig`][schemas.workflow.amber.inputs.AmberInputsBase.ig] to a different value
     every restart (e.g., `-1`).
 
+    <hr>
+
     **`9`**
 
     Optimized Isokinetic Nose-Hoover chain ensemble (OIN).
-    Implemented mainly for 3D-RISM and RESPA simulations.
+    Constant temperature simulation utilizing Nose-Hoover chains and an isokinetic
+    constraint on the particle and thermostat velocities, implemented for use in
+    multiple time-stepping methods, namely for 3D-RISM and RESPA.
+
+    <hr>
 
     **`10`**
 
     Stochastic Isokinetic Nose-Hoover RESPA integrator.
     Mainly used for RESPA simulations.
 
+    <hr>
+
     **`11`**
 
     Stochastic version of Berendsen thermostat, also known as the
-    Bussi thermostat.
+    Bussi thermostat. This thermostat samples canonical distribution by scaling
+    all velocities to a random temperature probed from canonical distribution.
     """
 
-    tempi: float = Field(default=100.0)
+    tempi: float = Field(default=100.0, gt=0.0)
     """
     Initialization temperature in Kelvin. This parameter sets the initial temperature
     for the system at the start of the simulation.
@@ -573,7 +688,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
         the system and avoid potential instabilities or large initial forces.
     """
 
-    temp0: float = Field(default=300.0)
+    temp0: float = Field(default=300.0, gt=0.0)
     """
     Reference temperature at which the system will be kept in Kelvin. This parameter
     defines the target temperature for the simulation, around which the thermostat will
@@ -587,7 +702,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     (human body temperature) or other specific temperatures relevant to your study.
     """
 
-    gamma_ln: float = Field(default=2.0)
+    gamma_ln: float = Field(default=2.0, gt=0.0)
     """
     The collision frequency, $\gamma$, when
     [`ntt`][schemas.workflow.amber.inputs.AmberInputsBase.ntt] is `3`. This parameter
@@ -607,16 +722,22 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     Flag for constant pressure dynamics. This parameter controls how pressure is
     managed during the simulation.
 
+    <hr>
+
     **`0`**
 
     No pressure scaling. The system is run at constant volume, and no
     adjustments are made to maintain a specific pressure.
+
+    <hr>
 
     **`1`**
 
     Isotropic position scaling. This is the recommended setting for most
     simulations as it scales the simulation box uniformly in all directions to
     maintain constant pressure.
+
+    <hr>
 
     **`2`**
 
@@ -626,11 +747,15 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     $x$, $y$, and $z$ directions. Solutes dissolved in water should not use this
     setting as it can introduce artifacts.
 
+    <hr>
+
     **`3`**
 
     Molecular dynamics with semiisotropic pressure scaling: this is only available with
     constant surface tension (`csurften` > `0`) and orthogonal boxes. This links the
     pressure coupling in the two directions tangential to the interface.
+
+    <hr>
 
     **`4`**
 
@@ -646,18 +771,22 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     -   `target_a`, `target_b`, `target_c`: the cell dimension of the target volume.
     """
 
-    barostat: Literal[1, 2] = Field(default=2)
+    barostat: Literal[1, 2] = Field(default=1)
     """
     Flag used to control which barostat is used to regulate the pressure during the
     simulation. The barostat setting determines how the simulation box's volume is
     adjusted to maintain the desired pressure. Choosing the right barostat is important
     for the accuracy and stability of the simulation.
 
+    <hr>
+
     **`1`**
 
     Berendsen barostat. This method scales the box dimensions and atomic
     coordinates to achieve the desired pressure. It is simpler but can lead to
     less accurate pressure control and may not generate a true NPT ensemble.
+
+    <hr>
 
     **`2`**
 
@@ -667,21 +796,21 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     simulations.
     """
 
-    pres0: float = Field(default=1.01325)
+    pres0: float = Field(default=1.0, gt=0.0)
     """
     Reference pressure, in bar, at which the system is maintained. This is the target
     pressure for the barostat. This value is almost always used in simulations to
     mimic standard atmospheric conditions.
     """
 
-    mcbarint: int = Field(default=100)
+    mcbarint: int = Field(default=100, ge=1)
     """
     Number of steps between volume change attempts performed as part of the Monte Carlo
     barostat. This determines how frequently the volume of the simulation box is
     adjusted during pressure regulation.
     """
 
-    comp: float = Field(default=44.6)
+    comp: float = Field(default=44.6, gt=0.0)
     """
     Compressibility of the system when
     [`ntp`][schemas.workflow.amber.inputs.AmberInputsBase.ntp] > `0` in units of
@@ -690,7 +819,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     compressibility of the solvent or system being simulated.
     """
 
-    taup: float = Field(default=1.0)
+    taup: float = Field(default=1.0, gt=0.0)
     """
     Pressure relaxation time in picoseconds when
     [`ntp`][schemas.workflow.amber.inputs.AmberInputsBase.ntp] > `0`.
@@ -704,17 +833,20 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     Format of the final coordinates, velocities, and box size (if a constant volume or
     pressure run) written to file `restrt`.
 
+    <hr>
 
     **`1`**
 
     ASCII.
+
+    <hr>
 
     **`2`**
 
     Binary NetCDF file.
     """
 
-    ntwr: int = Field(default=1000)
+    ntwr: int = Field(default=1000, ge=1)
     """
     Every [`ntwr`][schemas.workflow.amber.inputs.AmberInputsBase.ntwr] steps
     during dynamics, the `restrt` file will be written, ensuring that recovery from a
@@ -731,7 +863,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     from multiple starting points or save a series of `restrt` files for minimization.
     """
 
-    ntpr: int = Field(default=1000)
+    ntpr: int = Field(default=1000, ge=1)
     """
     Print energy information every
     [`ntpr`][schemas.workflow.amber.inputs.AmberInputsBase.ntpr] steps in a
@@ -739,7 +871,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     reopened each time, so it always contains the most recent energy and temperature.
     """
 
-    ntwx: int = Field(default=0)
+    ntwx: int = Field(default=0, ge=1)
     """
     Coordinates are written every
     [`ntwx`][schemas.workflow.amber.inputs.AmberInputsBase.ntwx] steps to the
@@ -753,9 +885,13 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     """
     Format of coordinate and velocity trajectory files.
 
+    <hr>
+
     **`0`**
 
     ASCII.
+
+    <hr>
 
     **`1`**
 
@@ -766,10 +902,14 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     """
     Flag for wrapping coordinates around the periodic boundary.
 
+    <hr>
+
     **`0`**
 
     No wrapping will be performed, in which case it is typical to use cpptraj as a
     post-processing program to translate molecules back to the primary box.
+
+    <hr>
 
     **`1`**
 
@@ -792,13 +932,19 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     nmropt: Literal[0, 1, 2] = Field(default=0)
     """
 
+    <hr>
+
     **`0`**
 
     No nmr-type analysis will be done.
 
+    <hr>
+
     **`1`**
 
     NMR restraints and weight changes will be read.
+
+    <hr>
 
     **`2`**
 
@@ -806,7 +952,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     restraints will be read.
     """
 
-    ntave: int = Field(default=0)
+    ntave: int = Field(default=0, ge=0.0)
     """Every [`ntave`][schemas.workflow.amber.inputs.AmberInputsBase.ntave] steps of
     dynamics, running averages of average energies and fluctuations over the last
     [`ntave`][schemas.workflow.amber.inputs.AmberInputsBase.ntave] steps will be
@@ -816,7 +962,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     simulation.
     """
 
-    ntwv: int = Field(default=0)
+    ntwv: int = Field(default=0, ge=0.0)
     """
     Every [`ntwv`][schemas.workflow.amber.inputs.AmberInputsBase.ntwv] steps,
     the velocities will be written to the `mdvel` file. If
@@ -841,7 +987,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     calculated kinetic energy/temperature.
     """
 
-    ntwf: int = Field(default=0)
+    ntwf: int = Field(default=0, ge=0)
     """
     Every [`ntwf`][schemas.workflow.amber.inputs.AmberInputsBase.ntwf] steps, the
     forces will be written to the mdfrc file. If
@@ -860,7 +1006,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     and parallel scaling.
     """
 
-    ntwe: int = Field(default=0)
+    ntwe: int = Field(default=0, ge=0)
     """
     Every [`ntwe`][schemas.workflow.amber.inputs.AmberInputsBase.ntwe] steps,
     the energies and temperatures will be written to file `mden` in a compact form. If
@@ -881,11 +1027,15 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     the first part of the system, which is usually of greater interest (for instance,
     one might include only the solute and not the solvent).
 
+    <hr>
+
     **`0`**
 
     Include all atoms of the system when writing trajectories.
 
     **`> 0`**
+
+    <hr>
 
     Include only atoms 1 to
     [`ntwprt`][schemas.workflow.amber.inputs.AmberInputsBase.ntwprt] when writing
@@ -904,25 +1054,35 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     RRES and/or LRES card. The RES card is used to select the residues about which
     information is written out.
 
+    <hr>
+
     **`0`**
 
     Do not decompose energies.
+
+    <hr>
 
     **`1`**
 
     Decompose energies on a per-residue basis; 1-4 EEL + 1-4 VDW are added to internal
     (bond, angle, dihedral) energies.
 
+    <hr>
+
     **`2`**
 
     Decompose energies on a per-residue basis; 1-4 EEL + 1-4 VDW are added to EEL and
     VDW.
+
+    <hr>
 
     **`3`**
 
     Decompose energies on a pairwise per-residue basis; otherwise equivalent to
     [`idecomp`][schemas.workflow.amber.inputs.AmberInputsBase.idecomp] is `1`.
     Not available in TI simulations.
+
+    <hr>
 
     **`4`**
 
@@ -953,20 +1113,20 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     [`ibelly`][schemas.workflow.amber.inputs.AmberInputsBase.ibelly] is `1`.
     """
 
-    dx0: float = Field(default=0.01)
+    dx0: float = Field(default=0.01, ge=0.0)
     """
     The initial step length. If the initial step length is too big then will give a
     huge energy; however the minimizer is smart enough to adjust itself.
     """
 
-    drms: float = Field(default=0.0001)
+    drms: float = Field(default=0.0001, gt=0)
     """
     The convergence criterion for the energy Derivative: minimization will halt when
     the Root-Mean-Square of the Cartesian elements of the gradient of the energy is
     less than this.
     """
 
-    t: float = Field(default=0.0)
+    t: float = Field(default=0.0, ge=0.0)
     """The time at the start (psec) this is for your own reference and is not critical.
     Start time is taken from the coordinate input file if
     [`irest`][schemas.workflow.amber.inputs.AmberInputsBase.irest] is `1`.
@@ -996,7 +1156,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     the values at other times are meaningless.
     """
 
-    temp0les: int = Field(default=-1)
+    temp0les: int = Field(default=-1, ge=-1)
     """This is the target temperature for all LES particles. If
     [`temp0les`][schemas.workflow.amber.inputs.AmberInputsBase.temp0les] < `0`,
     a single temperature bath is used for all atoms, otherwise separate thermostats
@@ -1004,7 +1164,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     (weak-coupling) temperature bath.
     """
 
-    tautp: float = Field(default=1.0)
+    tautp: float = Field(default=1.0, gt=0)
     """
     Time constant, in ps, for heat bath coupling for the system, if
     [`ntt`][schemas.workflow.amber.inputs.AmberInputsBase.ntt] is `1`.
@@ -1018,7 +1178,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     to constant energy conditions.
     """
 
-    vrand: int = Field(default=1000)
+    vrand: int = Field(default=1000, ge=1)
     """
     If [`vrand`][schemas.workflow.amber.inputs.AmberInputsBase.vrand] > `0`
     and [`ntt`][schemas.workflow.amber.inputs.AmberInputsBase.ntt] is `2`, the
@@ -1027,7 +1187,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     [`vrand`][schemas.workflow.amber.inputs.AmberInputsBase.vrand] steps.
     """
 
-    vlimit: float = Field(default=20.0)
+    vlimit: float = Field(default=20.0, ge=0.0)
     """
     If not equal to `0.0`, then any component of the velocity that is greater than
     abs(VLIMIT) will be reduced to VLIMIT (preserving the sign). This can be used to
@@ -1038,7 +1198,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     Runs that have more than a few such warnings should be carefully examined.
     """
 
-    nkija: int = Field(default=1)
+    nkija: int = Field(default=1, ge=1)
     r"""
     For use with [`ntt`][schemas.workflow.amber.inputs.AmberInputsBase.ntt] if `9` or 10.
     For [`ntt`][schemas.workflow.amber.inputs.AmberInputsBase.ntt] is `9`, this the
@@ -1049,7 +1209,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     will total `nkija` $\times$ v1 + `nkija` $\times$ v2
     """
 
-    sinrtau: float = Field(default=1.0)
+    sinrtau: float = Field(default=1.0, gt=0.0)
     """
     For the SINR (Stochastic Isokinetic Nose-Hoover RESPA) integrator
     ([`ntt`][schemas.workflow.amber.inputs.AmberInputsBase.ntt] is `10`), this
@@ -1066,17 +1226,25 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     is `2`) with anisotropic pressure scaling
     ([`ntp`][schemas.workflow.amber.inputs.AmberInputsBase.ntp] is `2`).
 
+    <hr>
+
     **`0`**
 
     box size scales randomly ($x$, $y$ or $z$) each scaling step
+
+    <hr>
 
     **`1`**
 
     box scales only along $x$-direction, dimensions along $y$-, $z$-axes are fixed
 
+    <hr>
+
     **`2`**
 
     box scales only along $y$-direction, dimensions along $x$-, $z$-axes are fixed
+
+    <hr>
 
     **`3`**
 
@@ -1087,33 +1255,41 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     """
     Flag for constant surface tension dynamics.
 
+    <hr>
+
     **`0`**
 
     No constant surface tension.
+
+    <hr>
 
     **`1`**
 
     Constant surface tension with interfaces in the $yz$ plane
 
+    <hr>
+
     **`2`**
 
     Constant surface tension with interfaces in the $xz$ plane
+
+    <hr>
 
     **`3`**
 
     Constant surface tension with interfaces in the $xy$ plane
     """
 
-    gamma_ten: float = Field(default=0.0)
+    gamma_ten: float = Field(default=0.0, ge=0.0)
     """Surface tension value in units of dyne/cm."""
 
-    ninterface: int = Field(default=2)
+    ninterface: int = Field(default=2, ge=2, le=9)
     """Number of interfaces in the periodic box. There must be at least two
     interfaces in the periodic box. Two interfaces is appropriate for a lipid
     bilayer system and is the default value.
     """
 
-    tol: float = Field(default=0.00001)
+    tol: float = Field(default=0.00001, gt=0.0)
     """Relative geometrical tolerance for coordinate resetting in shake.
     Recommended maximum: < `0.00005` Angstroms.
     """
@@ -1122,10 +1298,14 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     """Fast water definition flag. By default, the system is searched for water
     residues, and special routines are used to SHAKE these systems.
 
+    <hr>
+
     **`0`**
 
     Waters are identified by the default names, unless they are
     redefined, as described below.
+
+    <hr>
 
     **`4`**
 
