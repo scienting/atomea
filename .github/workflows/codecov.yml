@@ -47,6 +47,7 @@ jobs:
         with:
           project_id: 'oasci'
           workload_identity_provider: 'projects/409265393012/locations/global/workloadIdentityPools/github/providers/atomea'
+          export_environment_variables: true
 
       - name: Run tests and coverage
         run: make test
