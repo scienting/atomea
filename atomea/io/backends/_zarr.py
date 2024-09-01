@@ -1,7 +1,15 @@
 from typing import Any
 
+import sys
+
 import numpy.typing as npt
-import zarr
+
+try:
+    import zarr
+
+    HAS_ZARR = True
+except ImportError:
+    HAS_ZARR = False
 from loguru import logger
 from numcodecs import MsgPack
 
@@ -12,6 +20,9 @@ class ZarrManager(StorageManager):
     @classmethod
     def get_store(cls, path_file: str) -> zarr.DirectoryStore:
         logger.debug(f"Getting zarr store at {path_file}")
+        if not HAS_ZARR:
+            logger.critical("zarr is not installed!")
+            sys.exit(0)
         return zarr.DirectoryStore(path_file)
 
     @classmethod

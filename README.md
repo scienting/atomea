@@ -4,6 +4,9 @@
     <a href="https://github.com/oasci/atomea/actions/workflows/tests.yml">
         <img src="https://github.com/oasci/atomea/actions/workflows/tests.yml/badge.svg" alt="Build Status ">
     </a>
+    <a href="https://github.com/oasci/atomea/actions/workflows/docs.yml">
+        <img src="https://github.com/oasci/atomea/actions/workflows/docs.yml/badge.svg" alt="Build Status ">
+    </a>
     <a href="https://badge.fury.io/py/atomea">
         <img src="https://badge.fury.io/py/atomea.svg" alt="PyPI version" height="18">
     </a>
@@ -46,10 +49,24 @@ It leverages the power of [Pydantic][pydantic] for schema definition and [Jinja2
 
 ## Installation
 
-You can install atomea via pip:
+Atomea requires Python 3.10 or later.
+You can install it using pip, the Python package installer.
+This will install atomea along with its core dependencies: loguru, pydantic, pyyaml, and numpy.
 
 ```bash
 pip install atomea
+```
+
+Atomea has several optional dependency groups that you can install based on your needs.
+You can include these when installing atomea or add them later.
+
+-   `storage`: Allows saving digested outputs to several file types.
+-   `sim`: Allows digesting simulations using MDAnalysis.
+
+For example, we can install both of these optional dependencies.
+
+```bash
+pip install atomea[storage,sim]
 ```
 
 ## Deploying
