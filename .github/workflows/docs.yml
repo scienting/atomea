@@ -1,4 +1,4 @@
-name: Deploy documentation
+name: Documentation
 
 on:
   # Runs on pushes targeting the default branch
@@ -21,20 +21,8 @@ concurrency:
 
 jobs:
 
-  wait-for-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for tests to succeed
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: ${{ github.ref }}
-          check-name: 'Run tests'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-
   deploy:
     name: docs
-    needs: wait-for-tests
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
