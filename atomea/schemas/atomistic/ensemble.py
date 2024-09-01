@@ -60,7 +60,7 @@ class EnsembleSchema(BaseModel, YamlIO, Data):
         Yields:
             A generator yielding ModelField objects.
         """
-        for field_name, field in model.__fields__.items():
+        for field_name, field in model.model_fields.items():
             key = f"{parent_key}.{field_name}" if parent_key else field_name
             yield key, field
             field_value = getattr(model, field_name)

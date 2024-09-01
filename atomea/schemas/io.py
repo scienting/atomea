@@ -15,7 +15,7 @@ class YamlIO(ABC):
             data: Key-value mapping to update attributes with.
         """
         for key, value in data.items():
-            if key in self.__fields__:  # type: ignore # pylint: disable=no-member
+            if key in self.model_fields:  # type: ignore # pylint: disable=no-member
                 setattr(self, key, value)
 
     def from_yaml(self, yaml_paths: str | list[str]) -> None:
@@ -47,6 +47,6 @@ class YamlIO(ABC):
         Raises:
             YamlIOError: If the file cannot be written to.
         """
-        config_dict = self.dict()  # type: ignore # pylint: disable=no-member
+        config_dict = self.model_dump()  # type: ignore # pylint: disable=no-member
         with open(file_path, "w", encoding="utf-8") as f:
             yaml.dump(config_dict, f, default_flow_style=False)

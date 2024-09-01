@@ -41,13 +41,5 @@ jobs:
       - name: Poetry install
         run: make install
 
-      # Setup using instructions here:
-      # https://github.com/google-github-actions/auth?tab=readme-ov-file#preferred-direct-workload-identity-federation
-      - uses: 'google-github-actions/auth@v2'
-        with:
-          project_id: 'oasci'
-          workload_identity_provider: 'projects/409265393012/locations/global/workloadIdentityPools/github/providers/atomea'
-          export_environment_variables: true
-
       - name: Run tests
         run: make test
