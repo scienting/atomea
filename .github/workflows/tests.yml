@@ -1,19 +1,19 @@
-name: Tests
+name: Python tests
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
+    name: Run tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Install miniconda
         uses: conda-incubator/setup-miniconda@v3
@@ -38,8 +40,17 @@ jobs:
       - name: Install conda dependencies
         run: make from-conda-lock
 
-      - name: Poetry install
+      - name: Install package
         run: make install
 
       - name: Run tests
         run: make test
+
+      - name: Upload to Codecov
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v4
+        with:
+          env_vars: OS,PYTHON
+          fail_ci_if_error: true
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
