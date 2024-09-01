@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "atomea"
 version = "0.0.0"
-description = "Extensible schema for atomistic simulations and calculations."
+description = "Extensible schema for atomistic data and calculations."
 authors = [
     "OASCI <us@oasci.org>",
 ]
@@ -9,7 +9,7 @@ license = "Apache-2.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 loguru = "^0.7.2"
 pydantic = "^2.7.1"
 pyyaml = "^6.0.1"
@@ -39,7 +39,6 @@ pytest-cov = "^4.1.0"
 pytest-html = "^4.0.1"
 coverage = "^7.3.1"
 colorama = "^0.4.6"
-google-cloud-storage = "^2.16.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.5.3"

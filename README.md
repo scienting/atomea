@@ -1,5 +1,5 @@
 <h1 align="center">atomea</h1>
-<h4 align="center">Extensible schema for atomistic simulations and calculations.</h4>
+<h4 align="center">Extensible schema for atomistic data and calculations.</h4>
 <p align="center">
     <a href="https://github.com/oasci/atomea/actions/workflows/tests.yml">
         <img src="https://github.com/oasci/atomea/actions/workflows/tests.yml/badge.svg" alt="Build Status ">
@@ -34,7 +34,7 @@
 
 ## Overview
 
-Atomea is a Python package designed to simplify and standardize the setup and data management for atomistic simulations and calculations.
+Atomea is a Python package designed to simplify and standardize the setup and data management for atomistic data and calculations.
 It leverages the power of [Pydantic][pydantic] for schema definition and [Jinja2][jinja] templates for input file generation, making it easy to automate, document, and prepare input files for various computational chemistry and biology tools.
 
 ## Key features
