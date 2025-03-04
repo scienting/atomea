@@ -2,6 +2,7 @@ from typing import Any
 
 import sys
 
+import numpy as np
 import numpy.typing as npt
 
 try:
@@ -11,19 +12,18 @@ try:
 except ImportError:
     HAS_ZARR = False
 from loguru import logger
-from numcodecs import MsgPack
 
 from ..manager import StorageManager
 
 
 class ZarrManager(StorageManager):
     @classmethod
-    def get_store(cls, path_file: str) -> zarr.DirectoryStore:
+    def get_store(cls, path_file: str) -> str:
         logger.debug(f"Getting zarr store at {path_file}")
         if not HAS_ZARR:
             logger.critical("zarr is not installed!")
             sys.exit(0)
-        return zarr.DirectoryStore(path_file)
+        return path_file
 
     @classmethod
     def initialize_group(cls, store: Any, key_group: str) -> Any:
@@ -35,32 +35,43 @@ class ZarrManager(StorageManager):
             key_group: Key to the group starting from root at `path_file`.
         """
         logger.debug(f"Getting group at {key_group}")
-        return zarr.group(store=store).require_group(key_group)
+        return zarr.open_group(store=store, path=key_group, mode="a")
 
     @classmethod
     def append_array(
-        cls, data: npt.NDArray[Any], storage: zarr.DirectoryStore, key_array: str
-    ) -> zarr.Array:
+        cls,
+        data: npt.NDArray[Any],
+        store: Any,
+        key_array: str,
+        **kwargs: dict[str, Any],
+    ) -> Any:
         logger.debug(f"Appending array at {key_array}")
         parent_group_path = "/".join(key_array.split("/")[:-1])
-        parent_group = cls.initialize_group(storage, parent_group_path)
+        parent_group = cls.initialize_group(store, parent_group_path)
         array_name = key_array.split("/")[-1]
 
         if array_name not in parent_group:
             logger.debug("Did not find the array; creating it now")
             dtype = data.dtype
-            if dtype.kind in {"U", "O"}:  # Unicode or Object dtype
-                array = parent_group.create_dataset(
+            if dtype.kind == "U":  # Unicode
+                array = parent_group.create_array(
                     name=array_name,
-                    data=data,
                     shape=data.shape,
                     dtype=data.dtype,
-                    object_codec=MsgPack(),
                 )
+                array[:] = data
+            elif dtype.kind == "O":  # Object
+                array = parent_group.create_array(
+                    name=array_name,
+                    shape=data.shape,
+                    dtype=np.str_,
+                )
+                array[:] = data.astype(np.str_)
             else:
-                array = parent_group.create_dataset(
-                    name=array_name, data=data, shape=data.shape, dtype=data.dtype
+                array = parent_group.create_array(
+                    name=array_name, shape=data.shape, dtype=data.dtype
                 )
+                array[:] = data
         else:
             logger.debug("Found the array; appending data")
             parent_group[array_name].append(data)

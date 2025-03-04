@@ -61,7 +61,7 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
 
     store = storage_manager.digest_and_store(digester, digest_kwargs, storage_path)
 
-    coordinates = zarr.Array(store=store, path="/system/coordinates")
+    coordinates = zarr.open_array(store=store, path="/system/coordinates")
     assert np.allclose(coordinates.get_basic_selection((0, 0, 0)), 33.924496)
     assert np.allclose(coordinates.get_basic_selection((0, 32, 0)), 27.2496)
     assert np.allclose(coordinates.get_basic_selection((-1, 78, 0)), 29.406982)

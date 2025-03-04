@@ -35,12 +35,18 @@ class StorageManager(ABC):
 
     @classmethod
     @abstractmethod
-    def append_array(cls, data: npt.NDArray[Any], storage: Any, key_array: str) -> None:
+    def append_array(
+        cls,
+        data: npt.NDArray[Any],
+        store: Any,
+        key_array: str,
+        **kwargs: dict[str, Any],
+    ) -> Any:
         """Append `data` to `key_array` located within `path_file`.
 
         Args:
             data: Data to append to file.
-            storage: Opened file to write to.
+            store: Opened file to write to.
             key_array: Key to the group starting in `storage`.
         """
         raise NotImplementedError
