@@ -1,4 +1,4 @@
-name: Documentation
+name: Deploy documentation
 
 on:
   # Runs on pushes targeting the default branch
@@ -20,7 +20,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
   deploy:
     name: docs
     environment:
@@ -34,27 +33,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          miniconda-version: "latest"
-          auto-update-conda: true
-          python-version: "3.12"
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
 
-      - name: Initialize conda environment
-        run: make conda-create
-
-      - name: Setup conda
-        run: make conda-setup
-
-      - name: Install conda dependencies
-        run: make from-conda-lock
-
-      - name: Install docs dependenices
-        run: make docs-env
+      - name: Setup environment
+        run: pixi install
 
       - name: Build documentation
-        run: make docs
+        run: pixi run docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -67,3 +53,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+

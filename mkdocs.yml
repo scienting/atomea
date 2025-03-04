@@ -54,7 +54,6 @@ plugins:
   - search
   - autorefs
   - material-plausible
-  - table-reader
   - gen-files:
       scripts:
         - docs/gen_ref_pages.py
@@ -80,12 +79,22 @@ plugins:
             merge_init_into_class: true
             line_length: 88
             show_root_heading: false
-  - awesome-pages:
-        collapse_single_pages: true
-        strict: false
-        order: asc
-        sort_type: natural
-        order_by: title
+  - mkdocs-jupyter:
+        no_input: False
+        include_requirejs: true
+        include_source: True
+        ignore: ["*.py"]
+        remove_tag_config:
+            remove_input_tags:
+                - hide_code
+  - awesome-nav
+  - glightbox
+  - macros
+  - print-site
+  - git-revision-date-localized:
+      type: iso_datetime
+      timezone: America/Detroit
+      fallback_to_build_date: true
 
 extra:
   generator: false
@@ -99,8 +108,7 @@ extra_css:
   - css/mkdocstrings.css
 
 extra_javascript:
-  - js/mathjax.js
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - js/mathjax-config.js
   - js/d3.js
 
 markdown_extensions:

@@ -1,3 +1,3 @@
 nav:
     - Schemas: index.md
-    - ...
+    - "*"
