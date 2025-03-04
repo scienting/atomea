@@ -60,6 +60,8 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
+          inventories:
+            - "https://docs.python.org/3/objects.inv"
           paths: ["atomea"]
           options:
             annotations_path: brief
