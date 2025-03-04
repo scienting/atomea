@@ -49,41 +49,32 @@ It leverages the power of [Pydantic][pydantic] for schema definition and [Jinja2
 
 ## Installation
 
-Atomea requires Python 3.10 or later.
-You can install it using pip, the Python package installer.
-This will install atomea along with its core dependencies: loguru, pydantic, pyyaml, and numpy.
+`atomea` requires Python 3.10 or later.
+You can install it using pip, the Python package installer,
 
 ```bash
 pip install atomea
 ```
 
-Atomea has several optional dependency groups that you can install based on your needs.
-You can include these when installing atomea or add them later.
-
--   `storage`: Allows saving digested outputs to several file types.
--   `sim`: Allows digesting simulations using MDAnalysis.
-
-For example, we can install both of these optional dependencies.
+or directly from the GitHub `main` branch.
 
 ```bash
-pip install atomea[storage,sim]
+pip install git+https://github.com/oasci/atomea.git
 ```
 
-## Deploying
+## Development
 
-We use [bump-my-version](https://github.com/callowayproject/bump-my-version) to release a new version.
-This will create a git tag that is used by [poetry-dynamic-version](https://github.com/mtkennerly/poetry-dynamic-versioning) to generate version strings and update [`CHANGELOG.md`](https://gitlab.com/oasci/software/atomea/-/blob/main/CHANGELOG.md).
-
-For example, to bump the `minor` version you would run the following command.
+We use [pixi](https://pixi.sh/latest/) to manage Python environments and simplify the developer workflow.
+Once you have [pixi](https://pixi.sh/latest/) installed, move into `atomea` directory (e.g., `cd atomea`) and install the  environment using the command
 
 ```bash
-poetry run bump-my-version bump minor
+pixi install
 ```
 
-After releasing a new version, you need to push and include all tags.
+Now you can activate the new virtual environment using
 
-```bash
-git push --follow-tags
+```sh
+pixi shell
 ```
 
 ## License
