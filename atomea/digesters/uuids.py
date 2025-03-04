@@ -11,11 +11,11 @@ def SchemaUUID(uuid_str: str) -> Callable[..., Any]:
 
     The UUID is stored in the private attribute `__uuid__` of the method, which can
     then be used to map the method to specific fields in a schema
-    (e.g., [`MoleculeSchema`][schemas.atomistic.MoleculeSchema]).
+    (e.g., [`EnsembleSchema`][schemas.atomistic.EnsembleSchema]).
 
     This is particularly useful when dealing with data extraction and transformation
     processes in computational chemistry and biology. By using
-    [`@SchemaUUID`][digesters.ids.SchemaUUID], each
+    [`@SchemaUUID`][digesters.uuids.SchemaUUID], each
     method that processes a part of the input data can be easily identified and called
     based on its UUID. This allows for a flexible and dynamic way to handle various
     data processing tasks, ensuring that each piece of data is processed by the

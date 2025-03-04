@@ -33,14 +33,14 @@ class Digester(ABC):
     def get_uuid_map(cls):
         """
         Update the function UUID map by inspecting the class methods
-        decorated with [`@SchemaUUID`][digesters.ids.SchemaUUID].
+        decorated with [`@SchemaUUID`][digesters.uuids.SchemaUUID].
 
         This method scans through all the methods in the class, identifies those
-        decorated with [`@SchemaUUID`][digesters.ids.SchemaUUID], and constructs a
+        decorated with [`@SchemaUUID`][digesters.uuids.SchemaUUID], and constructs a
         dictionary mapping the UUIDs to the method names. This map is used to
         dynamically call methods based on their UUIDs during the data digestion process.
 
-        By using [`@SchemaUUID`][digesters.ids.SchemaUUID], each method that processes
+        By using [`@SchemaUUID`][digesters.uuids.SchemaUUID], each method that processes
         a part of the input data can be easily identified and called based on its UUID.
         This allows for a flexible and dynamic way to handle various data processing
         tasks, ensuring that each piece of data is processed by the appropriate method.
@@ -308,14 +308,14 @@ class Digester(ABC):
     ) -> dict[str, Any]:
         """
         Digest a single frame of input data into a
-        [`MoleculeSchema`][schemas.atomistic.MoleculeSchema].
+        [`EnsembleSchema`][schemas.atomistic.EnsembleSchema].
 
         This method processes a single frame of data by invoking static methods
         implemented in the child digester class. These static methods with a
-        [`SchemaUUID`][digesters.ids.SchemaUUID] are responsible
+        [`SchemaUUID`][digesters.uuids.SchemaUUID] are responsible
         for processing specific parts of the frame input data and returning
         key-value pairs that correspond to fields in the
-        [`MoleculeSchema`][schemas.atomistic.MoleculeSchema].
+        [`EnsembleSchema`][schemas.atomistic.EnsembleSchema].
 
         Args:
             inputs_frame: The inputs for the frame digestion process.
@@ -336,19 +336,19 @@ class Digester(ABC):
                 of the frame.
 
         Notes:
-            - The method relies on metadata defined within the fields of MoleculeSchema
+            - The method relies on metadata defined within the fields of EnsembleSchema
               to determine which static method to call for processing each field.
-            - Each field in the MoleculeSchema should have metadata that includes a
+            - Each field in the EnsembleSchema should have metadata that includes a
               'uuid' and optionally a 'cadence'. The 'cadence' should be set to 'molecule'
               to indicate that the field is processed per molecule.
             - Static methods in the child class should be decorated with @SchemaUUID
-              to associate them with the corresponding fields in MoleculeSchema.
+              to associate them with the corresponding fields in EnsembleSchema.
 
         Example:
             Suppose `inputs_frame` contains data for atomic coordinates, the static
             method decorated with the appropriate UUID will be called to process these
             coordinates, and the resulting values will be assigned to the corresponding
-            field in MoleculeSchema.
+            field in EnsembleSchema.
 
         """
         digester_map = cls.get_uuid_map()

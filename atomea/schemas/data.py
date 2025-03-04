@@ -25,7 +25,7 @@ class Data(ABC):
 
         Args:
             data: A dictionary containing the keys and values to update the
-                MoleculeSchema instance. The keys can use dot notation to
+                EnsembleSchema instance. The keys can use dot notation to
                 specify nested attributes.
             schema_map: A mapping of field keys to their cadence and other metadata.
             mol_index: The current molecule index for updating array fields.
@@ -35,7 +35,7 @@ class Data(ABC):
 
         Example:
             ```python
-            mol_schema = MoleculeSchema()
+            mol_schema = EnsembleSchema()
             schema_map = mol_schema.get_schema_map()
             data = {
                 "qc.energy": -76.4,
