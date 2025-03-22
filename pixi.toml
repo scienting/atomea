@@ -47,6 +47,8 @@ mdlint = { cmd = ["markdownlint-cli2", '"**/*.{md,markdown}"', "--fix", "--confi
 isort = { cmd = ["isort", "--settings-path", ".isort.cfg", "./atomea", "./tests", "||", "true"] }
 black = { cmd = ["black", "--config", ".black.toml", "./atomea", "./tests", "||", "true"] }
 format = { depends-on = ["mdlint", "isort", "black"] }
+data-remove = { cmd = ["rm", "-rf", "tests/files"] }
+data = { cmd = ["git", "clone", "--depth", "1", "https://github.com/oasci/atomea-data", "tests/files"], depends-on = ["data-remove"]}
 tests = { cmd = [
     "PYTHONPATH=.",
     "pytest",
