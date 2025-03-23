@@ -68,6 +68,7 @@ publish = { cmd = ["twine", "upload", "dist/*"] }
 [feature.dev.pypi-dependencies]
 build = ">=1.2.2.post1,<2"
 mypy-extensions = ">=1.0.0"
+types-pyyaml = ">=6.0.12.20241230, <7"
 
 [feature.docs.dependencies]
 mkdocs = ">=1.6.1,<2"
