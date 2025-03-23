@@ -11,8 +11,8 @@
         <img src="https://badge.fury.io/py/atomea.svg" alt="PyPI version" height="18">
     </a>
     <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/atomea">
-    <a href="https://codecov.io/gh/oasci/simlify">
-        <img src="https://codecov.io/gh/oasci/simlify/branch/main/graph/badge.svg" alt="codecov">
+    <a href="https://codecov.io/gh/oasci/atomea">
+        <img src="https://codecov.io/gh/oasci/atomea/branch/main/graph/badge.svg" alt="codecov">
     </a>
     <a href="https://github.com/oasci/atomea/releases">
         <img src="https://img.shields.io/github/v/release/oasci/atomea" alt="GitHub release (latest by date)">
