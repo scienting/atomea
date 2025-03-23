@@ -41,6 +41,9 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
         for key, value in self.model_dump(exclude_none=True).items():
             if key == "compute_platform":
                 continue
+            if key[:4] == "dir_":
+                # Ignore keys in Render
+                continue
             add_option = f" -{AMBER_CLI_MAPPING[key]} {value}"
             logger.debug(f"Adding option: {add_option}")
             line += add_option
