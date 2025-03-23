@@ -2,12 +2,10 @@ from typing import Any, Generator
 
 from pydantic import BaseModel, Field
 
-from ..data import Data
-from ..id import IdentificationSchema
-from ..io import YamlIO
-from .qc import QCSchema
-from .system import SystemSchema
-from .topology import TopologySchema
+from atomea.schemas import Data, IdentificationSchema, YamlIO
+from atomea.schemas.atomistic.qc import QCSchema
+from atomea.schemas.atomistic.system import SystemSchema
+from atomea.schemas.atomistic.topology import TopologySchema
 
 
 class EnsembleSchema(BaseModel, YamlIO, Data):

@@ -1,10 +1,12 @@
 from pydantic import BaseModel, Field
 
-from ....render import Render
-from .data import DataConfig
-from .executable import ExecutableConfig
-from .propagation import PropagationConfig
-from .system import SystemConfig
+from atomea.schemas import Render
+from atomea.schemas.workflow.westpa.cfg import (
+    DataConfig,
+    ExecutableConfig,
+    PropagationConfig,
+    SystemConfig,
+)
 
 
 class WestpaConfigConfig(BaseModel, Render):

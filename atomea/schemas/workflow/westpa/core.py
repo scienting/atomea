@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field
 
-from ..io import YamlIO
-from .cfg.main import WestpaConfigConfig
-from .environment import WestpaEnv
+from atomea.schemas.io import YamlIO
+from atomea.schemas.workflow.westpa import WestpaEnv
+from atomea.schemas.workflow.westpa.cfg.core import WestpaConfigConfig
 
 
 class WestpaConfig(BaseModel, YamlIO):

@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 
-from ..io import YamlIO
-from ..render import Render
+from atomea.schemas import Render, YamlIO
 
 
 class SlurmSchema(BaseModel, YamlIO, Render):

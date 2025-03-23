@@ -3,8 +3,7 @@ from typing import Literal
 from loguru import logger
 from pydantic import BaseModel
 
-from ...io import YamlIO
-from ...render import Render
+from atomea.schemas import Render, YamlIO
 
 AMBER_CLI_MAPPING = {
     "mdin": "i",

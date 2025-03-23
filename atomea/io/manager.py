@@ -6,7 +6,7 @@ import numpy as np
 import numpy.typing as npt
 from loguru import logger
 
-from ..schemas.atomistic import EnsembleSchema
+from atomea.schemas.atomistic import EnsembleSchema
 
 
 class StorageManager(ABC):

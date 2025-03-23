@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from ..io import YamlIO
+from atomea.schemas import YamlIO
 
 
 class SystemSchema(BaseModel, YamlIO):

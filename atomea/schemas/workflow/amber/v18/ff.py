@@ -2,18 +2,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from ..ff import ForcefieldSchemaBase
-from .cli import AmberCLIBase
-from .inputs import AmberInputsBase
-from .schema import AmberSchemaBase
-
-
-class Amber18Inputs(AmberInputsBase):
-    pass
-
-
-class Amber18CLI(AmberCLIBase):
-    pass
+from atomea.schemas.workflow import ForcefieldSchemaBase
 
 
 class Amber18Forcefield(ForcefieldSchemaBase):
@@ -52,13 +41,3 @@ class Amber18Forcefield(ForcefieldSchemaBase):
         | None
     ) = Field(default=None)
     r"""Options for water force fields."""
-
-
-class Amber18Schema(AmberSchemaBase):
-    r"""Amber 18 schema for simulation contexts."""
-
-    inputs: Amber18Inputs = Field(default_factory=Amber18Inputs)
-
-    cli: Amber18CLI = Field(default_factory=Amber18CLI)
-
-    ff: Amber18Forcefield = Field(default_factory=Amber18Forcefield)

@@ -3,7 +3,7 @@ import os
 
 from loguru import logger
 
-from .main import WestpaConfig
+from atomea.schemas.workflow.westpa import WestpaConfig
 
 
 def run_westpa_config(

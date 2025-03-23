@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field
 
-from ..io import YamlIO
+from atomea.schemas import YamlIO
 
 
 class TopologySchema(BaseModel, YamlIO):

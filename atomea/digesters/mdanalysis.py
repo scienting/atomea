@@ -13,8 +13,8 @@ try:
 except ImportError:
     HAS_MDANALYSIS = False
 
-from .digester import Digester
-from .uuids import SchemaUUID
+from atomea.digesters import Digester
+from atomea.digesters.uuids import SchemaUUID
 
 
 def accumulate_things(*args, **kwargs):

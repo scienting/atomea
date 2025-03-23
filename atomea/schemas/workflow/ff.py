@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from ..io import YamlIO
+from atomea.schemas import YamlIO
 
 
 class ForcefieldSchemaBase(BaseModel, YamlIO):

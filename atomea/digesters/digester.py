@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from loguru import logger
 
-from ..schemas.atomistic import EnsembleSchema
+from atomea.schemas.atomistic import EnsembleSchema
 
 
 class Digester(ABC):

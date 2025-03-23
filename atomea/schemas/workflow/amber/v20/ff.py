@@ -2,23 +2,10 @@ from typing import Literal
 
 from pydantic import Field
 
-from ..ff import ForcefieldSchemaBase
-from .cli import AmberCLIBase
-from .inputs import AmberInputsBase
-from .schema import AmberSchemaBase
+from atomea.schemas.workflow import ForcefieldSchemaBase
 
 
-class Amber22Inputs(AmberInputsBase):
-    pass
-
-
-class Amber22CLI(AmberCLIBase):
-    """Amber 22 command-line interface"""
-
-    pass
-
-
-class Amber22Forcefield(ForcefieldSchemaBase):
+class Amber20Forcefield(ForcefieldSchemaBase):
     protein: (
         Literal[
             "ff19SB",
@@ -49,7 +36,6 @@ class Amber22Forcefield(ForcefieldSchemaBase):
             "spceb",
             "opc",
             "opc3",
-            "opc3pol",
             "pol3",
             "tip3pfb",
             "tip4pfb",
@@ -57,13 +43,3 @@ class Amber22Forcefield(ForcefieldSchemaBase):
         | None
     ) = Field(default=None)
     r"""Options for water force fields."""
-
-
-class Amber22Schema(AmberSchemaBase):
-    r"""Amber 22 schema for simulation contexts."""
-
-    inputs: Amber22Inputs = Field(default_factory=Amber22Inputs)  # type: ignore
-
-    cli: Amber22CLI = Field(default_factory=Amber22CLI)
-
-    ff: Amber22Forcefield = Field(default_factory=Amber22Forcefield)
