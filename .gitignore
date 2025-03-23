@@ -4,7 +4,7 @@ docs/api
 
 .idea
 
-./tests/files/*
+tests/files
 
 
 # Created by https://www.gitignore.io/api/osx,python,pycharm,windows,visualstudio,visualstudiocode
