@@ -1,25 +1,27 @@
 from abc import ABC
 
+from pydantic import Field
+
 
 class Render(ABC):
     """Handles rendering files."""
 
-    dir_work: str = "."
+    dir_work: str = Field(default=".", exclude=True)
     """
     Working directory to write files.
     """
 
-    dir_input: str = "."
+    dir_input: str = Field(default=".", exclude=True)
     """
     Path to a directory relative to
-    [`dir_work`][schemas.RenderingConfig.dir_work] that will contain
+    [`dir_work`][schemas.render.Render.dir_work] that will contain
     input files.
     """
 
-    dir_output: str = "."
+    dir_output: str = Field(default=".", exclude=True)
     """
     Path to a directory relative to
-    [`dir_work`][schemas.RenderingConfig.dir_work] that the simulation will
+    [`dir_work`][schemas.render.Render.dir_work] that the simulation will
     store output files.
     """
 
