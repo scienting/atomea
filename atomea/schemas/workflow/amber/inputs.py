@@ -236,7 +236,7 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
     effective for exploring conformational space in flexible molecules.
     """
 
-    maxcyc: int = Field(default=1, ge=1)
+    maxcyc: int = Field(default=9999, ge=1)
     """
     Maximum number of minimization cycles allowed. This parameter sets the upper limit
     on the number of cycles the minimization algorithm will perform.
