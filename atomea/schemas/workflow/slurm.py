@@ -11,7 +11,7 @@ class SlurmSchema(BaseModel, YamlIO, Render):
     specific Slurm configuration parameter or job setup step.
     """
 
-    def render(self) -> list[str]:
+    def render(self, with_newlines: bool = False) -> list[str]:
         lines = ["#!/bin/bash", ""]
 
         for key, value in self.model_dump(exclude_none=True).items():
@@ -37,6 +37,9 @@ class SlurmSchema(BaseModel, YamlIO, Render):
         lines.extend(self.commands_run)
         lines.extend(self.commands_post)
         lines.append("")
+
+        if with_newlines:
+            lines = [line + "\n" for line in lines]
 
         return lines
 

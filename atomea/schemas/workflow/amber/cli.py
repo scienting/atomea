@@ -34,7 +34,7 @@ Maps keys from `AmberCLIBase` to Amber command-line options.
 
 
 class AmberCLIBase(BaseModel, YamlIO, Render):
-    def render(self) -> list[str]:
+    def render(self, with_newlines: bool = False) -> list[str]:
         """Render the bash command to run an Amber simulation."""
         line: str = self.compute_platform
 
@@ -48,7 +48,11 @@ class AmberCLIBase(BaseModel, YamlIO, Render):
             logger.debug(f"Adding option: {add_option}")
             line += add_option
 
-        return [line]
+        lines = [line]
+        if with_newlines:
+            lines = [line + "\n" for line in lines]
+
+        return lines
 
     compute_platform: Literal[
         "sander", "pmemd", "pmemd.MPI", "pmemd.cuda", "pmemd.cuda.MPI"

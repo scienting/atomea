@@ -8,7 +8,7 @@ from ...render import Render
 
 
 class AmberInputsBase(BaseModel, YamlIO, Render):
-    def render(self) -> list[str]:
+    def render(self, with_newlines: bool = False) -> list[str]:
         """Render AMBER input file."""
         lines = ["", "&cntrl"]
 
@@ -30,6 +30,10 @@ class AmberInputsBase(BaseModel, YamlIO, Render):
             lines.append(line_to_add)
 
         lines.extend(["&end", ""])
+
+        if with_newlines:
+            lines = [line + "\n" for line in lines]
+
         return lines
 
     imin: Literal[0, 1, 5, 6, 7] = Field(default=0)

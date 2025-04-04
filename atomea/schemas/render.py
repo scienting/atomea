@@ -25,7 +25,7 @@ class Render(ABC):
     store output files.
     """
 
-    def render(self) -> list[str]:
+    def render(self, with_newlines: bool = False) -> list[str]:
         """Prepare input lines by rendering templates or combining input configuration."""
         raise NotImplementedError
 
