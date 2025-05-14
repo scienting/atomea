@@ -28,10 +28,10 @@ class Data(ABC):
                 EnsembleSchema instance. The keys can use dot notation to
                 specify nested attributes.
             schema_map: A mapping of field keys to their cadence and other metadata.
-            mol_index: The current molecule index for updating array fields.
+            mol_index: The current microstate index for updating array fields.
 
         Returns:
-            The updated molecule index after processing the input data.
+            The updated microstate index after processing the input data.
 
         Example:
             ```python
@@ -42,7 +42,7 @@ class Data(ABC):
                 "system.coordinates": [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
                 "topology.bonds": [(0, 1), (0, 2)]
             }
-            molecule.update(data, schema_map)
+            microstate.update(data, schema_map)
             ```
 
         Raises:
@@ -61,7 +61,7 @@ class Data(ABC):
                 continue
 
             cadence = schema_map_alt[field_key]
-            if cadence == "molecule":
+            if cadence == "microstate":
                 mol_index = self._update_array(field_key, value, mol_index)
             elif cadence == "ensemble":
                 self._set_field(field_key, value)
@@ -117,7 +117,7 @@ class Data(ABC):
             mol_index: The current index for appending new values.
 
         Returns:
-            The updated molecule index after appending the new values.
+            The updated microstate index after appending the new values.
 
         Raises:
             TypeError: If the value is not a numpy array or cannot be converted to one.
@@ -131,7 +131,7 @@ class Data(ABC):
         if array is None:
             array = np.empty((1000, *value.shape[1:]), dtype=value.dtype)
 
-        # Check if we need to resize array to 2 times its current number of molecules.
+        # Check if we need to resize array to 2 times its current number of microstates.
         mol_index_new = int(mol_index + value.shape[0])
         if mol_index_new > array.shape[0]:
             new_shape = (int(array.shape[0] * 2), *array.shape[1:])
@@ -144,7 +144,7 @@ class Data(ABC):
 
         return mol_index_new
 
-    def _trim_molecule_arrays(
+    def _trim_microstate_arrays(
         self, mol_index: int, schema_map: dict[str, dict[str, str]]
     ) -> None:
         """
@@ -156,7 +156,7 @@ class Data(ABC):
         """
         schema_map_alt = {v["field_key"]: v["cadence"] for k, v in schema_map.items()}
         for field_key, field_cadence in schema_map_alt.items():
-            if field_cadence != "molecule":
+            if field_cadence != "microstate":
                 continue
             keys, sub_model, value = self._get_field_value(field_key)
             if not isinstance(value, np.ndarray):

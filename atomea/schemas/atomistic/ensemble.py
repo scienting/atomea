@@ -80,7 +80,7 @@ class EnsembleSchema(BaseModel, YamlIO, Data):
                 -   `field_key`: key to the model field from
                     [`generate_fields`]
                     [schemas.atomistic.ensemble.EnsembleSchema.generate_fields].
-                -   `cadence`: The frequency of when this data would change; per molecule
+                -   `cadence`: The frequency of when this data would change; per microstate
                     or ensemble basis.
         """
         uuid_mapping = {}

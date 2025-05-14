@@ -80,7 +80,7 @@ class StorageManager(ABC):
     def process_ensemble(
         cls, ensemble_data: EnsembleSchema, store: Any, prefix: str = ""
     ) -> Any:
-        """Add multiple molecules to `store` from `EnsembleSchema.frames`."""
+        """Add multiple microstates to `store` from `EnsembleSchema.frames`."""
         logger.debug("Processing ensemble")
         ensemble_dict = ensemble_data.model_dump(exclude_none=True)
         cls._process_nested_dict(ensemble_dict, store, prefix)

@@ -145,7 +145,7 @@ class Digester(ABC):
 
         schema_map = ensemble_schema.get_schema_map(ensemble_schema)
         mol_index = 0
-        # Digest all frames with a cadence of molecule
+        # Digest all frames with a cadence of microstate
         if not parallelize:
             for inputs_frame in cls.gen_inputs_frame(inputs_digester):
                 mol_data = cls.digest_frame(inputs_frame, schema_map)
@@ -161,8 +161,8 @@ class Digester(ABC):
             #     ):
             #         ensemble_schema.frames.append(mol_frame)
 
-        # Cleanup molecule arrays, must be done before ensemble.
-        ensemble_schema._trim_molecule_arrays(mol_index, schema_map)
+        # Cleanup microstate arrays, must be done before ensemble.
+        ensemble_schema._trim_microstate_arrays(mol_index, schema_map)
 
         # Digest all ensemble-cadence properties using the last frame
         ensemble_data = cls.digest_frame(
@@ -225,8 +225,8 @@ class Digester(ABC):
                 )
                 count += 1
 
-                # Cleanup molecule arrays, must be done before ensemble.
-                ensemble_schema._trim_molecule_arrays(mol_index, schema_map)
+                # Cleanup microstate arrays, must be done before ensemble.
+                ensemble_schema._trim_microstate_arrays(mol_index, schema_map)
 
                 # Digest all ensemble-cadence properties using the last frame
                 ensemble_data = cls.digest_frame(
@@ -304,7 +304,7 @@ class Digester(ABC):
         cls,
         inputs_frame: dict[str, Any],
         schema_map: dict[str, dict[str, str]],
-        cadence_eval: Literal["molecule", "ensemble"] = "molecule",
+        cadence_eval: Literal["microstate", "ensemble"] = "microstate",
     ) -> dict[str, Any]:
         """
         Digest a single frame of input data into a
@@ -339,8 +339,8 @@ class Digester(ABC):
             - The method relies on metadata defined within the fields of EnsembleSchema
               to determine which static method to call for processing each field.
             - Each field in the EnsembleSchema should have metadata that includes a
-              'uuid' and optionally a 'cadence'. The 'cadence' should be set to 'molecule'
-              to indicate that the field is processed per molecule.
+              'uuid' and optionally a 'cadence'. The 'cadence' should be set to 'microstate'
+              to indicate that the field is processed per microstate.
             - Static methods in the child class should be decorated with @SchemaUUID
               to associate them with the corresponding fields in EnsembleSchema.
 
