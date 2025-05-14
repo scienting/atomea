@@ -144,13 +144,13 @@ class Digester(ABC):
         inputs_digester = cls.prepare_inputs_digester(*digester_args, **digester_kwargs)
 
         schema_map = ensemble_schema.get_schema_map(ensemble_schema)
-        mol_index = 0
+        ms_index = 0
         # Digest all frames with a cadence of microstate
         if not parallelize:
             for inputs_frame in cls.gen_inputs_frame(inputs_digester):
                 mol_data = cls.digest_frame(inputs_frame, schema_map)
-                mol_index = ensemble_schema.update_atomistic(
-                    mol_data, schema_map=schema_map, mol_index=mol_index
+                ms_index = ensemble_schema.update_atomistic(
+                    mol_data, schema_map=schema_map, ms_index=ms_index
                 )
         else:
             logger.error("Parallel operation is not yet supported.")
@@ -162,7 +162,7 @@ class Digester(ABC):
             #         ensemble_schema.frames.append(mol_frame)
 
         # Cleanup microstate arrays, must be done before ensemble.
-        ensemble_schema._trim_microstate_arrays(mol_index, schema_map)
+        ensemble_schema._trim_microstate_arrays(ms_index, schema_map)
 
         # Digest all ensemble-cadence properties using the last frame
         ensemble_data = cls.digest_frame(
@@ -210,7 +210,7 @@ class Digester(ABC):
         inputs_digester = cls.prepare_inputs_digester(*digester_args, **digester_kwargs)
 
         schema_map = ensemble_schema.get_schema_map(ensemble_schema)
-        mol_index = 0
+        ms_index = 0
         if not parallelize:
             ensemble_schema = ensemble_schema_orig.copy()
             count = 0
@@ -220,13 +220,13 @@ class Digester(ABC):
                     count = 0
 
                 mol_data = cls.digest_frame(inputs_frame, schema_map)
-                mol_index = ensemble_schema.update_atomistic(
-                    mol_data, schema_map=schema_map, mol_index=mol_index
+                ms_index = ensemble_schema.update_atomistic(
+                    mol_data, schema_map=schema_map, ms_index=ms_index
                 )
                 count += 1
 
                 # Cleanup microstate arrays, must be done before ensemble.
-                ensemble_schema._trim_microstate_arrays(mol_index, schema_map)
+                ensemble_schema._trim_microstate_arrays(ms_index, schema_map)
 
                 # Digest all ensemble-cadence properties using the last frame
                 ensemble_data = cls.digest_frame(

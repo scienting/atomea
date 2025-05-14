@@ -14,7 +14,7 @@ class Data(ABC):
         self,
         data: dict[str, Any],
         schema_map: dict[str, dict[str, str]],
-        mol_index: int = 0,
+        ms_index: int = 0,
     ) -> int:
         """
         Update the fields of the Schema instance with the provided data.
@@ -28,7 +28,7 @@ class Data(ABC):
                 EnsembleSchema instance. The keys can use dot notation to
                 specify nested attributes.
             schema_map: A mapping of field keys to their cadence and other metadata.
-            mol_index: The current microstate index for updating array fields.
+            ms_index: The current microstate index for updating array fields.
 
         Returns:
             The updated microstate index after processing the input data.
@@ -62,12 +62,12 @@ class Data(ABC):
 
             cadence = schema_map_alt[field_key]
             if cadence == "microstate":
-                mol_index = self._update_array(field_key, value, mol_index)
+                ms_index = self._update_array(field_key, value, ms_index)
             elif cadence == "ensemble":
                 self._set_field(field_key, value)
             else:
                 raise ValueError(f"Unknown cadence: {cadence}")
-        return mol_index
+        return ms_index
 
     def _set_field(self, key: str, value: Any, separator: str = ".") -> None:
         """
@@ -106,7 +106,7 @@ class Data(ABC):
         array = getattr(sub_model, keys[-1], None)
         return keys, sub_model, array
 
-    def _update_array(self, key: str, value: Any, mol_index: int = 0) -> int:
+    def _update_array(self, key: str, value: Any, ms_index: int = 0) -> int:
         """
         Update an array field in the schema, resizing if necessary.
 
@@ -114,7 +114,7 @@ class Data(ABC):
             key: The key of the array field to update. Can use dot notation for
                 nested attributes.
             value: The value to add to the array.
-            mol_index: The current index for appending new values.
+            ms_index: The current index for appending new values.
 
         Returns:
             The updated microstate index after appending the new values.
@@ -132,26 +132,26 @@ class Data(ABC):
             array = np.empty((1000, *value.shape[1:]), dtype=value.dtype)
 
         # Check if we need to resize array to 2 times its current number of microstates.
-        mol_index_new = int(mol_index + value.shape[0])
-        if mol_index_new > array.shape[0]:
+        ms_index_new = int(ms_index + value.shape[0])
+        if ms_index_new > array.shape[0]:
             new_shape = (int(array.shape[0] * 2), *array.shape[1:])
             new_array = np.empty(new_shape, dtype=array.dtype)
-            new_array[:mol_index] = array
+            new_array[:ms_index] = array
             array = new_array
 
-        array[mol_index:mol_index_new] = value
+        array[ms_index:ms_index_new] = value
         setattr(sub_model, keys[-1], array)
 
-        return mol_index_new
+        return ms_index_new
 
     def _trim_microstate_arrays(
-        self, mol_index: int, schema_map: dict[str, dict[str, str]]
+        self, ms_index: int, schema_map: dict[str, dict[str, str]]
     ) -> None:
         """
         Finalize arrays by trimming off the unused portions based on the current index.
 
         Args:
-            mol_index: The current index up to which the arrays should be retained.
+            ms_index: The current index up to which the arrays should be retained.
             schema_map: A mapping of field keys to their cadence and other metadata.
         """
         schema_map_alt = {v["field_key"]: v["cadence"] for k, v in schema_map.items()}
@@ -162,4 +162,4 @@ class Data(ABC):
             if not isinstance(value, np.ndarray):
                 continue
 
-            setattr(sub_model, keys[-1], value[:mol_index])
+            setattr(sub_model, keys[-1], value[:ms_index])
