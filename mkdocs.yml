@@ -81,18 +81,9 @@ plugins:
             merge_init_into_class: true
             line_length: 88
             show_root_heading: false
-  - mkdocs-jupyter:
-        no_input: False
-        include_requirejs: true
-        include_source: True
-        ignore: ["*.py"]
-        remove_tag_config:
-            remove_input_tags:
-                - hide_code
   - awesome-nav
   - glightbox
   - macros
-  - print-site
   - git-revision-date-localized:
       type: iso_datetime
       timezone: America/Detroit
