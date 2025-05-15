@@ -6,6 +6,8 @@ from atomea.schemas import Data, IdentificationSchema, YamlIO
 from atomea.schemas.atomistic.qc import QCSchema
 from atomea.schemas.atomistic.system import SystemSchema
 from atomea.schemas.atomistic.topology import TopologySchema
+from atomea.schemas.atomistic.energy import EnergySchema
+from atomea.schemas.atomistic.time import TimeSchema
 
 
 class EnsembleSchema(BaseModel, YamlIO, Data):
@@ -43,6 +45,17 @@ class EnsembleSchema(BaseModel, YamlIO, Data):
     This attribute includes topological information about the molecule, such as the
     bonding structure, atom types, and other topology-related data. The TopologySchema
     validates and structures this data.
+    """
+
+    energy: EnergySchema = Field(default_factory=EnergySchema)
+    """
+    This attribute contains any energy obtainable from calculations involving
+    atomistic systems.
+    """
+
+    time: TimeSchema = Field(default_factory=TimeSchema)
+    """
+    Specifies any relevant information for integration times.
     """
 
     @classmethod
