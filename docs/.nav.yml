@@ -1,6 +1,7 @@
 nav:
     - Home: index.md
-    - Concepts: concepts
+    - Schemas: schemas
+    - Digesters: digesters
     - Examples: examples
     - API: api
 

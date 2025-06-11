@@ -29,22 +29,3 @@ Digesters not only convert the data but also compress it to reduce storage requi
 ### Ease of use
 
 By abstracting away the complexities of file format conversion, Digesters provide a simple and intuitive interface for users. Researchers can focus on their scientific questions rather than spending time on data preprocessing.
-
-## How to use Digesters
-
-Using Digesters is straightforward.
-First, identify the format of your input data and select the corresponding Digester.
-Then, create an instance of the Digester, specifying the input file path and any additional parameters required by the specific Digester.
-
-Here's a general example of how to use a digester:
-
-TODO: Add example
-
-Each Digester may have its own set of parameters and options, so be sure to consult the documentation for the specific Digester you are using.
-
-## Creating custom Digesters
-
-If you have data in a custom format that is not yet supported by the built-in digesters, you can create your own to handle the conversion process.
-To create a custom Digester, follow these steps:
-
-TODO:

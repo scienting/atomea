@@ -70,12 +70,12 @@ class SystemSchema(BaseModel, YamlIO):
 
     coordinates: Annotated[
         npt.NDArray[np.float64 | np.float32] | None,
-        {"cadence": "molecule", "uuid": "81c7cec9-beec-4126-b6d8-91bee28951d6"},
+        {"cadence": "microstate", "uuid": "81c7cec9-beec-4126-b6d8-91bee28951d6"},
     ] = Field(default=None)
     """Coordinates refer to the specific three-dimensional positions of particles
     defined using a set of Cartesian coordinates ($x$, $y$, $z$).
 
-    **Cadence:** `molecule`
+    **Cadence:** `microstate`
 
     **UUID:** `81c7cec9-beec-4126-b6d8-91bee28951d6`
     """
@@ -97,26 +97,26 @@ class SystemSchema(BaseModel, YamlIO):
 
     charge_net: Annotated[
         int | None,
-        {"cadence": "molecule", "uuid": "6ff82a49-4666-4cbb-978a-409bfa6a511"},
+        {"cadence": "microstate", "uuid": "6ff82a49-4666-4cbb-978a-409bfa6a511"},
     ] = Field(default=None)
     """The net charge of an atomic system is the overall charge determined by the
     balance between positively charged protons and negatively charged electrons.
 
-    **Cadence:** `molecule`
+    **Cadence:** `microstate`
 
     **UUID:** `6ff82a49-4666-4cbb-978a-409bfa6a511`
     """
 
     multiplicity: Annotated[
         int | None,
-        {"cadence": "molecule", "uuid": "8e3eb55a-ed81-46d3-9f34-0ea00fa8c8e4"},
+        {"cadence": "microstate", "uuid": "8e3eb55a-ed81-46d3-9f34-0ea00fa8c8e4"},
     ] = Field(default=None)
     """The degeneracy or the number of possible spin states associated with a particular electronic state of a molecule.
     The multiplicity is denoted by the symbol $2S+1$, where $S$ is the total electron spin angular momentum.
     Here, $S$ can take non-negative half-integer values, such as 0, 1/2, 1, 3/2, and so on.
     The multiplicity is always an integer.
 
-    **Cadence:** `molecule`
+    **Cadence:** `microstate`
 
     **UUID:** `8e3eb55a-ed81-46d3-9f34-0ea00fa8c8e4`
     """

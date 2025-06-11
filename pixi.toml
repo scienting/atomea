@@ -1,31 +1,28 @@
 [project]
-authors = [
-    "oasci <us@oasci.org>",
-]
-channels = ["conda-forge"]
 name = "atomea"
 description = "Extensible schema for atomistic data and calculations"
-platforms = ["win-64", "linux-64", "osx-64"]
-version = "0.0.0"
+authors = [
+    "OASCI <us@oasci.org>",
+]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
 license = "Apache-2.0"
 readme = "README.md"
 
 [pypi-dependencies]
 atomea = { path = ".", editable = true }
 
-[system-requirements]
-linux = "3.10.0"
-libc = { family="glibc", version="2.17" }
-
 [environments]
 dev = ["dev"]
 docs = ["docs"]
 
 [tasks]
+uuid = 'python -c "import uuid; print(uuid.uuid4())"'
 
 [dependencies]
-python = "=3.12"
-numpy = ">=2.2.3,<3"
+python = ">=3.12"
+loguru = ">=0.7.2,<1"
+numpy = ">=1.2.6,<3"
 pydantic = ">=2.10.6,<3"
 pyyaml = ">=6.0.2,<7"
 
@@ -41,23 +38,21 @@ pytest-html = ">=4.0.1"
 colorama = ">=0.4.6"
 zarr = ">=3.0.4,<4"
 mdanalysis = ">=2.8.0,<3"
+basedpyright = ">=1.29.1,<2"
+ruff = ">=0.11.9,<0.12"
+twine = ">=6.1.0,<7"
 
 [feature.dev.tasks]
 mdlint = { cmd = ["markdownlint-cli2", '"docs/*.{md,markdown}"', "--fix", "--config", ".markdownlint.yaml", "||", "true"] }
-isort = { cmd = ["isort", "--settings-path", ".isort.cfg", "./atomea", "./tests", "||", "true"] }
-black = { cmd = ["black", "--config", ".black.toml", "./atomea", "./tests", "||", "true"] }
-format = { depends-on = ["mdlint", "isort", "black"] }
-data-remove = { cmd = ["rm", "-rf", "tests/files"] }
-data = { cmd = [
-    "sh", "-c",
-    "git clone --depth 1 https://github.com/oasci/atomea-data tests/files && cd tests/files && git lfs install && git lfs pull"
-  ], depends-on = ["data-remove"] }
+isort = { cmd = ["isort", "--settings-path", ".isort.cfg", "./simlify", "./tests", "||", "true"] }
+ruff = { cmd = ["ruff", "format", "--config", ".ruff.toml", "./simlify", "./tests", "||", "true"] }
+format = { depends-on = ["mdlint", "isort", "ruff"] }
 tests = { cmd = [
     "PYTHONPATH=.",
     "pytest",
     "-c",
     ".pytest.ini",
-    "--cov='atomea'",
+    "--cov='simlify'",
     "--cov-report=xml",
     "--junit-xml=report.xml",
     "--failed-first",
@@ -71,7 +66,8 @@ publish = { cmd = ["twine", "upload", "dist/*"] }
 [feature.dev.pypi-dependencies]
 build = ">=1.2.2.post1,<2"
 mypy-extensions = ">=1.0.0"
-types-pyyaml = ">=6.0.12.20241230, <7"
+pyrefly = ">=0.16.0, <0.17"
+setuptools-scm = ">=8.0.0"
 
 [feature.docs.dependencies]
 mkdocs = ">=1.6.1,<2"

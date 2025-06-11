@@ -13,7 +13,7 @@ class QCSchema(BaseModel, YamlIO):
 
     electron_frozen_num: Annotated[
         int | None,
-        {"cadence": "molecule", "uuid": "5b44b60c-8435-41c4-88d5-cb4a1883b75b"},
+        {"cadence": "ensemble", "uuid": "5b44b60c-8435-41c4-88d5-cb4a1883b75b"},
     ] = Field(default=None)
     """Specifies the total number of electrons considered as frozen in quantum chemical
     calculations.
@@ -24,7 +24,7 @@ class QCSchema(BaseModel, YamlIO):
     considered, thereby focusing on those more likely to be involved in chemical
     reactions or significant bonding interactions.
 
-    **Cadence:** `molecule`
+    **Cadence:** `microstate`
 
     **UUID:** `5b44b60c-8435-41c4-88d5-cb4a1883b75b`
     """

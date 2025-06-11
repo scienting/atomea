@@ -6,6 +6,8 @@ from atomea.schemas import Data, IdentificationSchema, YamlIO
 from atomea.schemas.atomistic.qc import QCSchema
 from atomea.schemas.atomistic.system import SystemSchema
 from atomea.schemas.atomistic.topology import TopologySchema
+from atomea.schemas.atomistic.energy import EnergySchema
+from atomea.schemas.atomistic.time import TimeSchema
 
 
 class EnsembleSchema(BaseModel, YamlIO, Data):
@@ -45,6 +47,17 @@ class EnsembleSchema(BaseModel, YamlIO, Data):
     validates and structures this data.
     """
 
+    energy: EnergySchema = Field(default_factory=EnergySchema)
+    """
+    This attribute contains any energy obtainable from calculations involving
+    atomistic systems.
+    """
+
+    time: TimeSchema = Field(default_factory=TimeSchema)
+    """
+    Specifies any relevant information for integration times.
+    """
+
     @classmethod
     def generate_fields(
         cls, model: Any, parent_key: str = ""
@@ -80,7 +93,7 @@ class EnsembleSchema(BaseModel, YamlIO, Data):
                 -   `field_key`: key to the model field from
                     [`generate_fields`]
                     [schemas.atomistic.ensemble.EnsembleSchema.generate_fields].
-                -   `cadence`: The frequency of when this data would change; per molecule
+                -   `cadence`: The frequency of when this data would change; per microstate
                     or ensemble basis.
         """
         uuid_mapping = {}

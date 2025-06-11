@@ -13,7 +13,7 @@ except ImportError:
     HAS_ZARR = False
 from loguru import logger
 
-from ..manager import StorageManager
+from atomea.io.manager import StorageManager
 
 
 class ZarrManager(StorageManager):
