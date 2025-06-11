@@ -1,21 +1,51 @@
 [project]
-authors = [
-    {name = "oasci", email = "us@oasci.org"}
-]
-description = "Extensible schema for atomistic data and calculations"
 name = "atomea"
-version = "0.0.0"
+description = "Extensible schema for atomistic data and calculations"
+authors = [
+    {name = "OASCI", email = "us@oasci.org"}
+]
+maintainers = [
+    {name = "Alex M. Maldonado", email = "alex.maldonado@pitt.edu"}
+]
+dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.10"
+license = "Apache-2.0"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
 
 # TODO: Keep this here until pixi releases building capabilities
 dependencies = [
-    "loguru>=0.7.2,<0.8",
+    "loguru>=0.7.2,<1",
+    "numpy>=1.2.6,<3",
+    "pydantic>=2.10.6,<3",
+    "pyyaml>=6.0.2,<7",
+
 ]
 
+[project.urls]
+Documentation = "https://atomea.oasci.org"
+Repository = "https://github.com/oasci/atomea"
+Issues = "https://github.com/oasci/atomea/issues"
+Changelog = "https://github.com/oasci/atomea/blob/main/CHANGELOG.md"
+
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61.0", "setuptools-scm>=8", "wheel"]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["atomea*"]
+
+[tool.setuptools_scm]
+write_to = "atomea/_version.py"
+version_scheme = "guess-next-dev"
+local_scheme = "node-and-timestamp"
