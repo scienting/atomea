@@ -1,44 +1,61 @@
-from typing import Annotated
+import numpy as np
+import numpy.typing as npt
 
-from pydantic import BaseModel, Field
-
-from atomea.schemas import YamlIO
+from atomea.schemas.field import Cadence, FieldMeta, SchemaField, StoreKind
 
 
-class TopologySchema(BaseModel, YamlIO):
-    """Information that specifies the physical atomistic system."""
+class Topology:
+    """Information that specifies the physical atomistic microstates."""
 
-    ids_entity: Annotated[
-        list[int] | None,
-        {"cadence": "microstate", "uuid": "b490f2db-548e-4c92-a71a-8222c041ca54"},
-    ] = Field(default=None)
+    ids_entity: npt.NDArray[np.uint32] | None = SchemaField[npt.NDArray[np.uint32]](
+        dtype=np.uint32,
+        meta=FieldMeta(
+            uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
+            cadence=Cadence.MICROSTATE,
+            store=StoreKind.ARRAY,
+            description="Uniquely identifying integer mapping atoms to chemical entities",
+        ),
+        default=None,
+    )
     """A uniquely identifying integer specifying what atoms belong to which entities.
     Entities can be a related set of atoms, molecules, or functional group.
     For example, a water and methanol molecule could be `[0, 0, 0, 1, 1, 1, 1, 1, 1]`.
 
-    **Cadence:** `microstate`
+    **Cadence:** `MICROSTATE`
 
     **UUID:** `b490f2db-548e-4c92-a71a-8222c041ca54`
     """
 
-    ids_component: Annotated[
-        list[str] | None,
-        {"cadence": "microstate", "uuid": "cf39af62-d372-4747-a431-cf2fa0c8e119"},
-    ] = Field(default=None)
-    """Relates [`ids_entity`][schemas.atomistic.topology.TopologySchema.ids_entity]
+    ids_component: npt.NDArray[np.str_] | None = SchemaField[npt.NDArray[np.str_]](
+        dtype=str,
+        meta=FieldMeta(
+            uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
+            cadence=Cadence.ENSEMBLE,
+            store=StoreKind.ARRAY,
+            description="Fragments label for chemical entities",
+        ),
+        default=None,
+    )
+    """Relates [`ids_entity`][schemas.atomistic.topology.Topology.ids_entity]
     to a fragment label for chemical components or species.
     Labels could be `WAT` or `h2o` for water, `MeOH` for methanol, `bz` for benzene,
     etc. There are no standardized labels for species.
 
-    **Cadence:** `microstate`
+    **Cadence:** `ENSEMBLE`
 
     **UUID:** `cf39af62-d372-4747-a431-cf2fa0c8e119`
     """
 
-    ff_atom_type: Annotated[
-        list[str] | None,
-        {"cadence": "ensemble", "uuid": "e34c0e1b-0eaa-4679-b060-3fcfe737aa15"},
-    ] = Field(default=None)
+    ff_atom_type: npt.NDArray[np.str_] | None = SchemaField[npt.NDArray[np.str_]](
+        dtype=str,
+        meta=FieldMeta(
+            uuid="e34c0e1b-0eaa-4679-b060-3fcfe737aa15",
+            cadence=Cadence.ENSEMBLE,
+            store=StoreKind.ARRAY,
+            description="Classical force field atom type",
+        ),
+        default=None,
+    )
     """In the context of force fields used in molecular dynamics simulations, an
     "atom type" refers to a specific classification assigned to individual atoms within
     a molecular system based on certain characteristics.
@@ -52,7 +69,7 @@ class TopologySchema(BaseModel, YamlIO):
     The specific values for these parameters are determined based on experimental
     data and quantum mechanical calculations.
 
-    **Cadence:** `ensemble`
+    **Cadence:** `ENSEMBLE`
 
     **UUID:** `e34c0e1b-0eaa-4679-b060-3fcfe737aa15`
     """

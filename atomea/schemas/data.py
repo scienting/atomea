@@ -25,7 +25,7 @@ class Data(ABC):
 
         Args:
             data: A dictionary containing the keys and values to update the
-                EnsembleSchema instance. The keys can use dot notation to
+                Ensemble instance. The keys can use dot notation to
                 specify nested attributes.
             schema_map: A mapping of field keys to their cadence and other metadata.
             ms_index: The current microstate index for updating array fields.
@@ -35,12 +35,16 @@ class Data(ABC):
 
         Example:
             ```python
-            mol_schema = EnsembleSchema()
+            mol_schema = Ensemble()
             schema_map = mol_schema.get_schema_map()
             data = {
                 "qc.energy": -76.4,
-                "system.coordinates": [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
-                "topology.bonds": [(0, 1), (0, 2)]
+                "microstates.coordinates": [
+                    [0.0, 0.0, 0.0],
+                    [0.0, 0.0, 1.0],
+                    [1.0, 0.0, 0.0],
+                ],
+                "topology.bonds": [(0, 1), (0, 2)],
             }
             microstate.update(data, schema_map)
             ```

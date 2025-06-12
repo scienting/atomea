@@ -1,6 +1,6 @@
 # System
 
-::: schemas.atomistic.system.SystemSchema
+::: schemas.atomistic.system.Microstate
     handler: python
     options:
       inherited_members: true

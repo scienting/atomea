@@ -29,7 +29,8 @@ dependencies = [
     "numpy>=1.2.6,<3",
     "pydantic>=2.10.6,<3",
     "pyyaml>=6.0.2,<7",
-
+    "zarr>=3.0.0,<4",
+    "polars>=1.10.0,<2",
 ]
 
 [project.urls]

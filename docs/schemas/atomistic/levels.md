@@ -19,7 +19,7 @@ For example:
 ```python
 from typing import Annotated
 
-class SystemSchema(BaseModel):
+class Microstate(BaseModel):
     atom_z: Annotated[np.ndarray, {"cadence": "ensemble", "uuid": "d051abd9-c815-40b1-ab2d-e7a50a2d3259"}]
     ...
 ```

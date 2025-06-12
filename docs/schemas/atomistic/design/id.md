@@ -1,6 +1,6 @@
 # Identification
 
-::: schemas.id.IdentificationSchema
+::: schemas.id.EnsembleIdentification
     handler: python
     options:
       inherited_members: true

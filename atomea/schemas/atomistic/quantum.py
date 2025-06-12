@@ -1,20 +1,27 @@
-from typing import Annotated
+import numpy as np
+import numpy.typing as npt
 
-from pydantic import BaseModel, Field
-
-from atomea.schemas import YamlIO
+from atomea.schemas.field import Cadence, FieldMeta, SchemaField, StoreKind
 
 
-class QCSchema(BaseModel, YamlIO):
+class Quantum:
     """This section encompasses data pertaining to quantum mechanical descriptions or
-    calculations that are not covered in the [system documentation](./system.md).
+    calculations that are not covered in the [system documentation](./microstates.md).
     It includes specialized parameters and results specific to quantum mechanics that
     are essential for advanced computational chemistry and physics analysis."""
 
-    electron_frozen_num: Annotated[
-        int | None,
-        {"cadence": "ensemble", "uuid": "5b44b60c-8435-41c4-88d5-cb4a1883b75b"},
-    ] = Field(default=None)
+    electron_frozen_num: npt.NDArray[np.uint8] | None = SchemaField[
+        npt.NDArray[np.uint8]
+    ](
+        dtype=np.uint8,
+        meta=FieldMeta(
+            uuid="5b44b60c-8435-41c4-88d5-cb4a1883b75b",
+            cadence=Cadence.ENSEMBLE,
+            store=StoreKind.TABLE,
+            description="Total number of frozen electrons",
+        ),
+        default=None,
+    )
     """Specifies the total number of electrons considered as frozen in quantum chemical
     calculations.
 
@@ -24,7 +31,7 @@ class QCSchema(BaseModel, YamlIO):
     considered, thereby focusing on those more likely to be involved in chemical
     reactions or significant bonding interactions.
 
-    **Cadence:** `microstate`
+    **Cadence:** `ENSEMBLE`
 
     **UUID:** `5b44b60c-8435-41c4-88d5-cb4a1883b75b`
     """
