@@ -12,7 +12,7 @@ Each ensemble is represented by an `Ensemble`, which includes:
 These fields are built from modular Pydantic models like `Microstate`, `EnergySchema`, `QCSchema`, and `TimeSchema`, all adhering to the same UUID/cadence principles.
 Together, they form a rigorously structured yet highly extensible data model for representing atomic systems at scale.
 
-::: schemas.atomistic.ensemble.Ensemble
+::: containers.ensemble.Ensemble
     handler: python
     options:
       inherited_members: true

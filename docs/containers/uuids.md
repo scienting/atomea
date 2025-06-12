@@ -18,4 +18,3 @@ This serves multiple critical purposes:
 -   You can query and transform datasets by theoretical quantity, not just by label.
 
 UUIDs also power atomea’s ability to interoperate with external datasets: as long as a dataset includes the UUID, it can be validated, merged, or interpreted correctly regardless of its original format.
-

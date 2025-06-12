@@ -1,6 +1,6 @@
-# Energy
+# Topology
 
-::: schemas.atomistic.energy.EnergySchema
+::: containers.atomistic.topology.Topology
     handler: python
     options:
       inherited_members: true

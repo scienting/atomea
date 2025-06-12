@@ -1,6 +1,6 @@
-# Identification
+# Energy
 
-::: schemas.id.EnsembleIdentification
+::: containers.atomistic.energy.Energy
     handler: python
     options:
       inherited_members: true
