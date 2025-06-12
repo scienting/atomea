@@ -2,6 +2,7 @@ import numpy as np
 
 try:
     import MDAnalysis as mda
+    from MDAnalysis.guesser.tables import SYMB2Z
 
     HAS_MDANALYSIS = True
 except ImportError:
@@ -10,7 +11,7 @@ except ImportError:
 from typing import Any
 
 from atomea.digesters.digester import Digester
-from atomea.schemas import Project
+from atomea.project import Project
 
 
 class MDAnalysisDigester(Digester):
@@ -40,8 +41,8 @@ class MDAnalysisDigester(Digester):
         u = ctx["u"]
         syms = np.array(u.atoms.elements, dtype=str)
         types = np.array(u.atoms.types)
-        proj.ensembles[ens_id].atom_symbol = syms
-        proj.ensembles[ens_id].ff_atom_type = types
+        proj.ensembles[ens_id].microstates.atom_symbol = syms
+        proj.ensembles[ens_id].topology.ff_atom_type = types
 
     @staticmethod
     def parse_coordinates(ctx: dict[str, Any], proj: Project, ens_id: str) -> None:
@@ -50,11 +51,11 @@ class MDAnalysisDigester(Digester):
         coords = [ts.positions.copy() for ts in u.trajectory]
         arr = np.stack(coords, axis=0)
         # this writes a 3D microstate array
-        proj.ensembles[ens_id].coordinates = arr
+        proj.ensembles[ens_id].microstates.coordinates = arr
 
     @staticmethod
     def parse_atom_z(ctx: dict[str, Any], proj: Project, ens_id: str) -> None:
         """Store the atomic numbers as an ensemble‐level array."""
         u = ctx["u"]
-        zs = u.atoms.elements.astype(int)  # or u.atoms.types if numeric
-        proj.ensembles[ens_id].atom_z = zs
+        zs = np.array([SYMB2Z.get(sym, 0) for sym in u.atoms.elements])
+        proj.ensembles[ens_id].microstates.atom_z = zs

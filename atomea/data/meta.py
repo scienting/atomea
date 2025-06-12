@@ -1,5 +1,7 @@
 from enum import Enum
 
+from atomea.stores import StoreKind
+
 
 class Cadence(Enum):
     """Frequency at which a field's data changes."""
@@ -8,12 +10,9 @@ class Cadence(Enum):
     MICROSTATE = 1
 
 
-class StoreKind(Enum):
-    ARRAY = 0
-    TABLE = 1
+class Metadata:
+    """Information about the Data object"""
 
-
-class FieldMeta:
     uuid: str
     cadence: Cadence
     store: StoreKind

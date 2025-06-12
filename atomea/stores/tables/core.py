@@ -2,8 +2,10 @@ from abc import ABC, abstractmethod
 
 import polars as pl
 
+from atomea.stores import Store
 
-class TableStore(ABC):
+
+class TableStore(Store, ABC):
     """
     Abstract interface for tabular data mappable to ensembles and microstates,
     e.g., energy, time stamps, indices, and other per-microstate properties.
@@ -35,7 +37,13 @@ class TableStore(ABC):
         ...
 
     @abstractmethod
-    def query(self, name: str, filter_expr: str | None = None) -> pl.DataFrame:
+    def query(
+        self,
+        name: str,
+        ensemble_id: str | None = None,
+        microstate_id: int | None = None,
+        filter_expr: str | None = None,
+    ) -> pl.DataFrame:
         """
         Query a named table using a filter expression (e.g., pandas query syntax).
 

@@ -2,7 +2,7 @@ import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-from atomea.schemas.workflow.amber import Amber22Inputs
+from atomea.project.workflow.amber import Amber22Inputs
 
 amber_inputs = Amber22Inputs()
 amber_inputs.imin = 1

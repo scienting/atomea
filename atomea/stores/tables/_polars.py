@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 import os
 
@@ -76,7 +76,7 @@ class PolarsTableStore(TableStore):
         self,
         prefix: str,
         file_type: Literal["csv", "parquet", "ipc", "excel"],
-        **options: any,
+        **options: Any,
     ) -> None:
         """
         Dump all stored tables to files in the specified directory/prefix.

@@ -6,8 +6,10 @@ import zarr
 from zarr.core.array import Array
 from zarr.core.group import Group
 
+from atomea.stores.arrays import ArrayStore
 
-class ZarrArrayStore:
+
+class ZarrArrayStore(ArrayStore):
     """
     Zarr-based array store where each logical path maps to a Zarr array.
 

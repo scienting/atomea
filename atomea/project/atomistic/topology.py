@@ -1,15 +1,19 @@
 import numpy as np
 import numpy.typing as npt
 
-from atomea.schemas.field import Cadence, FieldMeta, SchemaField, StoreKind
+from atomea.data import Cadence, Data, Metadata
+from atomea.stores import StoreKind
 
 
 class Topology:
     """Information that specifies the physical atomistic microstates."""
 
-    ids_entity: npt.NDArray[np.uint32] | None = SchemaField[npt.NDArray[np.uint32]](
+    def __init__(self):
+        self._parent = None
+
+    ids_entity: Data[npt.NDArray[np.uint32]] = Data[npt.NDArray[np.uint32]](
         dtype=np.uint32,
-        meta=FieldMeta(
+        meta=Metadata(
             uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
             cadence=Cadence.MICROSTATE,
             store=StoreKind.ARRAY,
@@ -26,9 +30,9 @@ class Topology:
     **UUID:** `b490f2db-548e-4c92-a71a-8222c041ca54`
     """
 
-    ids_component: npt.NDArray[np.str_] | None = SchemaField[npt.NDArray[np.str_]](
-        dtype=str,
-        meta=FieldMeta(
+    ids_component: Data[npt.NDArray[np.str_]] = Data[npt.NDArray[np.str_]](
+        dtype=np.str_,
+        meta=Metadata(
             uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
             cadence=Cadence.ENSEMBLE,
             store=StoreKind.ARRAY,
@@ -46,9 +50,9 @@ class Topology:
     **UUID:** `cf39af62-d372-4747-a431-cf2fa0c8e119`
     """
 
-    ff_atom_type: npt.NDArray[np.str_] | None = SchemaField[npt.NDArray[np.str_]](
-        dtype=str,
-        meta=FieldMeta(
+    ff_atom_type: Data[npt.NDArray[np.str_]] = Data[npt.NDArray[np.str_]](
+        dtype=np.str_,
+        meta=Metadata(
             uuid="e34c0e1b-0eaa-4679-b060-3fcfe737aa15",
             cadence=Cadence.ENSEMBLE,
             store=StoreKind.ARRAY,

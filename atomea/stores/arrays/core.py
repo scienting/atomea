@@ -3,8 +3,10 @@ from abc import ABC, abstractmethod
 import numpy as np
 import numpy.typing as npt
 
+from atomea.stores import Store
 
-class ArrayStore(ABC):
+
+class ArrayStore(Store, ABC):
     """
     Abstract interface for storing and retrieving per-ensemble and per-microstate arrays,
     e.g., coordinates, velocities, forces, etc.

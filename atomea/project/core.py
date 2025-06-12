@@ -1,43 +1,57 @@
-from atomea.schemas import Ensemble
-from atomea.schemas.atomistic import Energy, Quantum, Time
-from atomea.schemas.field import StoreKind
-from atomea.stores.arrays import ArrayStore
-from atomea.stores.tables import TableStore
+from loguru import logger
+
+from atomea.project import Ensemble
+from atomea.project.atomistic import Energy, Quantum, Time
+from atomea.stores import ArrayStore, StoreKind, TableStore
 
 
-class Project(Quantum, Energy, Time):
+class Project:
     """
-    Root object managing multiple ensembles and global per-ensemble or per-microstate data.
-
-    Inherits schema fields from Quantum, Energy, and Time mixins.
-    Ensemble instances also use these stores for per-ensemble and per-microstate data.
+    Root object managing ensembles and global per-ensemble or per-microstate data.
     """
 
     def __init__(
         self,
-        arrays: ArrayStore,
-        tables: TableStore,
+        array_store: ArrayStore,
+        table_store: TableStore,
     ) -> None:
+        """
+        Args:
+            array_store: Storage backend for all arrays.
+            table_store: Storage backend for all tables.
+        """
         self._stores: dict[StoreKind, object] = {
-            StoreKind.ARRAY: arrays,
-            StoreKind.TABLE: tables,
+            StoreKind.ARRAY: array_store,
+            StoreKind.TABLE: table_store,
         }
         self.ensembles: dict[str, Ensemble] = {}
+
+        self.quantum = Quantum()
+        self.quantum._parent = self
+
+        self.energy = Energy()
+        self.energy._parent = self
+
+        self.time = Time()
+        self.time._parent = self
 
     def add_ensemble(self, ensemble_id: str) -> Ensemble:
         """
         Create and register a new Ensemble with given ID, using the project's stores.
 
+        Args:
+            ensemble_id: Unique label for the ensemble.
+
         Returns:
             The newly created Ensemble.
         """
+        assert isinstance(ensemble_id, str)
         if ensemble_id in self.ensembles:
             raise ValueError(f"Ensemble '{ensemble_id}' already exists")
-        ens = Ensemble(
-            ensemble_id=ensemble_id,
-            arrays=self._stores[StoreKind.ARRAY],
-            tables=self._stores[StoreKind.TABLE],
-        )
+
+        ens = Ensemble(ensemble_id=ensemble_id, parent=self)
+
+        logger.info("Registering ensemble: {}", ensemble_id)
         self.ensembles[ensemble_id] = ens
         return ens
 
@@ -50,12 +64,12 @@ class Project(Quantum, Energy, Time):
     def remove_ensemble(self, ensemble_id: str) -> None:
         """
         Remove an Ensemble from the project by its ID.
-
         Raises:
             KeyError: if the ensemble does not exist.
         """
         try:
             del self.ensembles[ensemble_id]
+            logger.info("Removed ensemble: {}", ensemble_id)
         except KeyError:
             raise KeyError(f"Ensemble '{ensemble_id}' not found")
 

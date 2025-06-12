@@ -1,7 +1,8 @@
 import numpy as np
 import numpy.typing as npt
 
-from atomea.schemas.field import Cadence, FieldMeta, SchemaField, StoreKind
+from atomea.data import Cadence, Data, Metadata
+from atomea.stores import StoreKind
 
 
 class Quantum:
@@ -10,11 +11,12 @@ class Quantum:
     It includes specialized parameters and results specific to quantum mechanics that
     are essential for advanced computational chemistry and physics analysis."""
 
-    electron_frozen_num: npt.NDArray[np.uint8] | None = SchemaField[
-        npt.NDArray[np.uint8]
-    ](
+    def __init__(self):
+        self._parent = None
+
+    electron_frozen_num: npt.NDArray[np.uint8] | None = Data[npt.NDArray[np.uint8]](
         dtype=np.uint8,
-        meta=FieldMeta(
+        meta=Metadata(
             uuid="5b44b60c-8435-41c4-88d5-cb4a1883b75b",
             cadence=Cadence.ENSEMBLE,
             store=StoreKind.TABLE,

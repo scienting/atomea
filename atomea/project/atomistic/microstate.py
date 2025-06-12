@@ -1,15 +1,19 @@
 import numpy as np
 import numpy.typing as npt
 
-from atomea.schemas.field import Cadence, FieldMeta, SchemaField, StoreKind
+from atomea.data import Cadence, Data, Metadata
+from atomea.stores import StoreKind
 
 
 class Microstates:
     """Information that specifies the physical atomistic microstates."""
 
-    atom_z: npt.NDArray[np.uint8] | None = SchemaField[npt.NDArray[np.uint8]](
+    def __init__(self):
+        self._parent = None
+
+    atom_z: npt.NDArray[np.uint8] | None = Data[npt.NDArray[np.uint8]](
         dtype=np.uint8,
-        meta=FieldMeta(
+        meta=Metadata(
             uuid="d051abd9-c815-40b1-ab2d-e7a50a2d3259",
             cadence=Cadence.ENSEMBLE,
             store=StoreKind.ARRAY,
@@ -27,9 +31,9 @@ class Microstates:
     **UUID:** `d051abd9-c815-40b1-ab2d-e7a50a2d3259`
     """
 
-    atom_symbol: npt.NDArray[np.str_] | None = SchemaField[npt.NDArray[np.str_]](
+    atom_symbol: npt.NDArray[np.str_] | None = Data[npt.NDArray[np.str_]](
         dtype=str,
-        meta=FieldMeta(
+        meta=Metadata(
             uuid="81c21a83-4b72-48c6-a576-4541b468eb90",
             cadence=Cadence.ENSEMBLE,
             store=StoreKind.ARRAY,
@@ -45,9 +49,9 @@ class Microstates:
     **UUID:** `81c21a83-4b72-48c6-a576-4541b468eb90`
     """
 
-    coordinates: npt.NDArray[np.float64] | None = SchemaField[npt.NDArray[np.float64]](
+    coordinates: npt.NDArray[np.float64] | None = Data[npt.NDArray[np.float64]](
         dtype=float,
-        meta=FieldMeta(
+        meta=Metadata(
             uuid="81c7cec9-beec-4126-b6d8-91bee28951d6",
             cadence=Cadence.MICROSTATE,
             store=StoreKind.ARRAY,
@@ -63,9 +67,9 @@ class Microstates:
     **UUID:** `81c7cec9-beec-4126-b6d8-91bee28951d6`
     """
 
-    charge_net: npt.NDArray[np.int8] | None = SchemaField[npt.NDArray[np.int8]](
+    charge_net: npt.NDArray[np.int8] | None = Data[npt.NDArray[np.int8]](
         dtype=np.int8,
-        meta=FieldMeta(
+        meta=Metadata(
             uuid="6ff82a49-4666-4cbb-978a-409bfa6a511",
             cadence=Cadence.ENSEMBLE,
             store=StoreKind.TABLE,
@@ -81,9 +85,9 @@ class Microstates:
     **UUID:** `6ff82a49-4666-4cbb-978a-409bfa6a511`
     """
 
-    multiplicity: npt.NDArray[np.uint8] | None = SchemaField[npt.NDArray[np.uint8]](
+    multiplicity: npt.NDArray[np.uint8] | None = Data[npt.NDArray[np.uint8]](
         dtype=np.uint8,
-        meta=FieldMeta(
+        meta=Metadata(
             uuid="8e3eb55a-ed81-46d3-9f34-0ea00fa8c8e4",
             cadence=Cadence.ENSEMBLE,
             store=StoreKind.TABLE,
