@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 from loguru import logger
 
-from atomea.project import Project
+from atomea.containers import Project
 from atomea.stores.arrays import ArrayStore
 from atomea.stores.tables import TableStore
 

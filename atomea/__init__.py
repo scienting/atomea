@@ -9,10 +9,10 @@ from ast import literal_eval
 from loguru import logger
 
 from . import stores
-from . import project
+from . import containers
 from . import digesters
 
-__all__ = ["stores", "project", "digesters"]
+__all__ = ["stores", "containers", "digesters"]
 
 logger.disable("atomea")
 

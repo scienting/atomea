@@ -1,7 +1,7 @@
 from loguru import logger
 
-from atomea.project import Ensemble
-from atomea.project.atomistic import Energy, Quantum, Time
+from atomea.containers import Ensemble
+from atomea.containers.atomistic import Energy, Quantum, Time
 from atomea.stores import ArrayStore, StoreKind, TableStore
 
 

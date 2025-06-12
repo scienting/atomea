@@ -1,6 +1,6 @@
 from . import atomistic
 from .ensemble import Ensemble
-from .core import Project
+from .project import Project
 
 __all__ = [
     "atomistic",

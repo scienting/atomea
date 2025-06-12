@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from atomea.project.atomistic import Microstates, Topology
+from atomea.containers.atomistic import Microstates, Topology
 
 if TYPE_CHECKING:
     from atomea.schema import Project

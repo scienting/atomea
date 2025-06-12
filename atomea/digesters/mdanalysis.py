@@ -11,7 +11,7 @@ except ImportError:
 from typing import Any
 
 from atomea.digesters.digester import Digester
-from atomea.project import Project
+from atomea.containers import Project
 
 
 class MDAnalysisDigester(Digester):
