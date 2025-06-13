@@ -5,8 +5,8 @@ import polars as pl
 
 from atomea.containers import AtomeaContainer
 from atomea.data import Metadata, T, ValueOrSlice
-from atomea.store.interfaces import ArrayInterface, Interface, TableInterface
 from atomea.stores import StoreKind
+from atomea.stores.interfaces import ArrayInterface, TableInterface
 
 
 class Data(Generic[T]):
@@ -44,7 +44,7 @@ class Data(Generic[T]):
                 raise RuntimeError(f"Cannot find project root from {obj}")
         self._parent_chain = tuple(reversed(chain))
 
-    def parent_chain(self, *args):
+    def parent_chain(self, obj):
         """
         Chain of object references to get from the Project and any other
         `AtomeaContainers` to this `Data` object.
@@ -64,7 +64,7 @@ class Data(Generic[T]):
         `(Project, Ensemble, Microstates)`.
         """
         if len(self._parent_chain) == 0:
-            self._set_parent_chain(self, *args)
+            self._set_parent_chain(obj)
         return self._parent_chain
 
     def interface(self, obj: object) -> ArrayInterface | TableInterface:
@@ -99,7 +99,7 @@ class Data(Generic[T]):
         if obj is None:
             return self
         interface = self.interface(obj)
-        return interface.__getitem__(*args, **kwargs)
+        return interface.__get__(*args, **kwargs)
 
     def __set__(self, obj: object, value: ValueOrSlice[T]) -> None:
         if obj is None:
@@ -119,7 +119,7 @@ class Data(Generic[T]):
             path = f"{ensemble.id}/{self.name}"
             obj_id = ensemble.id
 
-        store = project.stores[self.meta.store]  # type: ignore
+        store = project._stores[self.meta.store]  # type: ignore
 
         if self.meta.store is StoreKind.ARRAY:
             if isinstance(value, tuple) and len(value) == 2:

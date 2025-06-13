@@ -1,8 +1,8 @@
 from typing import Any
 
 from atomea.containers import AtomeaContainer
-from atomea.store.interfaces import Interface
 from atomea.stores import StoreKind
+from atomea.stores.interfaces import Interface
 
 
 class ArrayInterface(Interface):
@@ -13,12 +13,14 @@ class ArrayInterface(Interface):
         self.field_name = field_name
         self.store_kind = StoreKind.ARRAY
 
-    def __getitem__(self, key: Any) -> Any:
+    def __get__(self, key: Any = None) -> Any:
         """Implement slicing with [] notation."""
         if isinstance(key, tuple):
             slices = key
         else:
-            slices = (key,)
+            slices = slice(
+                key,
+            )
 
         data = self.store.read(self._path, slices=slices)
         return data

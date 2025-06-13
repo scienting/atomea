@@ -3,8 +3,7 @@ from typing import Literal
 import numpy as np
 import numpy.typing as npt
 import zarr
-from zarr.core.array import Array
-from zarr.core.group import Group
+from zarr.core.group import Group, GroupMetadata
 
 from atomea.stores import DiskFormat
 from atomea.stores.arrays import ArrayStore
@@ -60,7 +59,7 @@ class ZarrArrayStore(ArrayStore):
         overwrite: bool = False,
         *args,
         **kwargs,
-    ) -> None:
+    ) -> zarr.Array:
         """
         Pre-allocate an array with the given shape and dtype.
 
@@ -71,7 +70,9 @@ class ZarrArrayStore(ArrayStore):
             chunks: chunk shape or 'auto'.
             overwrite: if True, delete existing before create; otherwise error if exists.
         """
-        self._store.create_array(
+        group_path, _ = path.rsplit("/", 1) if "/" in path else ("", path)
+        self._store.create_hierarchy({group_path: GroupMetadata()})
+        z = self._store.create_array(
             name=path,
             shape=shape,
             dtype=dtype,
@@ -79,6 +80,7 @@ class ZarrArrayStore(ArrayStore):
             overwrite=overwrite * args,
             **kwargs,
         )
+        return z
 
     def write(
         self,
@@ -87,7 +89,8 @@ class ZarrArrayStore(ArrayStore):
         slices: tuple[slice, ...] | dict[int, tuple[slice, ...]] | None = None,
     ) -> None:
         """
-        Write data to an array, whole or sliced.
+        Write data to an array, whole or sliced. Will create the array if it does not
+        exist.
 
         Args:
             path: hierarchical key of the array.
@@ -97,7 +100,11 @@ class ZarrArrayStore(ArrayStore):
             overwrite: if True and slices is None, replaces existing array definition.
         """
         z = self._store.get(path=path)
-        z.set_basic_selection(slices, array)  # type: ignore
+        if z is None:
+            z = self.create(path, array.shape, array.dtype)
+            z[:] = array
+        else:
+            z.set_basic_selection(slices, array)  # type: ignore
 
     def append(self, path: str, array: npt.NDArray[np.generic]) -> None:
         """
@@ -132,3 +139,6 @@ class ZarrArrayStore(ArrayStore):
         """
         keys = list(self._store.array_keys())
         return keys
+
+    def dump(self, prefix: str = "") -> None:
+        pass

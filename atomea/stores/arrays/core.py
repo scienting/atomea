@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import numpy.typing as npt
 
-from atomea.stores import Store, DiskFormat, ArrayDiskFormats
+from atomea.stores import ArrayDiskFormats, DiskFormat, Store
 
 
 class ArrayStore(Store, ABC):

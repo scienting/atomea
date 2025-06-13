@@ -7,6 +7,7 @@ import numpy as np
 
 from atomea.containers import Project
 from atomea.digesters import MDAnalysisDigester
+from atomea.stores import DiskFormat
 from atomea.stores.arrays import ZarrArrayStore
 from atomea.stores.tables import PolarsTableStore
 
@@ -28,9 +29,8 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     if os.path.exists(path_store_table):
         shutil.rmtree(path_store_table)
 
-    store_array = ZarrArrayStore(path_store_array, mode="a")
-    store_table = PolarsTableStore()
-    # Digest into a Project, picking up our "default" ensemble
+    store_array = ZarrArrayStore(DiskFormat.ZARR, path_store_array, mode="a")
+    store_table = PolarsTableStore(DiskFormat.PARQUET)
     project: Project = MDAnalysisDigester.digest(
         store_array,
         store_table,
@@ -80,8 +80,8 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     if os.path.exists(path_store_table):
         shutil.rmtree(path_store_table)
 
-    store_array = ZarrArrayStore(path_store_array, mode="a")
-    store_table = PolarsTableStore()
+    store_array = ZarrArrayStore(DiskFormat.ZARR, path_store_array, mode="a")
+    store_table = PolarsTableStore(DiskFormat.PARQUET)
     # Digest into a Project, picking up our "default" ensemble
     project: Project = MDAnalysisDigester.digest(
         store_array,
@@ -94,7 +94,7 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     )
 
     # Re-open for reading and spot‐check
-    store_r = ZarrArrayStore(store=path_store_array, mode="r")
+    store_r = ZarrArrayStore(DiskFormat.ZARR, store=path_store_array, mode="r")
     coords = store_r.read("default/coordinates")
     assert coords is not None
     assert np.allclose(coords[0, 0, 0], 33.924496)

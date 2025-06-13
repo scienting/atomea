@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import polars as pl
 
-from atomea.stores import Store, DiskFormat, ArrayDiskFormats
+from atomea.stores import ArrayDiskFormats, DiskFormat, Store
 
 
 class TableStore(Store, ABC):

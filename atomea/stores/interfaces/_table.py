@@ -1,8 +1,8 @@
 from typing import Any
 
 from atomea.containers import AtomeaContainer
-from atomea.store.interfaces import Interface
 from atomea.stores import StoreKind
+from atomea.stores.interfaces import Interface
 
 
 class TableInterface(Interface):
@@ -13,7 +13,7 @@ class TableInterface(Interface):
         self.field_name = field_name
         self.store_kind = StoreKind.TABLE
 
-    def __getitem__(self, key: slice | str | int | tuple[str | int | None, ...]) -> Any:
+    def __get__(self, key: slice | str | int | tuple[str | int | None, ...]) -> Any:
         """Support bracket notation with positional arguments.
 
         Usage:
