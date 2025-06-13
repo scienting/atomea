@@ -6,11 +6,10 @@ enables type-safe data operations while maintaining flexibility for different da
 commonly used in atomistic simulations and analysis.
 
 The module defines:
-    - Generic type variables for flexible data handling
-    - Slice specifications for multidimensional array access
-    - NumPy array type aliases for different numeric precisions
-    - Optional versions of all data types for missing data handling
-    - DataFrame types for tabular data
+
+- NumPy array type aliases for different numeric precisions;
+- Optional versions of all data types for missing data handling;
+- DataFrame types for tabular data.
 
 Example:
     Creating type-safe data fields::
@@ -30,54 +29,80 @@ Example:
         coords: Float64 | None = ensemble.coordinates.value
         atoms: Uint8 | None = ensemble.atom_numbers.value
         data: pl.DataFrame | None = ensemble.results.value
-
-See Also:
-    atomea.data.Data: The main data descriptor class
-    atomea.data.accessors: Array and table accessor classes
-    atomea.stores: Storage backend implementations
 """
 
-from ._generic import T, SliceSpec, ValueOrSlice
 from ._array import (
+    Float64NP,
     Float64,
-    Float32,
-    Int64,
-    Int32,
-    Int8,
-    UInt64,
-    UInt32,
-    UInt8,
-    Str,
     OptionalFloat64,
+    Float32NP,
+    Float32,
     OptionalFloat32,
+    Int64NP,
+    Int64,
     OptionalInt64,
+    Int32NP,
+    Int32,
     OptionalInt32,
+    Int16NP,
+    Int16,
+    OptionalInt16,
+    Int8NP,
+    Int8,
+    OptionalInt8,
+    UInt64NP,
+    UInt64,
+    OptionalUInt64,
+    UInt32NP,
+    UInt32,
+    OptionalUInt32,
+    UInt16NP,
+    UInt16,
+    OptionalUInt16,
+    UInt8NP,
+    UInt8,
     OptionalUInt8,
+    StrNP,
+    Str,
     OptionalStr,
-    DTYPE_TO_NUMPY,
 )
-from ._dataframe import DataFrame, OptionalDataFrame
+from ._dataframe import DataFramePL, DataFrame, OptionalDataFrame
 
 __all__ = [
-    "T",
-    "SliceSpec",
-    "ValueOrSlice",
+    "Float64NP",
     "Float64",
-    "Float32",
-    "Int64",
-    "Int32",
-    "Int8",
-    "UInt64",
-    "UInt32",
-    "UInt8",
-    "Str",
     "OptionalFloat64",
+    "Float32NP",
+    "Float32",
     "OptionalFloat32",
+    "Int64NP",
+    "Int64",
     "OptionalInt64",
+    "Int32NP",
+    "Int32",
     "OptionalInt32",
+    "Int16NP",
+    "Int16",
+    "OptionalInt16",
+    "Int8NP",
+    "Int8",
+    "OptionalInt8",
+    "UInt64NP",
+    "UInt64",
+    "OptionalUInt64",
+    "UInt32NP",
+    "UInt32",
+    "OptionalUInt32",
+    "UInt16NP",
+    "UInt16",
+    "OptionalUInt16",
+    "UInt8NP",
+    "UInt8",
     "OptionalUInt8",
+    "StrNP",
+    "Str",
     "OptionalStr",
+    "DataFramePL",
     "DataFrame",
     "OptionalDataFrame",
-    "DTYPE_TO_NUMPY",
 ]

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import numpy.typing as npt
 
-from atomea.stores import Store
+from atomea.stores import Store, DiskFormat, ArrayDiskFormats
 
 
 class ArrayStore(Store, ABC):
@@ -11,6 +11,12 @@ class ArrayStore(Store, ABC):
     Abstract interface for storing and retrieving per-ensemble and per-microstate arrays,
     e.g., coordinates, velocities, forces, etc.
     """
+
+    def __init__(
+        self, disk_format: DiskFormat = DiskFormat.NONE, *args, **kwargs
+    ) -> None:
+        assert disk_format in ArrayDiskFormats
+        super().__init__(disk_format)
 
     @abstractmethod
     def write(self, path: str, array: npt.NDArray[np.generic]) -> None:
@@ -39,8 +45,8 @@ class ArrayStore(Store, ABC):
     def read(
         self,
         path: str,
-        slices: tuple[slice, ...] | dict[int, tuple[slice]] | None = None,
-    ) -> npt.NDArray[np.generic]:
+        slices: tuple[slice, ...] | dict[int, slice | tuple[slice, ...]] | None = None,
+    ) -> npt.NDArray[np.generic] | None:
         """
         Retrieve the full array stored at the given path.
 
@@ -62,4 +68,9 @@ class ArrayStore(Store, ABC):
         Returns:
             A list of logical paths (e.g., ["coords", "velocities"]).
         """
+        ...
+
+    @abstractmethod
+    def dump(self, prefix: str = "") -> None:
+        """Save all arrays to disk."""
         ...

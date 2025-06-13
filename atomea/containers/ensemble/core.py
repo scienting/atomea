@@ -4,7 +4,7 @@ from atomea.containers import AtomeaContainer
 from atomea.containers.atomistic import Microstates, Topology
 
 if TYPE_CHECKING:
-    from atomea.schema import Project
+    from atomea.containers import Project
 
 
 class Ensemble(AtomeaContainer):
@@ -14,6 +14,7 @@ class Ensemble(AtomeaContainer):
     manage and validate an ensemble of molecular data, facilitating the handling of
     multiple molecular configurations, such as those produced during atomistic
     calculations.
+
     Only data that could reasonably change shape or dimensions between ensembles
     (due to different numbering or ordering of atoms) should be stored here. All other
     data should be stored in a [`Project`][schemas.Project].
@@ -21,7 +22,7 @@ class Ensemble(AtomeaContainer):
 
     def __init__(self, ensemble_id: str, parent: "Project") -> None:
         self.id: str = ensemble_id
-        self._parent = parent  # Reference to project (no store copies)
+        self._parent = parent
 
         # Initialize components with parent reference
         self.microstates = Microstates()

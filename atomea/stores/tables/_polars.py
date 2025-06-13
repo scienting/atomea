@@ -17,9 +17,6 @@ class PolarsTableStore(TableStore):
     TODO: Need to handle reading tables from disk; don't need to keep everything in memory.
     """
 
-    def __init__(self) -> None:
-        self._tables: dict[str, pl.DataFrame] = {}
-
     def write(self, name: str, table: pl.DataFrame, append: bool = False) -> None:
         """
         Write or append a Polars DataFrame to the named table.
@@ -30,10 +27,10 @@ class PolarsTableStore(TableStore):
             raise ValueError(
                 "Table must include 'ensemble_id' and 'microstate_id' columns"
             )
-        if append and name in self._tables:
-            self._tables[name] = pl.concat([self._tables[name], table], how="vertical")
+        if append and name in self._store:
+            self._store[name] = pl.concat([self._store[name], table], how="vertical")
         else:
-            self._tables[name] = table
+            self._store[name] = table
 
     def read(self, name: str) -> pl.DataFrame:
         """
@@ -42,7 +39,7 @@ class PolarsTableStore(TableStore):
         Raises KeyError if the table does not exist.
         """
         try:
-            return self._tables[name]
+            return self._store[name]
         except KeyError:
             raise KeyError(f"Table '{name}' not found")
 
@@ -72,7 +69,7 @@ class PolarsTableStore(TableStore):
         """
         List all table names.
         """
-        return list(self._tables.keys())
+        return list(self._store.keys())
 
     def dump(
         self,
@@ -89,7 +86,7 @@ class PolarsTableStore(TableStore):
             options: backend-specific write options (e.g., compression='snappy').
         """
         os.makedirs(prefix, exist_ok=True)
-        for name, df in self._tables.items():
+        for name, df in self._store.items():
             path = os.path.join(prefix, f"{name}.{file_type}")
             if file_type == "csv":
                 df.write_csv(path, **options)

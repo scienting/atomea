@@ -13,7 +13,7 @@ class Quantum(AtomeaContainer):
     def __init__(self):
         self._parent = None
 
-    electron_frozen_num: Data[adt.UInt8] = Data[adt.UInt8](
+    electron_frozen_num: adt.DataFrame = Data[adt.DataFramePL](
         meta=Metadata(
             uuid="5b44b60c-8435-41c4-88d5-cb4a1883b75b",
             cadence=Cadence.ENSEMBLE,

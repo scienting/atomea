@@ -10,7 +10,7 @@ class Topology(AtomeaContainer):
     def __init__(self):
         self._parent = None
 
-    ids_entity: Data[adt.UInt32] = Data[adt.UInt32](
+    ids_entity: adt.OptionalUInt32 = Data[adt.UInt32NP](
         meta=Metadata(
             uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
             cadence=Cadence.MICROSTATE,
@@ -24,7 +24,7 @@ class Topology(AtomeaContainer):
     For example, a water and methanol molecule could be `[0, 0, 0, 1, 1, 1, 1, 1, 1]`.
     """
 
-    ids_component: Data[adt.Str] = Data[adt.Str](
+    ids_component: adt.OptionalStr = Data[adt.StrNP](
         meta=Metadata(
             uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
             cadence=Cadence.ENSEMBLE,
@@ -39,7 +39,7 @@ class Topology(AtomeaContainer):
     etc. There are no standardized labels for species.
     """
 
-    ff_atom_type: Data[adt.Str] = Data[adt.Str](
+    ff_atom_type: adt.OptionalStr = Data[adt.StrNP](
         meta=Metadata(
             uuid="e34c0e1b-0eaa-4679-b060-3fcfe737aa15",
             cadence=Cadence.ENSEMBLE,

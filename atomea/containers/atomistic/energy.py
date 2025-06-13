@@ -10,7 +10,7 @@ class Energy(AtomeaContainer):
     def __init__(self):
         self._parent = None
 
-    electronic: Data[adt.DataFrame] = Data[adt.DataFrame](
+    electronic: adt.DataFrame = Data[adt.DataFramePL](
         meta=Metadata(
             uuid="9e4bdf45-0150-4605-9528-e23aed0be9f2",
             cadence=Cadence.MICROSTATE,
@@ -23,7 +23,7 @@ class Energy(AtomeaContainer):
     It encompasses all kinetic and potential contributions from the Coulombic interactions of the electrons.
     """
 
-    potential_mm: Data[adt.Float64] = Data[adt.Float64](
+    potential_mm: adt.DataFrame = Data[adt.DataFramePL](
         meta=Metadata(
             uuid="399ff4fb-1b3d-41a4-a87a-8143c1646b28",
             cadence=Cadence.MICROSTATE,
@@ -36,7 +36,7 @@ class Energy(AtomeaContainer):
     bonded and non-bonded terms.
     """
 
-    kinetic: Data[adt.Float64] = Data[adt.Float64](
+    kinetic: adt.DataFrame = Data[adt.DataFramePL](
         meta=Metadata(
             uuid="0095592c-587d-4a65-a7f0-d85b588bf2dc",
             cadence=Cadence.MICROSTATE,

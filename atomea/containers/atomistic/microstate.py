@@ -10,7 +10,7 @@ class Microstates(AtomeaContainer):
     def __init__(self):
         self._parent = None
 
-    atom_z: Data[adt.UInt8] = Data[adt.UInt8](
+    atom_z: adt.OptionalUInt8 = Data[adt.UInt8NP](
         meta=Metadata(
             uuid="d051abd9-c815-40b1-ab2d-e7a50a2d3259",
             cadence=Cadence.ENSEMBLE,
@@ -25,7 +25,7 @@ class Microstates(AtomeaContainer):
     orbiting the nucleus.
     """
 
-    atom_symbol: Data[adt.Str] = Data[adt.Str](
+    atom_symbol: adt.OptionalStr = Data[adt.StrNP](
         meta=Metadata(
             uuid="81c21a83-4b72-48c6-a576-4541b468eb90",
             cadence=Cadence.ENSEMBLE,
@@ -38,7 +38,7 @@ class Microstates(AtomeaContainer):
     [containers.atomistic.microstate.Microstates.atom_z].
     """
 
-    coordinates: Data[adt.Float64] = Data[adt.Float64](
+    coordinates: adt.OptionalFloat64 = Data[adt.Float64NP](
         meta=Metadata(
             uuid="81c7cec9-beec-4126-b6d8-91bee28951d6",
             cadence=Cadence.MICROSTATE,
@@ -51,7 +51,7 @@ class Microstates(AtomeaContainer):
     defined using a set of Cartesian coordinates ($x$, $y$, $z$).
     """
 
-    charge_net: Data[adt.Int8] = Data[adt.Int8](
+    charge_net: adt.DataFrame = Data[adt.DataFramePL](
         meta=Metadata(
             uuid="6ff82a49-4666-4cbb-978a-409bfa6a511",
             cadence=Cadence.ENSEMBLE,
@@ -64,7 +64,7 @@ class Microstates(AtomeaContainer):
     balance between positively charged protons and negatively charged electrons.
     """
 
-    multiplicity: Data[adt.Int8] = Data[adt.Int8](
+    multiplicity: adt.DataFrame = Data[adt.DataFramePL](
         meta=Metadata(
             uuid="8e3eb55a-ed81-46d3-9f34-0ea00fa8c8e4",
             cadence=Cadence.ENSEMBLE,

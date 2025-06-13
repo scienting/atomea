@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import polars as pl
 
-from atomea.stores import Store
+from atomea.stores import Store, DiskFormat, ArrayDiskFormats
 
 
 class TableStore(Store, ABC):
@@ -10,6 +10,11 @@ class TableStore(Store, ABC):
     Abstract interface for tabular data mappable to ensembles and microstates,
     e.g., energy, time stamps, indices, and other per-microstate properties.
     """
+
+    def __init__(self, disk_format: DiskFormat = DiskFormat.NONE) -> None:
+        self._store: dict[str, pl.DataFrame] = {}
+        assert disk_format not in ArrayDiskFormats
+        super().__init__(disk_format)
 
     @abstractmethod
     def write(self, name: str, table: pl.DataFrame, append: bool = False) -> None:
@@ -43,7 +48,7 @@ class TableStore(Store, ABC):
         ensemble_id: str | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
-    ) -> pl.DataFrame | None:
+    ) -> pl.DataFrame:
         """
         Query a named table using a filter expression (e.g., pandas query syntax).
 

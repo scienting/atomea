@@ -1,6 +1,8 @@
+import os
 import numpy as np
 import numpy.typing as npt
 
+from atomea.stores import DiskFormat
 from atomea.stores.arrays import ArrayStore
 
 
@@ -11,8 +13,9 @@ class NumpyArrayStore(ArrayStore):
     Paths use '/' to denote nested logical structure but are stored as flat keys.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, disk_format: DiskFormat = DiskFormat.NPZ) -> None:
         self._store: dict[str, npt.NDArray[np.generic]] = {}
+        super().__init__(disk_format)
 
     def write(self, path: str, array: npt.NDArray[np.generic]) -> None:
         """
@@ -41,7 +44,7 @@ class NumpyArrayStore(ArrayStore):
     def read(
         self,
         path: str,
-        slices: tuple[slice, ...] | dict[int, tuple[slice, ...]] | None = None,
+        slices: tuple[slice, ...] | dict[int, slice | tuple[slice, ...]] | None = None,
     ) -> npt.NDArray[np.generic] | None:
         """
         Read the array at path, optionally returning a subset.
@@ -73,3 +76,29 @@ class NumpyArrayStore(ArrayStore):
         List all stored paths.
         """
         return list(self._store.keys())
+
+    def _dump_npy(self, prefix: str = "") -> None:
+        for key, arr in self._store:
+            path = os.path.join(prefix, key + ".npy")
+            np.save(path, arr)
+
+    def _dump_npz(self, prefix: str = "") -> None:
+        if not prefix:
+            prefix = "arrays"
+        fn = prefix if prefix.endswith(".npz") else prefix + ".npz"
+
+        parent = os.path.dirname(fn)
+        if parent and not os.path.isdir(parent):
+            os.makedirs(parent, exist_ok=True)
+
+        # build a dict with “safe” names
+        savez_dict = {key.replace("/", "_"): arr for key, arr in self._store.items()}
+        np.savez(fn, *savez_dict)
+
+    def dump(self, prefix: str = "") -> None:
+        if self.disk_format == DiskFormat.NPY:
+            self._dump_npy(prefix)
+        elif self.disk_format == DiskFormat.NPZ:
+            self._dump_npz(prefix)
+        else:
+            raise ValueError("DiskFormat of {} not supported", self.disk_format)

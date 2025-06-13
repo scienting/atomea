@@ -55,7 +55,7 @@ Example:
 
         # Slice first 10 elements along axis 0, all elements along axis 1
         slice_spec = (slice(0, 10), slice(None))
-        data = accessor(slices=slice_spec)
+        data = interface(slices=slice_spec)
 
         # Equivalent to: array[0:10, :]
 
@@ -66,11 +66,11 @@ Example:
             0: (slice(0, 10),),  # First 10 elements on axis 0
             2: (slice(None, None, 2),)  # Every 2nd element on axis 2
         }
-        data = accessor(slices=slice_spec)
+        data = interface(slices=slice_spec)
 
         # For 3D array, equivalent to: array[0:10, :, ::2]
 
-    Direct accessor usage::
+    Direct interface usage::
 
         # Using bracket notation (converted to SliceSpec internally)
         first_10_atoms = coordinates[0:10, :]
@@ -78,14 +78,14 @@ Example:
         every_other_timestep = coordinates[:, :, ::2]
 
 Note:
-    The slice specifications are used internally by the accessor classes
+    The slice specifications are used internally by the interface classes
     and are typically not created directly by users. The bracket notation
-    on accessors (`accessor[0:10]`) automatically converts to appropriate
+    on interfaces (`interface[0:10]`) automatically converts to appropriate
     SliceSpec formats.
 
 See Also:
     numpy.slice: NumPy slice object documentation
-    atomea.data.accessors.ArrayAccessor: Array accessor implementation
+    atomea.store.interfaces.ArrayInterface: Array interface implementation
 """
 
 ValueOrSlice: TypeAlias = T | tuple[T, SliceSpec]

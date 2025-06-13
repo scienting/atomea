@@ -2,7 +2,11 @@ from typing import TypeAlias
 
 import polars as pl
 
-DataFrame: TypeAlias = pl.DataFrame
+from atomea.data import Data
+
+DataFramePL: TypeAlias = pl.DataFrame
+
+DataFrame: TypeAlias = Data[DataFramePL]
 """Deprecated: Use OptionalDataFrame instead.
 
 This alias is maintained for backward compatibility but OptionalDataFrame

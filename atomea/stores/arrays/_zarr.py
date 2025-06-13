@@ -6,6 +6,7 @@ import zarr
 from zarr.core.array import Array
 from zarr.core.group import Group
 
+from atomea.stores import DiskFormat
 from atomea.stores.arrays import ArrayStore
 
 
@@ -17,7 +18,12 @@ class ZarrArrayStore(ArrayStore):
     """
 
     def __init__(
-        self, store: str | zarr.abc.store.Store, mode: str = "r", *args, **kwargs
+        self,
+        disk_format: DiskFormat,
+        store: str | zarr.abc.store.Store,  # type: ignore
+        mode: str = "r",
+        *args,
+        **kwargs,
     ) -> None:
         """
         Open a Zarr store using
@@ -41,7 +47,9 @@ class ZarrArrayStore(ArrayStore):
                 - `w` means create (overwrite if exists);
                 - `w-` means create (fail if exists).
         """
-        self._root: Group = zarr.open_group(store=store, mode=mode, *args, **kwargs)
+        assert disk_format == DiskFormat.ZARR
+        self._store: Group = zarr.open_group(store=store, mode=mode, *args, **kwargs)
+        super().__init__(disk_format)
 
     def create(
         self,
@@ -63,60 +71,20 @@ class ZarrArrayStore(ArrayStore):
             chunks: chunk shape or 'auto'.
             overwrite: if True, delete existing before create; otherwise error if exists.
         """
-        group_path, name = path.rsplit("/", 1) if "/" in path else ("", path)
-        group = self._root.require_group(group_path)
-        if name in group:
-            if overwrite:
-                del group[name]
-            else:
-                raise ValueError(f"Array '{path}' already exists")
-        group.create_array(
-            store=self._root,
-            name=name,
+        self._store.create_array(
+            name=path,
             shape=shape,
             dtype=dtype,
             chunks=chunks,
-            *args,
+            overwrite=overwrite * args,
             **kwargs,
         )
-
-    @staticmethod
-    def _write_full(name, group, array, overwrite):
-        if name in group:
-            if overwrite:
-                del group[name]
-            else:
-                # assume shape matches, else user should call create
-                ds: Array = group[name]
-                ds[:] = array
-                return
-        # create new array with same shape
-        ds = group.create_array(
-            name=name,
-            shape=array.shape,
-            dtype=array.dtype,
-            chunks="auto",
-            overwrite=True,
-        )
-        ds[:] = array
-
-    @staticmethod
-    def _write_slice(name, group, array, slices, overwrite):
-        ds: Array = group[name]
-        if isinstance(slices, dict):
-            idx = [slice(None)] * ds.ndim
-            for axis, sl in slices.items():
-                idx[axis] = sl
-            ds[tuple(idx)] = array
-        else:
-            ds[slices] = array
 
     def write(
         self,
         path: str,
         array: npt.NDArray[np.generic],
         slices: tuple[slice, ...] | dict[int, tuple[slice, ...]] | None = None,
-        overwrite: bool = False,
     ) -> None:
         """
         Write data to an array, whole or sliced.
@@ -128,33 +96,16 @@ class ZarrArrayStore(ArrayStore):
                     else write into the specified slice region.
             overwrite: if True and slices is None, replaces existing array definition.
         """
-        group_path, name = path.rsplit("/", 1) if "/" in path else ("", path)
-        group = self._root.require_group(group_path)
-        if slices is None:
-            self._write_full(name, group, array, overwrite)
-        else:
-            self._write_slice(name, group, array, slices, overwrite)
+        z = self._store.get(path=path)
+        z.set_basic_selection(slices, array)  # type: ignore
 
     def append(self, path: str, array: npt.NDArray[np.generic]) -> None:
         """
         Append data along the first axis to an existing Zarr array;
         creates the array with an unlimited first dimension if it does not exist.
         """
-        group_path, name = path.rsplit("/", 1)
-        group = self._root.require_group(group_path)
-        arr = np.asarray(array)
-        if name in group:
-            ds: Array = group[name]  # existing Array
-            ds.append(arr)
-        else:
-            ds = group.create_array(
-                name=name,
-                shape=(0, *arr.shape[1:]),
-                dtype=arr.dtype,
-                chunk_shape=None,
-                overwrite=True,
-            )
-            ds.append(arr)
+        arr_0 = self.read(path)
+        arr_0.append(array)  # type: ignore
 
     def read(
         self,
@@ -165,37 +116,19 @@ class ZarrArrayStore(ArrayStore):
         Read the array from Zarr, optionally returning a subset efficiently.
         Returns None if the path does not exist.
         """
-        group_path, name = path.rsplit("/", 1)
-        try:
-            group = self._root[group_path]
-        except KeyError:
-            return None
-        if name not in group:
-            return None
-        ds: Array = group[name]
+        z = self._store.get(path)
         if slices is None:
-            return ds[:]
+            return z[:]  # type: ignore
         if isinstance(slices, dict):
-            idx = [slice(None)] * ds.ndim
+            idx = [slice(None)] * z.ndim  # type: ignore
             for axis, sl in slices.items():
-                idx[axis] = sl
-            return ds[tuple(idx)]
-        return ds[slices]
+                idx[axis] = sl  # type: ignore
+            return z[tuple(idx)]  # type: ignore
+        return z[slices]  # type: ignore
 
     def available(self) -> list[str]:
         """
         List all stored Zarr array paths (joined by '/').
         """
-        paths: list[str] = []
-
-        def _recurse(group: Group, prefix: str) -> None:
-            for key in group.array_keys():
-                subpath = f"{prefix}/{key}" if prefix else key
-                paths.append(subpath)
-            for sub in group.group_keys():
-                subgrp = group[sub]
-                subpath = f"{prefix}/{sub}" if prefix else sub
-                _recurse(subgrp, subpath)
-
-        _recurse(self._root, "")
-        return paths
+        keys = list(self._store.array_keys())
+        return keys
