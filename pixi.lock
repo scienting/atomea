@@ -1410,8 +1410,8 @@ packages:
   timestamp: 1733250564754
 - pypi: ./
   name: atomea
-  version: 0.1.dev202+g5c655db.d20250612013831
-  sha256: 5610bddce7ecd0bad0462e3e132e8e9044b067629a158679fd778f5aac045729
+  version: 0.1.dev205+g7c2d0b0.d20250612201434
+  sha256: a0c489a14b2da52b7b504120562c5c92b30aa272922a3da07a85c0752b562bed
   requires_dist:
   - loguru>=0.7.2,<1
   - numpy>=1.2.6,<3
@@ -1419,7 +1419,7 @@ packages:
   - pyyaml>=6.0.2,<7
   - zarr>=3.0.0,<4
   - polars>=1.10.0,<2
-  requires_python: '>=3.10'
+  requires_python: '>=3.12'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/attrs-25.3.0-pyh71513ae_0.conda
   sha256: 99c53ffbcb5dc58084faf18587b215f9ac8ced36bbfb55fa807c00967e419019

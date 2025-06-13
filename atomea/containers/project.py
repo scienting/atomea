@@ -1,11 +1,11 @@
 from loguru import logger
 
-from atomea.containers import Ensemble
+from atomea.containers import AtomeaContainer, Ensemble
 from atomea.containers.atomistic import Energy, Quantum, Time
 from atomea.stores import ArrayStore, StoreKind, TableStore
 
 
-class Project:
+class Project(AtomeaContainer):
     """
     Root object managing ensembles and global per-ensemble or per-microstate data.
     """

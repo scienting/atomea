@@ -1,18 +1,16 @@
-import numpy as np
-import numpy.typing as npt
-
+import atomea.typing as adt
+from atomea.containers import AtomeaContainer
 from atomea.data import Cadence, Data, Metadata
 from atomea.stores import StoreKind
 
 
-class Topology:
+class Topology(AtomeaContainer):
     """Information that specifies the physical atomistic microstates."""
 
     def __init__(self):
         self._parent = None
 
-    ids_entity: Data[npt.NDArray[np.uint32]] = Data[npt.NDArray[np.uint32]](
-        dtype=np.uint32,
+    ids_entity: Data[adt.UInt32] = Data[adt.UInt32](
         meta=Metadata(
             uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
             cadence=Cadence.MICROSTATE,
@@ -24,14 +22,9 @@ class Topology:
     """A uniquely identifying integer specifying what atoms belong to which entities.
     Entities can be a related set of atoms, molecules, or functional group.
     For example, a water and methanol molecule could be `[0, 0, 0, 1, 1, 1, 1, 1, 1]`.
-
-    **Cadence:** `MICROSTATE`
-
-    **UUID:** `b490f2db-548e-4c92-a71a-8222c041ca54`
     """
 
-    ids_component: Data[npt.NDArray[np.str_]] = Data[npt.NDArray[np.str_]](
-        dtype=np.str_,
+    ids_component: Data[adt.Str] = Data[adt.Str](
         meta=Metadata(
             uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
             cadence=Cadence.ENSEMBLE,
@@ -44,14 +37,9 @@ class Topology:
     to a fragment label for chemical components or species.
     Labels could be `WAT` or `h2o` for water, `MeOH` for methanol, `bz` for benzene,
     etc. There are no standardized labels for species.
-
-    **Cadence:** `ENSEMBLE`
-
-    **UUID:** `cf39af62-d372-4747-a431-cf2fa0c8e119`
     """
 
-    ff_atom_type: Data[npt.NDArray[np.str_]] = Data[npt.NDArray[np.str_]](
-        dtype=np.str_,
+    ff_atom_type: Data[adt.Str] = Data[adt.Str](
         meta=Metadata(
             uuid="e34c0e1b-0eaa-4679-b060-3fcfe737aa15",
             cadence=Cadence.ENSEMBLE,
@@ -72,8 +60,4 @@ class Topology:
     Waals radii, and bond, angle, and dihedral force constants.
     The specific values for these parameters are determined based on experimental
     data and quantum mechanical calculations.
-
-    **Cadence:** `ENSEMBLE`
-
-    **UUID:** `e34c0e1b-0eaa-4679-b060-3fcfe737aa15`
     """

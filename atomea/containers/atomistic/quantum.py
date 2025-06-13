@@ -1,11 +1,10 @@
-import numpy as np
-import numpy.typing as npt
-
+import atomea.typing as adt
+from atomea.containers import AtomeaContainer
 from atomea.data import Cadence, Data, Metadata
 from atomea.stores import StoreKind
 
 
-class Quantum:
+class Quantum(AtomeaContainer):
     """This section encompasses data pertaining to quantum mechanical descriptions or
     calculations that are not covered in the [system documentation](./microstates.md).
     It includes specialized parameters and results specific to quantum mechanics that
@@ -14,8 +13,7 @@ class Quantum:
     def __init__(self):
         self._parent = None
 
-    electron_frozen_num: npt.NDArray[np.uint8] | None = Data[npt.NDArray[np.uint8]](
-        dtype=np.uint8,
+    electron_frozen_num: Data[adt.UInt8] = Data[adt.UInt8](
         meta=Metadata(
             uuid="5b44b60c-8435-41c4-88d5-cb4a1883b75b",
             cadence=Cadence.ENSEMBLE,
@@ -32,8 +30,4 @@ class Quantum:
     computational process by reducing the number of electrons that need to be actively
     considered, thereby focusing on those more likely to be involved in chemical
     reactions or significant bonding interactions.
-
-    **Cadence:** `ENSEMBLE`
-
-    **UUID:** `5b44b60c-8435-41c4-88d5-cb4a1883b75b`
     """

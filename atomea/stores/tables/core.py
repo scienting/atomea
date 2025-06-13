@@ -24,7 +24,7 @@ class TableStore(Store, ABC):
         ...
 
     @abstractmethod
-    def read(self, name: str) -> pl.DataFrame:
+    def read(self, name: str) -> pl.DataFrame | None:
         """
         Read the entire table with the given name.
 
@@ -43,7 +43,7 @@ class TableStore(Store, ABC):
         ensemble_id: str | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
-    ) -> pl.DataFrame:
+    ) -> pl.DataFrame | None:
         """
         Query a named table using a filter expression (e.g., pandas query syntax).
 

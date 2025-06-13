@@ -1,12 +1,13 @@
 from typing import TYPE_CHECKING
 
+from atomea.containers import AtomeaContainer
 from atomea.containers.atomistic import Microstates, Topology
 
 if TYPE_CHECKING:
     from atomea.schema import Project
 
 
-class Ensemble:
+class Ensemble(AtomeaContainer):
     """
     The `Ensemble` class represents a collection of molecular structures,
     each referred to as a microstate. This class is used to

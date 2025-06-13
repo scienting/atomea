@@ -10,8 +10,8 @@ except ImportError:
 
 from typing import Any
 
-from atomea.digesters.digester import Digester
 from atomea.containers import Project
+from atomea.digesters.digester import Digester
 
 
 class MDAnalysisDigester(Digester):
@@ -39,8 +39,8 @@ class MDAnalysisDigester(Digester):
     ) -> None:
         """Store per‐ensemble atom symbols & ff types once."""
         u = ctx["u"]
-        syms = np.array(u.atoms.elements, dtype=str)
-        types = np.array(u.atoms.types)
+        syms = np.array(u.atoms.elements, dtype=np.str_)
+        types = np.array(u.atoms.types, dtype=np.str_)
         proj.ensembles[ens_id].microstates.atom_symbol = syms
         proj.ensembles[ens_id].topology.ff_atom_type = types
 

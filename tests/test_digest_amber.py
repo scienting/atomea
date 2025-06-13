@@ -5,8 +5,8 @@ import shutil
 
 import numpy as np
 
-from atomea.digesters import MDAnalysisDigester
 from atomea.containers import Project
+from atomea.digesters import MDAnalysisDigester
 from atomea.stores.arrays import ZarrArrayStore
 from atomea.stores.tables import PolarsTableStore
 

@@ -1,47 +1,64 @@
-from typing import Generic
+from typing import Any, Generic, overload
 
 import numpy as np
 import polars as pl
 
-from atomea.data import Metadata, T, ValueOrSlice
+import atomea.typing as adt
+from atomea.containers import AtomeaContainer
+from atomea.data import Metadata
 from atomea.data.accessors import ArrayAccessor, TableAccessor
 from atomea.stores import StoreKind
 
 
-class Data(Generic[T]):
+class Data(Generic[adt.T]):
     """
-    Descriptor that automates get/set against the appropriate store.
-    Uses parent chain to access stores without storing references.
+    Data descriptor that returns exactly type T when accessed.
+
+    The generic parameter T represents the FINAL data type that users receive,
+    regardless of backend storage format.
     """
 
     def __init__(
         self,
-        dtype: type[T],
         *,
         meta: Metadata,
-        default: T | None = None,
+        default: adt.T | None = None,
     ) -> None:
-        self.dtype = dtype
         self.meta = meta
         self.default = default
         self.name: str | None = None
 
-    def __set_name__(self, owner, name: str) -> None:
+    def __set_name__(self, owner: type, name: str) -> None:
         self.name = name
 
-    def __get__(self, obj, objtype=None):
-        if obj is None:
-            return self
+    @overload
+    def __get__(self, obj: None, objtype: type) -> "Data[adt.T]": ...
 
-        # Build parent chain to root project
+    @overload
+    def __get__(self, obj: Any, objtype: type | None = None) -> adt.T | None: ...
+
+    def __get__(
+        self, obj: Any | None, objtype: type | None = None
+    ) -> adt.T | None | "Data[adt.T]":
+        # The actual implementation of __get__
+        if obj is None:
+            # When accessed on the class (e.g., MyClass.descriptor_name)
+            return self
+        # Create accessor internally and immediately return the data
         parent_chain = self._get_parent_chain(obj)
 
-        if self.meta.store is StoreKind.ARRAY:
-            return ArrayAccessor(parent_chain, self.name)
-        else:
-            return TableAccessor(parent_chain, self.name)
+        assert isinstance(self.name, str)
 
-    def _get_parent_chain(self, obj) -> list:
+        if self.meta.store is StoreKind.ARRAY:
+            accessor = ArrayAccessor[adt.T](parent_chain, self.name)
+            data = accessor.value
+            return data
+        else:
+            accessor_table = TableAccessor[adt.T](parent_chain, self.name)
+            data = accessor_table.value
+            return data
+
+    def _get_parent_chain(self, obj: object) -> list[AtomeaContainer]:
         """Build chain from current object to root project."""
         chain = []
         current = obj
@@ -58,7 +75,7 @@ class Data(Generic[T]):
 
         return list(reversed(chain))  # [project, ensemble, component]
 
-    def __set__(self, obj, value: ValueOrSlice) -> None:
+    def __set__(self, obj: object, value: adt.ValueOrSlice[adt.T]) -> None:
         if obj is None:
             raise AttributeError("Cannot set attribute on class")
 
@@ -83,7 +100,7 @@ class Data(Generic[T]):
                 arr, slices = value
             else:
                 arr, slices = value, None
-            np_arr = np.asarray(arr, dtype=self.dtype)
+            np_arr = np.asarray(arr)
             store.write(path, np_arr, slices=slices)
         else:
             # For table data

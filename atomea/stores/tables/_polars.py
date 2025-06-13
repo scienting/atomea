@@ -13,6 +13,8 @@ class PolarsTableStore(TableStore):
     `ensemble_id` and `microstate_id`.
 
     Each table is a Polars DataFrame with at least these two key columns.
+
+    TODO: Need to handle reading tables from disk; don't need to keep everything in memory.
     """
 
     def __init__(self) -> None:
