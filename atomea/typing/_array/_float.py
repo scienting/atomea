@@ -3,11 +3,7 @@ from typing import TypeAlias
 import numpy as np
 import numpy.typing as npt
 
-from atomea.data import Data
-
-Float64NP: TypeAlias = npt.NDArray[np.float64]
-
-Float64: TypeAlias = Data[Float64NP]
+Float64: TypeAlias = npt.NDArray[np.float64]
 """64-bit double-precision floating-point array type.
 
 Represents NumPy arrays containing 64-bit floating-point numbers (double precision).
@@ -60,9 +56,7 @@ See Also:
     numpy.float64: NumPy documentation for float64 type
 """
 
-Float32NP: TypeAlias = npt.NDArray[np.float32]
-
-Float32: TypeAlias = Data[Float32NP]
+Float32: TypeAlias = npt.NDArray[np.float32]
 """32-bit single-precision floating-point array type.
 
 Represents NumPy arrays containing 32-bit floating-point numbers (single precision).

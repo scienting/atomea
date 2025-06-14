@@ -3,23 +3,13 @@ from typing import TypeAlias
 import numpy as np
 import numpy.typing as npt
 
-from atomea.data import Data
+UInt64: TypeAlias = npt.NDArray[np.uint64]
 
-UInt64NP: TypeAlias = npt.NDArray[np.uint64]
+UInt32: TypeAlias = npt.NDArray[np.uint32]
 
-UInt64: TypeAlias = Data[UInt64NP]
+UInt16: TypeAlias = npt.NDArray[np.uint16]
 
-UInt32NP: TypeAlias = npt.NDArray[np.uint32]
-
-UInt32: TypeAlias = Data[UInt32NP]
-
-UInt16NP: TypeAlias = npt.NDArray[np.uint16]
-
-UInt16: TypeAlias = Data[UInt16NP]
-
-UInt8NP: TypeAlias = npt.NDArray[np.uint8]
-
-UInt8: TypeAlias = Data[UInt8NP]
+UInt8: TypeAlias = npt.NDArray[np.uint8]
 """8-bit unsigned integer array type.
 
 Represents NumPy arrays containing 8-bit unsigned integers. This is the most

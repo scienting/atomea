@@ -3,11 +3,7 @@ from typing import TypeAlias
 import numpy as np
 import numpy.typing as npt
 
-from atomea.data import Data
-
-Int64NP: TypeAlias = npt.NDArray[np.int64]
-
-Int64: TypeAlias = Data[Int64NP]
+Int64: TypeAlias = npt.NDArray[np.int64]
 """64-bit signed integer array type.
 
 Represents NumPy arrays containing 64-bit signed integers (long integers).
@@ -67,10 +63,7 @@ See Also:
 """
 
 
-Int32NP: TypeAlias = npt.NDArray[np.int32]
-
-
-Int32: TypeAlias = Data[Int32NP]
+Int32: TypeAlias = npt.NDArray[np.int32]
 """32-bit signed integer array type.
 
 Represents NumPy arrays containing 32-bit signed integers. Provides a good
@@ -129,14 +122,9 @@ See Also:
     numpy.int32: NumPy documentation for int32 type
 """
 
-Int16NP: TypeAlias = npt.NDArray[np.int16]
+Int16: TypeAlias = npt.NDArray[np.int16]
 
-Int16: TypeAlias = Data[Int16NP]
-
-
-Int8NP: TypeAlias = npt.NDArray[np.int8]
-
-Int8: TypeAlias = Data[Int8NP]
+Int8: TypeAlias = npt.NDArray[np.int8]
 
 OptionalInt64: TypeAlias = Int64 | None
 """Optional 64-bit signed integer array type.

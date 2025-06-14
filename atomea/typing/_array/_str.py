@@ -3,11 +3,7 @@ from typing import TypeAlias
 import numpy as np
 import numpy.typing as npt
 
-from atomea.data import Data
-
-StrNP: TypeAlias = npt.NDArray[np.str_]
-
-Str: TypeAlias = Data[StrNP]
+Str: TypeAlias = npt.NDArray[np.str_]
 """NumPy string array type for text data.
 
 Represents NumPy arrays containing string values. These arrays store
