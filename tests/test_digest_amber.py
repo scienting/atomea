@@ -31,16 +31,22 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
 
     store_array = ZarrArrayStore(DiskFormat.ZARR, path_store_array, mode="a")
     store_table = PolarsTableStore(DiskFormat.PARQUET)
-    project: Project = MDAnalysisDigester.digest(
-        store_array,
-        store_table,
+    prj = Project(store_array, store_table)
+    digest_args = (
         amber_rogfp2_sim_paths["mol.prmtop"],
         amber_rogfp2_sim_paths["07_relax_npt.nc"],
-        topology_format="PRMTOP",
-        format="NC",
-        ensemble_id="default",
     )
-    ensemble = project.ensembles["default"]
+    digest_kwargs = {
+        "topology_format": "PRMTOP",
+        "format": "NC",
+    }
+    prj: Project = MDAnalysisDigester.run(
+        prj,
+        "default",
+        digest_args,  # type: ignore
+        digest_kwargs,
+    )
+    ensemble = prj.ensembles["default"]
 
     # coordinates: shape (n_frames, n_atoms, 3)
     coords = ensemble.microstates.coordinates
@@ -82,15 +88,20 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
 
     store_array = ZarrArrayStore(DiskFormat.ZARR, path_store_array, mode="a")
     store_table = PolarsTableStore(DiskFormat.PARQUET)
-    # Digest into a Project, picking up our "default" ensemble
-    project: Project = MDAnalysisDigester.digest(
-        store_array,
-        store_table,
+    prj = Project(store_array, store_table)
+    digest_args = (
         amber_rogfp2_sim_paths["mol.prmtop"],
         amber_rogfp2_sim_paths["07_relax_npt.nc"],
-        topology_format="PRMTOP",
-        format="NC",
-        ensemble_id="default",
+    )
+    digest_kwargs = {
+        "topology_format": "PRMTOP",
+        "format": "NC",
+    }
+    MDAnalysisDigester.run(
+        prj,
+        "default",
+        digest_args,  # type: ignore
+        digest_kwargs,
     )
 
     # Re-open for reading and spot‐check

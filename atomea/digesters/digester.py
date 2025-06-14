@@ -1,25 +1,20 @@
-from typing import Any, Collection
+from typing import Any
 
-import inspect
 from abc import ABC, abstractmethod
 
 from loguru import logger
 
 from atomea.containers import Project
-from atomea.stores.arrays import ArrayStore
-from atomea.stores.tables import TableStore
 
 
 class Digester(ABC):
     """
-    Base class for all digesters.  Subclasses must define:
-      - prepare_inputs(...) → context
-      - any number of `parse_<thing>(context, project, ensemble_id)` methods
+    Base class for all digesters.
     """
 
     @classmethod
     @abstractmethod
-    def prepare_inputs(cls, *args: Any, **kwargs: Collection[Any]) -> dict[str, Any]:
+    def prepare(cls, *args: Any, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """
         Load files, open handles, build FSM state, etc.
         Return a dict representing the full parsing context.
@@ -35,38 +30,49 @@ class Digester(ABC):
         pass
 
     @classmethod
-    def digest(
+    @abstractmethod
+    def extract(cls, prj: Project, id_ens: str, ctx: dict[str, Any]) -> Project:
+        """Extract and parse all possible information given the context.
+        This method is responsible for calling all other methods.
+
+        Args:
+            prj: Destination project to put extracted information.
+            id_ens: ID to store any ensemble data under.
+            context: Information needed for the digestion process.
+
+        Returns:
+            Project after digestion.
+        """
+        ...
+
+    @classmethod
+    def run(
         cls,
-        arrays: ArrayStore,
-        tables: TableStore,
-        *prepare_args: Any,
-        project: Project | None = None,
-        ensemble_id: str = "default",
-        **prepare_kwargs: Any,
+        prj: Project,
+        id_ens: str,
+        digest_args: tuple[Any] = tuple(),
+        digest_kwargs: dict[str, Any] = dict(),
     ) -> Project:
         """
-        Top‐level entrypoint: builds or reuses a Project;
-        creates or gets an Ensemble by `ensemble_id`;
-        calls prepare_inputs, then runs every parse_* method.
+        Run the digestion process from start to finish for a single ensemble.
+
+        Args:
+            prj: Project to store all digested data to.
+            id_ens: ID of this ensemble. This function will create the ensemble
+                if it does not exist in `prj`.
+            digest_args: Arguments for preparing the context needed for digestion.
+            digest_kwargs: Keyword arguments for preparing the context needed for
+                the digestion.
+
+        Returns:
+            Project after digestion.
         """
+        logger.info("Running digestion")
         cls.checks()
-        ctx = cls.prepare_inputs(*prepare_args, **prepare_kwargs)
+        ctx = cls.prepare(*digest_args, **digest_kwargs)
 
-        if project is None:
-            project = Project(arrays, tables)
+        _ = prj.get_ensemble(id_ens) or prj.add_ensemble(id_ens)
 
-        # ensure the requested ensemble exists
-        ens = project.get_ensemble(ensemble_id) or project.add_ensemble(ensemble_id)
-
-        # discover all parse_ methods
-        for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
-            if not name.startswith("parse_"):
-                continue
-            logger.debug(f"[{ensemble_id}] running parser `{name}`")
-            try:
-                # each parse_ method takes (context, project, ensemble_id)
-                method(ctx, project, ensemble_id)
-            except Exception:
-                logger.exception(f"[{ensemble_id}] error in parser `{name}`")
+        project = cls.extract(prj, id_ens, ctx)
 
         return project
