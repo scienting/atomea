@@ -1,4 +1,4 @@
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -6,7 +6,7 @@ from enum import Enum
 
 from atomea.digesters.text import StateScanner, StateTransition
 
-T = TypeVar("T")
+S = TypeVar("S")
 
 
 @dataclass
@@ -28,38 +28,44 @@ class ParsedFile:
     metadata: dict
 
 
-class StateParser(ABC, Generic[T]):
+class StateParser(ABC, Generic[S]):
     """Abstract parser for parsing specific state regions"""
 
     @abstractmethod
-    def parse(self, data: bytes, state: T) -> dict:
+    def parse(self, data: bytes, state: S) -> dict:
         """Parse the bytes for a specific state region"""
-        pass
+        ...
 
 
-class FileParser(ABC, Generic[T]):
+class FileParser(ABC, Generic[S]):
     """Main parser orchestrator for a specific file type"""
 
-    @abstractmethod
+    _scanner: StateScanner
+    _parsers: dict[S, StateParser]
+
     def get_scanner(self) -> StateScanner:
         """Return the scanner for this file type"""
-        pass
+        return self._scanner
 
-    @abstractmethod
-    def get_parser(self, state: T) -> StateParser[T] | None:
+    def get_parser(self) -> StateParser[S] | None:
         """Return parser for specific state, None if no parsing needed"""
-        ...
+        return self._parsers
+
+    def scan_bytes(self, buf: bytes) -> list[StateTransition]:
+        transitions = self._scanner.scan(buf)
+        return transitions
 
     def scan_file(self, file_path: str) -> list[StateTransition]:
-        """Scan entire file and return all state transitions"""
-        ...
+        """Single pass through file to scan for states and their transitions."""
+        with open(file_path, "rb") as fh:
+            buf = fh.read()
+        return self._scanner.scan(buf)
 
     def parse_file(self, file_path: str) -> ParsedFile:
         """Full parse of file"""
         ...
 
 
-# Parser registry for managing multiple file types
 class ParserRegistry:
     """Registry for file type parsers"""
 

@@ -17,27 +17,14 @@ class TableStore(Store, ABC):
         super().__init__(disk_format)
 
     @abstractmethod
-    def write(self, name: str, table: pl.DataFrame, append: bool = False) -> None:
+    def write(self, name: str, table: pl.DataFrame) -> None:
         """
-        Write a pandas DataFrame to a named table. Optionally append.
+        Write a polars DataFrame to a named table. Optionally append.
 
         Args:
             name: logical table name (e.g., "microstate_index").
             table: DataFrame containing columns [ensemble_id, microstate_id, ...].
             append: if True, append rows to an existing table; otherwise overwrite.
-        """
-        ...
-
-    @abstractmethod
-    def read(self, name: str) -> pl.DataFrame | None:
-        """
-        Read the entire table with the given name.
-
-        Args:
-            name: logical table name.
-
-        Returns:
-            DataFrame previously stored.
         """
         ...
 
@@ -50,7 +37,7 @@ class TableStore(Store, ABC):
         filter_expr: str | None = None,
     ) -> pl.DataFrame:
         """
-        Query a named table using a filter expression (e.g., pandas query syntax).
+        Query a named table using a filter expression.
 
         Args:
             name: logical table name.
@@ -58,15 +45,5 @@ class TableStore(Store, ABC):
 
         Returns:
             Filtered DataFrame.
-        """
-        ...
-
-    @abstractmethod
-    def available(self) -> list[str]:
-        """
-        List all table names currently stored.
-
-        Returns:
-            A list of table names.
         """
         ...

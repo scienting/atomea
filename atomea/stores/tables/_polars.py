@@ -1,25 +1,21 @@
-from typing import Any, Literal
+from typing import Any
 
 import os
 
 import polars as pl
 
+from atomea.stores import DiskFormat
 from atomea.stores.tables import TableStore
 
 
 class PolarsTableStore(TableStore):
     """
-    In-memory store for narrow tables of microstate data keyed by separate columns:
-    `ensemble_id` and `microstate_id`.
-
-    Each table is a Polars DataFrame with at least these two key columns.
-
-    TODO: Need to handle reading tables from disk; don't need to keep everything in memory.
+    Each table is a Polars DataFrame.
     """
 
-    def write(self, name: str, table: pl.DataFrame, append: bool = False) -> None:
+    def write(self, name: str, table: pl.DataFrame) -> None:
         """
-        Write or append a Polars DataFrame to the named table.
+        Write a Polars DataFrame to the named table.
 
         The DataFrame must contain `ensemble_id` and `microstate_id` columns.
         """
@@ -27,10 +23,19 @@ class PolarsTableStore(TableStore):
             raise ValueError(
                 "Table must include 'ensemble_id' and 'microstate_id' columns"
             )
-        if append and name in self._store:
-            self._store[name] = pl.concat([self._store[name], table], how="vertical")
-        else:
-            self._store[name] = table
+        self._store[name] = table
+
+    def append(self, name: str, table: pl.DataFrame) -> None:
+        """
+        Append a Polars DataFrame to the named table.
+
+        The DataFrame must contain `ensemble_id` and `microstate_id` columns.
+        """
+        if "ensemble_id" not in table.columns or "microstate_id" not in table.columns:
+            raise ValueError(
+                "Table must include 'ensemble_id' and 'microstate_id' columns"
+            )
+        self._store[name] = pl.concat([self._store[name], table], how="vertical")
 
     def read(self, name: str) -> pl.DataFrame:
         """
@@ -66,15 +71,13 @@ class PolarsTableStore(TableStore):
         return df
 
     def available(self) -> list[str]:
-        """
-        List all table names.
-        """
+        """List all table names."""
         return list(self._store.keys())
 
     def dump(
         self,
         prefix: str,
-        file_type: Literal["csv", "parquet", "ipc", "excel"],
+        file_type: DiskFormat,
         **options: Any,
     ) -> None:
         """
@@ -82,19 +85,19 @@ class PolarsTableStore(TableStore):
 
         Args:
             prefix: directory or file prefix where files will be written.
-            file_type: one of 'csv', 'parquet', or 'ipc' (Arrow IPC).
+            file_type: File type to dump the data to.
             options: backend-specific write options (e.g., compression='snappy').
         """
         os.makedirs(prefix, exist_ok=True)
         for name, df in self._store.items():
             path = os.path.join(prefix, f"{name}.{file_type}")
-            if file_type == "csv":
+            if file_type == DiskFormat.CSV:
                 df.write_csv(path, **options)
-            elif file_type == "parquet":
+            elif file_type == DiskFormat.PARQUET:
                 df.write_parquet(path, **options)
-            elif file_type == "ipc":
+            elif file_type == DiskFormat.IPC:
                 df.write_ipc(path, **options)
-            elif file_type == "excel":
+            elif file_type == DiskFormat.EXCEL:
                 df.write_excel(path, **options)
             else:
                 raise ValueError(f"Unsupported file_type: {file_type}")

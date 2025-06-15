@@ -1,28 +1,28 @@
-from enum import Enum
+from enum import Enum, auto
 
 
 class StoreKind(Enum):
-    ARRAY = 0
-    TABLE = 1
+    ARRAY = auto()
+    TABLE = auto()
 
 
 class DiskFormat(Enum):
-    NONE = 0
+    NONE = auto()
 
     # Arrays
-    ZARR = 10
-    NPY = 11
-    NPZ = 12
+    ZARR = auto()
+    NPY = auto()
+    NPZ = auto()
 
     # TABLES
-    CSV = 20
-    IPC = 21
-    EXCEL = 22
-    JSON = 23
-    PARQUET = 24
-    AVRO = 25
-    DELTA = 26
-    ICEBERG = 27
+    CSV = auto()
+    IPC = auto()
+    EXCEL = auto()
+    JSON = auto()
+    PARQUET = auto()
+    AVRO = auto()
+    DELTA = auto()
+    ICEBERG = auto()
 
 
 ArrayDiskFormats = (DiskFormat.ZARR, DiskFormat.NPY, DiskFormat.NPZ)

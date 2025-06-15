@@ -1,39 +1,40 @@
-from typing import Generic, TypeVar
+from typing import Generic
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-
-from atomea.digesters.text import Pattern, StateTransition, TransitionHint
-
-T = TypeVar("T")
+from atomea.digesters.text import StateTransition
+from atomea.digesters.text.engines import S, ScanEngine, StdRegexEngine
 
 
-@dataclass
-class ScannerConfig:
-    chunk_size: int = 65536
-    """Size of chunk in bytes. Defaults to 64KB"""
-    overlap_size: int = 1024
-    """Size of overlap between chunks in bytes. Defaults to 1KB"""
-    max_lookahead: int = 4096
-    parallel_threshold: int = 10_000_000  # 10MB
+class StateScanner(Generic[S]):
+    """Single-pass scanner for state transitions."""
 
+    def __init__(
+        self,
+        patterns: dict[S, list[bytes]],
+        first_state: S,
+        engine: ScanEngine[S] = StdRegexEngine(),
+    ):
+        self.first_state = first_state
+        """Initial state of the file."""
+        self.engine = engine
+        self.engine.compile(patterns)
 
-class StateScanner(ABC, Generic[T]):
-    """Abstract scanner for identifying state transitions"""
+    @property
+    def patterns(self):
+        return self.engine._patterns
 
-    @abstractmethod
-    def get_patterns(self) -> dict[T, list[Pattern]]:
-        """Return patterns that trigger transitions TO each state"""
-        pass
+    def scan(self, buf: bytes) -> list[StateTransition]:
+        """Single-pass scan of bytes to identify states and their transitions."""
+        cur_state, trans, last = self.first_state, [], 0
 
-    @abstractmethod
-    def scan_chunk(self, chunk: bytes, offset: int) -> list[TransitionHint]:
-        """Scan a chunk for potential state transitions"""
-        pass
+        for start, _end, pattern, next_state in sorted(
+            self.engine.stream(buf), key=lambda t: t[0]
+        ):
+            trans.append(StateTransition(cur_state, next_state, start, -1, pattern))
+            cur_state, last = next_state, start
 
-    @abstractmethod
-    def confirm_transition(
-        self, data: bytes, hint: TransitionHint
-    ) -> StateTransition | None:
-        """Confirm a transition hint is valid and return exact positions"""
-        pass
+        for i in range(len(trans) - 1):
+            trans[i].end_pos = trans[i + 1].start_pos
+        if trans:
+            trans[-1].end_pos = len(buf)
+
+        return trans

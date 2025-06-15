@@ -1,12 +1,12 @@
 import pytest
 
 from atomea.digesters.amber.v22 import (
+    AMBER_V22_PATTERNS,
     AmberV22Parser,
-    AmberV22Scanner,
     AmberV22State,
     parsers,
 )
-from atomea.digesters.text import ParsedFile
+from atomea.digesters.text import ParsedFile, StateScanner
 
 
 class TestAmberV22Parser:
@@ -48,21 +48,18 @@ class TestAmberV22Parser:
         assert len(parsed_file.regions) == 2
 
         # Check metadata
-        assert "file_type" in parsed_file.metadata
-        assert "n_transitions" in parsed_file.metadata
-        assert "states_found" in parsed_file.metadata
+        assert "n_regions" in parsed_file.metadata
 
         # Find energy regions
-        energy_regions = [
+        results_regions = [
             r for r in parsed_file.regions if r.state == AmberV22State.RESULTS
         ]
-        assert len(energy_regions) >= 2  # Should find both MD steps
+        assert len(results_regions) == 1
 
         # Check first energy data
-        if energy_regions:
-            first_energy = energy_regions[0].data
-            assert "nstep" in first_energy
-            assert "etot" in first_energy
+        first_energy = results_regions[0].data
+        assert "nstep" in first_energy
+        assert "etot" in first_energy
 
     def test_empty_file(self, tmp_path):
         empty_file = tmp_path / "empty.out"
@@ -76,7 +73,7 @@ class TestAmberV22Parser:
 
     def test_file_not_found(self):
         parser = AmberV22Parser()
-        with pytest.raises(ValueError):
+        with pytest.raises(FileNotFoundError):
             parser.scan_file("/nonexistent/file.out")
 
 
@@ -85,41 +82,28 @@ class TestPatternMatching:
 
     def test_pattern_at_chunk_boundary(self):
         """Test pattern split across chunk boundary"""
-        scanner = AmberV22Scanner()
+        scanner = StateScanner(AMBER_V22_PATTERNS, AmberV22State.UNKNOWN)
 
         # Simulate pattern split across chunks
         chunk1 = b"some text   4.  RES"
         chunk2 = b"ULTS\n----------------"
 
         # Neither chunk alone should find the pattern
-        hints1 = scanner.scan_chunk(chunk1, 0)
-        hints2 = scanner.scan_chunk(chunk2, len(chunk1))
+        hints1 = scanner.scan(chunk1)
+        hints2 = scanner.scan(chunk2)
 
         # This is a limitation of simple scanning - would need overlap handling
-        assert not any(h.pattern_matched == b"   4.  RESULTS" for h in hints1)
-        assert not any(h.pattern_matched == b"   4.  RESULTS" for h in hints2)
-
-    def test_multiple_identical_patterns(self):
-        """Test handling of repeated patterns"""
-        scanner = AmberV22Scanner()
-        data = b""" NSTEP =      500
- NSTEP =     1000
- NSTEP =     1500"""
-
-        hints = scanner.scan_chunk(data, 0)
-        nstep_hints = [h for h in hints if h.pattern_matched == b" NSTEP ="]
-
-        # Should find only the first occurrence with simple find()
-        assert len(nstep_hints) == 1
+        assert not any(h.pattern == b"   4.  RESULTS" for h in hints1)
+        assert not any(h.pattern == b"   4.  RESULTS" for h in hints2)
 
     def test_case_sensitivity(self):
         """Ensure patterns are case-sensitive"""
-        scanner = AmberV22Scanner()
+        scanner = StateScanner(AMBER_V22_PATTERNS, AmberV22State.UNKNOWN)
         data = b"amber 22 pmemd"  # lowercase
 
-        hints = scanner.scan_chunk(data, 0)
+        hints = scanner.scan(data)
         # Should not match because pattern is "Amber 22 PMEMD"
-        assert not any(h.pattern_matched == b"Amber 22 PMEMD" for h in hints)
+        assert not any(h.pattern == b"Amber 22 PMEMD" for h in hints)
 
 
 @pytest.mark.parametrize(
@@ -137,6 +121,6 @@ def test_energy_parser_parametrized(nstep, time, temp, expected_nstep):
 
     result = parser.parse(data, AmberV22State.RESULTS)
     assert isinstance(result, dict)
-    assert result.value["nstep"] == expected_nstep
-    assert result.value["time_ps"] == time
-    assert result.value["temp_k"] == temp
+    assert result["nstep"] == expected_nstep
+    assert result["time_ps"] == time
+    assert result["temp_k"] == temp

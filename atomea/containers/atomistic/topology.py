@@ -12,34 +12,28 @@ class Topology(AtomeaContainer):
     def __init__(self):
         self._parent = None
 
-    ids_entity = cast(
-        adt.OptionalUInt32,
-        Data[adt.UInt32](
-            meta=Metadata(
-                uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
-                cadence=Cadence.MICROSTATE,
-                store=StoreKind.ARRAY,
-                description="Uniquely identifying integer mapping atoms to chemical entities",
-            ),
-            default=None,
+    ids_entity = Data[adt.UInt32](
+        meta=Metadata(
+            uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
+            cadence=Cadence.MICROSTATE,
+            store=StoreKind.ARRAY,
+            description="Uniquely identifying integer mapping atoms to chemical entities",
         ),
+        default=None,
     )
     """A uniquely identifying integer specifying what atoms belong to which entities.
     Entities can be a related set of atoms, molecules, or functional group.
     For example, a water and methanol molecule could be `[0, 0, 0, 1, 1, 1, 1, 1, 1]`.
     """
 
-    ids_component = cast(
-        adt.OptionalStr,
-        Data[adt.Str](
-            meta=Metadata(
-                uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
-                cadence=Cadence.ENSEMBLE,
-                store=StoreKind.ARRAY,
-                description="Fragments label for chemical entities",
-            ),
-            default=None,
+    ids_component = Data[adt.Str](
+        meta=Metadata(
+            uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
+            cadence=Cadence.ENSEMBLE,
+            store=StoreKind.ARRAY,
+            description="Fragments label for chemical entities",
         ),
+        default=None,
     )
     """Relates [`ids_entity`][schemas.atomistic.topology.Topology.ids_entity]
     to a fragment label for chemical components or species.

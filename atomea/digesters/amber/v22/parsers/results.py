@@ -1,126 +1,126 @@
 from typing import Any
 
-import re
-
 import numpy as np
 from loguru import logger
 
 from atomea.digesters.amber.v22 import AmberV22State
 from atomea.digesters.text import StateParser
+from atomea.digesters.text.engines import ScanEngine, StdRegexEngine
+
+PAT_NSTEP = rb"NSTEP\s*=\s*\d+"
+PAT_ETOT = rb"^\s*Etot\s*="
+PAT_BOND = rb"^\s*BOND\s*="
+PAT_VOLUME = rb"\s*VOLUME\s*="
+PAT_DENSITY = rb"^\s*Density\s*="
+
+
+_PATTERN_MAP: dict[str, list[bytes]] = {
+    "nstep": [PAT_NSTEP],
+    "etot": [PAT_ETOT],
+    "bond": [PAT_BOND],
+    "volume": [PAT_VOLUME],
+    "density": [PAT_DENSITY],
+}
 
 
 class AmberResultsParser(StateParser[AmberV22State]):
-    """Parser for MD results steps"""
+    """
+    Parses an Amber `RESULTS` section using any ScanEngine implementation.
+    """
+
+    def __init__(self, engine: ScanEngine | None = None):
+        """
+        Args:
+            engine: A concrete engine (e.g., StdRegexEngine).
+                If omitted the std-lib regex engine is used.
+        """
+        self.engine: ScanEngine = engine or StdRegexEngine()
+        self.engine.compile(_PATTERN_MAP)
+
+    @classmethod
+    def _split_num(cls, line: str) -> list[str]:
+        return [tok for tok in line.split() if tok != "="]
 
     def parse(self, data: bytes, state: AmberV22State) -> dict[str, Any]:
-        """Parse all MD steps from the RESULTS section"""
-        result: dict[str, Any] = {}
-
-        if state != AmberV22State.RESULTS:
+        if state is not AmberV22State.RESULTS:
             logger.error("Invalid state for results parser")
-            return result
+            return {}
 
-        try:
-            text = data.decode("utf-8")
+        # Temporary collectors (Python lists → transformed to NumPy at end)
+        nsteps: list[int] = []
+        times_ps: list[float] = []
+        temps_k: list[float] = []
+        press: list[float] = []
+        etots: list[float] = []
+        ektots: list[float] = []
+        eptots: list[float] = []
+        bonds: list[float] = []
+        angles: list[float] = []
+        diheds: list[float] = []
+        volumes: list[float] = []
+        densities: list[float] = []
 
-            # Find all MD steps in the results section
-            nstep_pattern = re.compile(
-                r"NSTEP\s*=\s*(\d+)\s+TIME\(PS\)\s*=\s*([\d.]+)\s+TEMP\(K\)\s*=\s*([\d.]+)\s+PRESS\s*=\s*([\d.-]+)"
-            )
-            energy_pattern = re.compile(
-                r"Etot\s*=\s*([\d.-]+)\s+EKtot\s*=\s*([\d.-]+)\s+EPtot\s*=\s*([\d.-]+)"
-            )
-            bond_pattern = re.compile(
-                r"BOND\s*=\s*([\d.-]+)\s+ANGLE\s*=\s*([\d.-]+)\s+DIHED\s*=\s*([\d.-]+)"
-            )
-            volume_pattern = re.compile(r"VOLUME\s*=\s*([\d.-]+)")
-            density_pattern = re.compile(r"Density\s*=\s*([\d.-]+)")
+        text = data.decode("utf-8", "ignore")  # decode once
 
-            # Split into individual step blocks (each starts with NSTEP)
-            step_blocks = re.split(r"(?=\sNSTEP\s*=)", text)
-            step_blocks = [block for block in step_blocks if block.strip()]
+        # Helper: quickly parse one *line* without another regex search
 
-            # Initialize lists to collect data
-            nsteps = []
-            times = []
-            temps = []
-            pressures = []
-            etots = []
-            ektots = []
-            eptots = []
-            bonds = []
-            angles = []
-            diheds = []
-            volumes = []
-            densities = []
+        matches = sorted(self.engine.stream(data), key=lambda t: t[0])
 
-            # Parse each step block
-            for block in step_blocks:
-                # Parse NSTEP line
-                nstep_match = nstep_pattern.search(block)
-                if nstep_match:
-                    nsteps.append(int(nstep_match.group(1)))
-                    times.append(float(nstep_match.group(2)))
-                    temps.append(float(nstep_match.group(3)))
-                    pressures.append(float(nstep_match.group(4)))
-                else:
-                    continue  # Skip blocks without NSTEP
+        # Build a dict pos→bucket so we can peek ahead
+        pos_to_bucket = {start: bucket for start, _end, _, bucket in matches}
+        line_starts = sorted(pos_to_bucket)
 
-                # Parse energy components
-                energy_match = energy_pattern.search(block)
-                if energy_match:
-                    etots.append(float(energy_match.group(1)))
-                    ektots.append(float(energy_match.group(2)))
-                    eptots.append(float(energy_match.group(3)))
-                else:
-                    # Use NaN for missing values
-                    etots.append(np.nan)
-                    ektots.append(np.nan)
-                    eptots.append(np.nan)
+        for start in line_starts:
+            bucket = pos_to_bucket[start]
+            # slice bytes → line-text (cheap; region is not huge)
+            line_end = data.find(b"\n", start)  # -1 ⇒ last line
+            if line_end == -1:
+                line_end = len(data)
+            line = text[start:line_end]
 
-                # Parse bond, angle, dihedral
-                bond_match = bond_pattern.search(block)
-                if bond_match:
-                    bonds.append(float(bond_match.group(1)))
-                    angles.append(float(bond_match.group(2)))
-                    diheds.append(float(bond_match.group(3)))
-                else:
-                    bonds.append(np.nan)
-                    angles.append(np.nan)
-                    diheds.append(np.nan)
+            if bucket == "nstep":
+                toks = self._split_num(line)
+                # toks: ['NSTEP', '500', 'TIME(PS)', '1021.000', 'TEMP(K)', '302.32', 'PRESS', '0.0']
+                nsteps.append(int(toks[1]))
+                times_ps.append(float(toks[3]))
+                temps_k.append(float(toks[5]))
+                press.append(float(toks[7]))
 
-                # Parse volume and density
-                volume_match = volume_pattern.search(block)
-                if volume_match:
-                    volumes.append(float(volume_match.group(1)))
-                else:
-                    volumes.append(np.nan)
+            elif bucket == "etot":
+                toks = self._split_num(line)
+                etots.append(float(toks[1]))
+                ektots.append(float(toks[3]))
+                eptots.append(float(toks[5]))
 
-                density_match = density_pattern.search(block)
-                if density_match:
-                    densities.append(float(density_match.group(1)))
-                else:
-                    densities.append(np.nan)
+            elif bucket == "bond":
+                toks = self._split_num(line)
+                bonds.append(float(toks[1]))
+                angles.append(float(toks[3]))
+                diheds.append(float(toks[5]))
 
-            # Convert lists to numpy arrays
-            if nsteps:
-                result["nstep"] = np.array(nsteps, dtype=np.int32)
-                result["time_ps"] = np.array(times, dtype=np.float64)
-                result["temp_k"] = np.array(temps, dtype=np.float64)
-                result["pressure"] = np.array(pressures, dtype=np.float64)
-                result["etot"] = np.array(etots, dtype=np.float64)
-                result["ektot"] = np.array(ektots, dtype=np.float64)
-                result["eptot"] = np.array(eptots, dtype=np.float64)
-                result["bond"] = np.array(bonds, dtype=np.float64)
-                result["angle"] = np.array(angles, dtype=np.float64)
-                result["dihed"] = np.array(diheds, dtype=np.float64)
-                result["volume"] = np.array(volumes, dtype=np.float64)
-                result["density"] = np.array(densities, dtype=np.float64)
+            elif bucket == "volume":
+                volumes.append(float(self._split_num(line)[1]))
 
-                # Add metadata
-                result["n_steps"] = len(nsteps)
+            elif bucket == "density":
+                densities.append(float(self._split_num(line)[1]))
 
-            return result
+        # Convert everything to arrays and return.
+        if not nsteps:
+            return {}
 
-        except Exception as e:
-            raise RuntimeError(f"Failed to parse energy data: {str(e)}")
+        result = {
+            "nstep": np.array(nsteps),
+            "time_ps": np.array(times_ps),
+            "temp_k": np.array(temps_k),
+            "pressure": np.array(press),
+            "etot": np.array(etots),
+            "ektot": np.array(ektots),
+            "eptot": np.array(eptots),
+            "bond": np.array(bonds),
+            "angle": np.array(angles),
+            "dihed": np.array(diheds),
+            "volume": np.array(volumes),
+            "density": np.array(densities),
+            "n_steps": len(nsteps),
+        }
+        return result

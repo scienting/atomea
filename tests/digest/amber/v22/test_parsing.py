@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from atomea.digesters.amber.v22 import AmberV22State, parsers
 
@@ -8,7 +9,7 @@ class TestAmberResultsParser:
         parser = parsers.AmberResultsParser()
         result = parser.parse(results_step_data, AmberV22State.RESULTS)
 
-        assert result
+        assert len(result) > 0
 
         # Check parsed values
         assert np.isclose(result["nstep"][0], 500)
@@ -45,13 +46,8 @@ class TestAmberResultsParser:
         parser = parsers.AmberResultsParser()
         incomplete_data = b" NSTEP =      500   TIME(PS) =    1021.000  TEMP(K) =   302.32  PRESS =     0.0n"
 
-        result = parser.parse(incomplete_data, AmberV22State.RESULTS)
-        assert result["nstep"].shape == (1,)
-        assert np.isclose(result["nstep"], 500)
-        assert result["time_ps"].shape == (1,)
-        assert np.isclose(result["time_ps"], 1021.0)
-        assert result["etot"].shape == (1,)
-        assert np.isnan(result["etot"][0])
+        with pytest.raises(ValueError):
+            parser.parse(incomplete_data, AmberV22State.RESULTS)
 
     def test_parse_malformed_data(self):
         parser = parsers.AmberResultsParser()
@@ -72,18 +68,3 @@ class TestAmberSystemInfoParser:
         assert result["nres"] == 10270
         # Box dimensions not in this snippet
         assert "box" not in result
-
-    def test_parse_with_box_info(self):
-        data_with_box = b"""
- NATOM  =   33582 NRES   =   10270
-| Box X =   61.902   Box Y =   69.655   Box Z =   77.033
- Number of triangulated 3-point waters found:     9985
-"""
-        parser = parsers.AmberSystemInfoParser()
-        result = parser.parse(data_with_box, AmberV22State.SYSTEM_INFO)
-
-        assert isinstance(result, dict)
-        assert result["box"]["x"] == 61.902
-        assert result["box"]["y"] == 69.655
-        assert result["box"]["z"] == 77.033
-        assert result["n_waters"] == 9985

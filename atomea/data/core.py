@@ -1,4 +1,4 @@
-from typing import Generic, overload
+from typing import Any, Generic
 
 import numpy as np
 import polars as pl
@@ -84,27 +84,7 @@ class Data(Generic[T]):
             raise TypeError("Unknown store type of {}", self.meta.store)
         return interface
 
-    def __set_name__(self, owner: type, name: str) -> None:
-        self.name = name
-
-    @overload
-    def __get__(self, obj: None, objtype: type) -> "Data[T]": ...
-
-    @overload
-    def __get__(self, obj: object, objtype: type | None = None) -> T | None: ...
-
-    def __get__(
-        self, obj: object | None, objtype: type | None = None, *args, **kwargs
-    ) -> T | None | "Data[T]":
-        if obj is None:
-            return self
-        interface = self.interface(obj)
-        return interface.__get__(*args, **kwargs)
-
-    def __set__(self, obj: object, value: ValueOrSlice[T]) -> None:
-        if obj is None:
-            raise AttributeError("Cannot set attribute on class")
-
+    def _get_store(self, obj=None):
         parent_chain = self.parent_chain(obj)
         project = parent_chain[0]
 
@@ -120,6 +100,29 @@ class Data(Generic[T]):
             obj_id = ensemble.id
 
         store = project._stores[self.meta.store]  # type: ignore
+        return store, path, obj_id
+
+    def append(self, data: Any) -> None:
+        store, path, _ = self._get_store()
+        store.append(path, data)
+
+    def __set_name__(self, owner: type, name: str) -> None:
+        self.name = name
+
+    @property
+    def value(
+        self,
+        slices: tuple[slice, ...] | dict[int, slice | tuple[slice, ...]] | None = None,
+        **kwargs,
+    ) -> T | None:
+        store, path, _ = self._get_store(self)
+        return store.read(path, slices=slices, **kwargs)
+
+    def __set__(self, obj: object, value: ValueOrSlice[T]) -> None:
+        if obj is None:
+            raise AttributeError("Cannot set attribute on class")
+
+        store, path, obj_id = self._get_store(obj)
 
         if self.meta.store is StoreKind.ARRAY:
             if isinstance(value, tuple) and len(value) == 2:

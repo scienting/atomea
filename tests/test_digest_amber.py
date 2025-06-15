@@ -49,7 +49,7 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     ensemble = prj.ensembles["default"]
 
     # coordinates: shape (n_frames, n_atoms, 3)
-    coords = ensemble.microstates.coordinates
+    coords = ensemble.microstates.coordinates.value
     assert coords is not None
     assert coords.shape[0] == 100
     # spot‐check a few values
@@ -58,14 +58,14 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     assert np.allclose(coords[-1, 78, 0], 29.406982)
 
     # atom symbols
-    syms = ensemble.microstates.atom_symbol
+    syms = ensemble.microstates.atom_symbol.value
     assert syms is not None
     assert syms[0] == "N"
     assert syms[8324] == "H"
     assert syms[-1] == "H"
 
     # force-field atom types in topology
-    fftypes = ensemble.topology.ff_atom_type
+    fftypes = ensemble.topology.ff_atom_type.value
     assert fftypes is not None
     assert fftypes[0] == "N3"
 
