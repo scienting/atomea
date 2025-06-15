@@ -1,7 +1,7 @@
 from .pattern import Pattern, LiteralPattern, RegexPattern, CustomPattern
 from .transition import StateTransition, TransitionHint
 from .scanner import ScannerConfig, StateScanner
-from .parser import StateParser
+from .parser import StateParser, FileParser, ParsedFile, ParsedRegion
 from .chunk import FileChunk, ChunkReader
 from .task import ParseTask, ParseResult
 
@@ -15,6 +15,9 @@ __all__ = [
     "ScannerConfig",
     "StateScanner",
     "StateParser",
+    "FileParser",
+    "ParsedFile",
+    "ParsedRegion",
     "FileChunk",
     "ChunkReader",
     "ParseTask",

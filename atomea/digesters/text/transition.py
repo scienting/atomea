@@ -15,8 +15,11 @@ class StateTransition:
 
 @dataclass
 class TransitionHint:
-    """Potential state transition found during scanning"""
+    """Potential state transition found during scanning. We are not keeping track
+    of states here."""
 
     pattern_matched: bytes
     position: int
     confidence: float
+    from_state: Enum | None = None
+    to_state: Enum | None = None

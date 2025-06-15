@@ -4,6 +4,8 @@ import pytest
 
 from atomea import enable_logging
 
+from .fixtures.amber_v22 import *  # type: ignore
+
 TEST_DIR = os.path.dirname(__file__)
 TMP_DIR = os.path.join(TEST_DIR, "tmp")
 FILE_DIR = os.path.join(TEST_DIR, "files")
