@@ -31,7 +31,9 @@ class Digester(ABC):
 
     @classmethod
     @abstractmethod
-    def extract(cls, prj: Project, id_ens: str, ctx: dict[str, Any]) -> Project:
+    def extract(
+        cls, prj: Project, id_ens: str, id_run: str, ctx: dict[str, Any]
+    ) -> Project:
         """Extract and parse all possible information given the context.
         This method is responsible for calling all other methods.
 
@@ -50,8 +52,9 @@ class Digester(ABC):
         cls,
         prj: Project,
         id_ens: str,
-        digest_args: tuple[Any] = tuple(),
-        digest_kwargs: dict[str, Any] = dict(),
+        id_run: str,
+        digest_args: tuple[Any] | None = None,
+        digest_kwargs: dict[str, Any] | None = None,
     ) -> Project:
         """
         Run the digestion process from start to finish for a single ensemble.
@@ -68,11 +71,17 @@ class Digester(ABC):
             Project after digestion.
         """
         logger.info("Running digestion")
+        if digest_args is None:
+            digest_args = tuple()
+        if digest_kwargs is None:
+            digest_kwargs = dict()
         cls.checks()
         ctx = cls.prepare(*digest_args, **digest_kwargs)
 
         _ = prj.get_ensemble(id_ens) or prj.add_ensemble(id_ens)
 
-        project = cls.extract(prj, id_ens, ctx)
+        project = cls.extract(prj, id_ens, id_run, ctx)
+        for store_kind, store in project._stores.items():
+            store.dump()
 
         return project

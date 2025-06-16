@@ -1,5 +1,7 @@
 from typing import Any, Generic
 
+import numpy as np
+import polars as pl
 from loguru import logger
 
 from atomea.containers import AtomeaContainer
@@ -145,3 +147,41 @@ class Data(Generic[T]):
         else:
             data = value  # type: ignore
         store.write(path, data, view=view)
+
+    def next_microstate_id(self, ensemble_id: str, run_id: str) -> int:
+        """Determine the next `microstate_id` by adding one to the currently
+        largest one for this `ensemble_id` and `run_id`.
+
+        Args:
+            path: Path to table.
+            ensemble_id: ID of the ensemble to query.
+            run_id: ID of the run to query.
+
+        Returns:
+            The next `microstate_id`.
+        """
+        store, path, _ = self.get_store_info()
+        # Need to determine this by using the key
+        df = store.query(path, ensemble_id=ensemble_id, run_id=run_id)
+        if df.shape == (0, 0):
+            return 0
+
+        # Get the largest microstate_id
+        microstate_ids = df.get_column("microstate_id")
+        microstate_id_max = microstate_ids.top_k(1).to_numpy()[0]
+        return int(microstate_id_max + 1)
+
+    def prep_dataframe(self, ensemble_id, run_id, microstate_id_next, data):
+        n_microstates = data.shape[0]
+        microstate_ids = np.arange(
+            microstate_id_next, microstate_id_next + n_microstates
+        )
+        df = pl.DataFrame(
+            {
+                "ensemble_id": np.full(microstate_ids.shape, ensemble_id),
+                "run_id": np.full(microstate_ids.shape, run_id),
+                "microstate_id": microstate_ids,
+                self.name: data,
+            }
+        )
+        return df

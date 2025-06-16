@@ -36,7 +36,7 @@ class MDAnalysisDigester(Digester):
         return {"u": u}
 
     @classmethod
-    def extract(cls, prj: Project, id_ens: str, ctx: dict[str, Any]) -> Project:
+    def extract(cls, prj: Project, id_ens: str, id_run, ctx: dict[str, Any]) -> Project:
         """Extract and parse all possible information given the context.
         This method is responsible for calling all other methods.
         """

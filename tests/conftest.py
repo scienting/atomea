@@ -24,6 +24,16 @@ def test_dir():
     return os.path.abspath(TEST_DIR)
 
 
+@pytest.fixture
+def tmp_dir():
+    return os.path.abspath(TMP_DIR)
+
+
+@pytest.fixture
+def file_dir():
+    return os.path.abspath(file_dir)
+
+
 @pytest.fixture(scope="session", autouse=True)
 def turn_on_logging():
     enable_logging(10)
@@ -37,5 +47,6 @@ def amber_rogfp2_sim_paths():
     paths = {
         "mol.prmtop": os.path.join(destination_dir, "mol.prmtop"),
         "07_relax_npt.nc": os.path.join(destination_dir, "07_relax_npt.nc"),
+        "07_relax_npt.out": os.path.join(destination_dir, "07_relax_npt.out"),
     }
     return paths

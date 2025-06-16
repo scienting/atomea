@@ -41,6 +41,7 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     prj: Project = MDAnalysisDigester.run(
         prj,
         "default",
+        "0",
         digest_args,  # type: ignore
         digest_kwargs,
     )
@@ -98,6 +99,7 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     MDAnalysisDigester.run(
         prj,
         "default",
+        "0",
         digest_args,  # type: ignore
         digest_kwargs,
     )

@@ -97,7 +97,7 @@ class PolarsTableStore(TableStore):
         if ensemble_id is not None:
             df = df.filter(pl.col("ensemble_id") == ensemble_id)
         if run_id is not None:
-            df = df.filter(pl.column("run_id") == run_id)
+            df = df.filter(pl.col("run_id") == run_id)
         if microstate_id is not None:
             df = df.filter(pl.col("microstate_id") == microstate_id)
         if filter_expr:
