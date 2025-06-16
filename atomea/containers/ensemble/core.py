@@ -25,11 +25,9 @@ class Ensemble(AtomeaContainer):
         self._parent = parent
 
         # Initialize components with parent reference
-        self.microstates = Microstates()
-        self.microstates._parent = self
+        self.microstates = Microstates(self)
 
-        self.topology = Topology()
-        self.topology._parent = self
+        self.topology = Topology(self)
 
     def __repr__(self) -> str:
         return f"<Ensemble id={self.id!r}>"

@@ -7,9 +7,6 @@ from atomea.stores import StoreKind
 class Energy(AtomeaContainer):
     """Information that characterizes various energies of a microstates."""
 
-    def __init__(self):
-        self._parent = None
-
     electronic = Data[adt.DataFrame](
         cadence=Cadence.MICROSTATE,
         store_kind=StoreKind.TABLE,
@@ -39,3 +36,9 @@ class Energy(AtomeaContainer):
     """The total kinetic energy of the atomistic system associated with the translational,
     rotational, and vibrational motion of its particles.
     """
+
+    def __init__(self, parent: object) -> None:
+        self._parent = parent
+        self.electronic.bind_to_container(self)
+        self.potential_mm.bind_to_container(self)
+        self.kinetic.bind_to_container(self)

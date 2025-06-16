@@ -18,18 +18,24 @@ class ArrayStore(Store, ABC):
     def __init__(
         self,
         path: str,
-        *args: Any,
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
+        """
+        Args:
+            path: Path to directory where arrays will be stored. For example, this
+                should be to a Zarr store ending in `.zarr` or a directory of
+                `<prj_name>.arrays` for NumPy.
+            disk_format: File format when writing arrays to disk.
+        """
         assert disk_format in ArrayDiskFormats
-        super().__init__(path, *args, disk_format=disk_format, **kwargs)
+        super().__init__(path, disk_format=disk_format, **kwargs)
 
     @abstractmethod
     def create(
         self,
         path: str,
-        *args: Any,
+        shape: tuple[int, ...],
         overwrite: bool = False,
         **kwargs: Any,
     ) -> Any: ...
@@ -38,10 +44,9 @@ class ArrayStore(Store, ABC):
     def write(
         self,
         path: str,
-        data: npt.NDArray[np.generic],
-        *args,
-        slice: OptionalSliceSpec = None,
-        **kwargs,
+        data: Any,
+        view: OptionalSliceSpec = None,
+        **kwargs: Any,
     ) -> None:
         """
         Write a new array at the given path. Overwrites if it exists.
@@ -53,7 +58,7 @@ class ArrayStore(Store, ABC):
         ...
 
     @abstractmethod
-    def append(self, path: str, data: npt.NDArray[np.generic], *args, **kwargs) -> None:
+    def append(self, path: str, data: npt.NDArray[np.generic], **kwargs: Any) -> None:
         """
         Append data to an existing array at the given path, creating it if needed.
         This is useful for adding new microstates one by one.
@@ -68,16 +73,15 @@ class ArrayStore(Store, ABC):
     def read(
         self,
         path: str,
-        *args,
-        slice: OptionalSliceSpec = None,
-        **kwargs,
+        view: OptionalSliceSpec = None,
+        **kwargs: Any,
     ) -> npt.NDArray[np.generic] | None:
         """
         Retrieve the full array stored at the given path.
 
         Args:
             path: logical path or key within the ensemble.
-            slices: either a tuple of slice objects corresponding to each dimension,
+            view: either a tuple of slice objects corresponding to each dimension,
                     or a dict of {axis_index: slice} for partial reads.
                     If None, returns the full array.
         Returns:

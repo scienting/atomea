@@ -5,7 +5,7 @@ import os
 import polars as pl
 
 from atomea.data import OptionalSliceSpec
-from atomea.stores import ArrayDiskFormats, DiskFormat
+from atomea.stores import DiskFormat
 from atomea.stores.tables import TableStore
 
 
@@ -17,10 +17,9 @@ class PolarsTableStore(TableStore):
     def __init__(
         self,
         store: str,
-        *args,
         disk_format: DiskFormat = DiskFormat.PARQUET,
         mode: str = "r",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         super().__init__(store, disk_format=disk_format)
 
@@ -40,7 +39,7 @@ class PolarsTableStore(TableStore):
         path: str,
         data: pl.DataFrame,
         *args: Any,
-        slice: OptionalSliceSpec = None,
+        view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -61,7 +60,7 @@ class PolarsTableStore(TableStore):
         self._store[path] = pl.concat([self._store[path], data], how="vertical")
 
     def read(
-        self, path: str, *args: Any, slice: OptionalSliceSpec = None, **kwargs: Any
+        self, path: str, *args: Any, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> pl.DataFrame:
         """
         Read the entire table with the given name.
@@ -75,9 +74,9 @@ class PolarsTableStore(TableStore):
 
     def query(
         self,
-        name: str,
+        path: str,
         ensemble_id: str | None = None,
-        run_id: int | None = None,
+        run_id: str | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
         **kwargs: Any,
@@ -88,7 +87,7 @@ class PolarsTableStore(TableStore):
         - If `ensemble_id` or `microstate_id` is provided, filters on those.
         - `filter_expr` is a Polars expression string for further filtering.
         """
-        df = self.read(name)
+        df = self.read(path)
         if ensemble_id is not None:
             df = df.filter(pl.col("ensemble_id") == ensemble_id)
         if run_id is not None:
@@ -103,17 +102,12 @@ class PolarsTableStore(TableStore):
         """List all table names."""
         return list(self._store.keys())
 
-    def dump(self, prefix: str, **kwargs: Any) -> None:
+    def dump(self, **kwargs: Any) -> None:
         """
         Dump all stored tables to files in the specified directory/prefix.
-
-        Args:
-            prefix: directory or file prefix where files will be written.
-                We recommend using `"<project>.tables`.
         """
-        os.makedirs(prefix, exist_ok=True)
         for name, df in self._store.items():
-            path = os.path.join(prefix, f"{name}")
+            path = os.path.join(self.path, f"{name}")
             if self.disk_format == DiskFormat.CSV:
                 path += ".csv"
                 df.write_csv(path, **kwargs)

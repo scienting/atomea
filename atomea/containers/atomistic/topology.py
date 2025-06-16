@@ -7,9 +7,6 @@ from atomea.stores import StoreKind
 class Topology(AtomeaContainer):
     """Information that specifies the physical atomistic microstates."""
 
-    def __init__(self):
-        self._parent = None
-
     ids_entity = Data[adt.UInt32](
         cadence=Cadence.MICROSTATE,
         store_kind=StoreKind.ARRAY,
@@ -52,3 +49,9 @@ class Topology(AtomeaContainer):
     The specific values for these parameters are determined based on experimental
     data and quantum mechanical calculations.
     """
+
+    def __init__(self, parent: object) -> None:
+        self._parent = parent
+        self.ids_entity.bind_to_container(self)
+        self.ids_component.bind_to_container(self)
+        self.ff_atom_type.bind_to_container(self)

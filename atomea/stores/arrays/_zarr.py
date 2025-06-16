@@ -19,8 +19,7 @@ class ZarrArrayStore(ArrayStore):
 
     def __init__(
         self,
-        path: str | zarr.abc.store.Store,  # type: ignore
-        *args: Any,
+        path: str,
         disk_format: DiskFormat = DiskFormat.ZARR,
         mode: str = "r",
         **kwargs: Any,
@@ -48,19 +47,19 @@ class ZarrArrayStore(ArrayStore):
                 - `w-` means create (fail if exists).
         """
         assert disk_format == DiskFormat.ZARR
-        self._store: Group = zarr.open_group(store=path, mode=mode, *args, **kwargs)
-        super().__init__(path, *args, disk_format=disk_format, **kwargs)
+        self._store: Group = zarr.open_group(store=path, mode=mode, **kwargs)
+        super().__init__(path, disk_format=disk_format, **kwargs)
 
     def create(
         self,
         path: str,
         shape: tuple[int, ...],
-        *args,
+        *args: Any,
         overwrite: bool = False,
         dtype: npt.DTypeLike | None = None,
         chunks: tuple[int, ...] | Literal["auto"] = "auto",
-        **kwargs,
-    ) -> None:
+        **kwargs: Any,
+    ) -> Any:
         """
         Pre-allocate an array with the given shape and dtype.
 
@@ -81,14 +80,15 @@ class ZarrArrayStore(ArrayStore):
             overwrite=overwrite,
             **kwargs,
         )
+        return z
 
     def write(
         self,
         path: str,
         data: npt.NDArray[np.generic],
-        *args,
-        slices: OptionalSliceSpec = None,
-        **kwargs,
+        view: OptionalSliceSpec = None,
+        dtype: npt.DTypeLike | None = None,
+        **kwargs: Any,
     ) -> None:
         """
         Write data to an array, whole or sliced. Will create the array if it does not
@@ -97,18 +97,22 @@ class ZarrArrayStore(ArrayStore):
         Args:
             path: hierarchical key of the array.
             array: data to write.
-            slices: if None, overwrite entire array (requires create or existing),
+            view: if None, overwrite entire array (requires create or existing),
                     else write into the specified slice region.
             overwrite: if True and slices is None, replaces existing array definition.
         """
         z = self._store.get(path=path)
+        if not dtype:
+            dtype = data.dtype
         if z is None:
-            z = self.create(path, data.shape, data.dtype, **kwargs)
+            z = self.create(path, data.shape, dtype=dtype, **kwargs)
             z[:] = data
         else:
-            z.set_basic_selection(slices, data, **kwargs)  # type: ignore
+            z.set_basic_selection(view, data, **kwargs)  # type: ignore
 
-    def append(self, path: str, data: npt.NDArray[np.generic], *args, **kwargs) -> None:
+    def append(
+        self, path: str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Append data along the first axis to an existing Zarr array;
         creates the array with an unlimited first dimension if it does not exist.
@@ -119,23 +123,22 @@ class ZarrArrayStore(ArrayStore):
     def read(
         self,
         path: str,
-        *args,
-        slices: OptionalSliceSpec = None,
-        **kwargs,
+        view: OptionalSliceSpec = None,
+        **kwargs: Any,
     ) -> npt.NDArray[np.generic] | None:
         """
         Read the array from Zarr, optionally returning a subset efficiently.
         Returns None if the path does not exist.
         """
         z = self._store.get(path)
-        if slices is None:
+        if view is None:
             return z[:]  # type: ignore
-        if isinstance(slices, dict):
-            idx = [slice(None)] * z.ndim  # type: ignore
-            for axis, sl in slices.items():
-                idx[axis] = sl  # type: ignore
+        if isinstance(view, dict):
+            idx = [view(None)] * z.ndim  # type: ignore
+            for axis, sl in view.items():
+                idx[axis] = sl
             return z[tuple(idx)]  # type: ignore
-        return z[slices]  # type: ignore
+        return z[view]  # type: ignore
 
     def available(self) -> list[str]:
         """

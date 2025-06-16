@@ -27,10 +27,17 @@ class Data(Generic[T]):
         self.uuid = uuid
         self.description = description
         self.name: str | None = None
-        self._parent_chain: tuple[AtomeaContainer] = tuple()
+        self._container: AtomeaContainer | None = None
+        self._parent_chain: tuple[AtomeaContainer, ...] = tuple()
 
     def __set_name__(self, owner: type, name: str) -> None:
         self.name = name
+
+    def bind_to_container(self, container: AtomeaContainer) -> object:
+        """Explicitly bind this Data object to a container."""
+        self._container = container
+        self._set_parent_chain()
+        return self
 
     def __repr__(self):
         return f"Data<{self.name}>"
@@ -41,7 +48,10 @@ class Data(Generic[T]):
         """
         logger.debug("Building parent chain of {}", self)
         chain = []
-        current = self
+        if self._container is None:
+            raise RuntimeError("Data object not bound to container")
+
+        current = self._container
 
         while current is not None:
             chain.append(current)
@@ -51,7 +61,7 @@ class Data(Generic[T]):
             # Move up the hierarchy
             if hasattr(current, "_parent"):
                 logger.debug("Found parent container of {}", current)
-                current = current._parent  # type: ignore
+                current = current._parent
             else:
                 raise RuntimeError(f"Cannot find project root from {self}")
         _parent_chain = tuple(reversed(chain))
@@ -59,7 +69,7 @@ class Data(Generic[T]):
         self._parent_chain = _parent_chain
 
     @property
-    def parent_chain(self):
+    def parent_chain(self) -> tuple[AtomeaContainer, ...]:
         """
         Chain of object references to get from the Project and any other
         `AtomeaContainers` to this `Data` object.
@@ -82,7 +92,7 @@ class Data(Generic[T]):
             self._set_parent_chain()
         return self._parent_chain
 
-    def _get_store_info(self):
+    def _get_store_info(self) -> tuple[Any, Any, Any]:
         parent_chain = self.parent_chain
         project = parent_chain[0]
 
@@ -94,33 +104,33 @@ class Data(Generic[T]):
         else:
             # This is an ensemble or component-level field
             ensemble = parent_chain[1]
-            path = f"{ensemble.id}/{self.name}"
-            obj_id = ensemble.id
+            path = f"{ensemble.id}/{self.name}"  # type: ignore
+            obj_id = ensemble.id  # type: ignore
 
-        store = project._stores[self.meta.store]  # type: ignore
+        store = project._stores[self.store_kind]  # type: ignore
         return store, path, obj_id
 
-    def write(self, data: T, slice: OptionalSliceSpec = None, **kwargs: Any) -> None:
+    def write(self, data: T, view: OptionalSliceSpec = None, **kwargs: Any) -> None:
         store, path, _ = self._get_store_info()
-        store.write(path, data, slice=slice, **kwargs)
+        store.write(path, data, view=view, **kwargs)
 
-    def append(self, data: T, **kwargs) -> None:
+    def append(self, data: T, **kwargs: Any) -> None:
         store, path, _ = self._get_store_info()
         store.append(path, data, **kwargs)
 
-    def read(self, slice: OptionalSliceSpec = None, **kwargs: Any) -> T | None:
+    def read(self, view: OptionalSliceSpec = None, **kwargs: Any) -> T | None:
         store, path, _ = self._get_store_info()
-        data = store.read(path, slice=slice, **kwargs)
-        return data
+        data = store.read(path, view=view, **kwargs)
+        return data  # type: ignore
 
     @property
     def value(
         self,
-        slices: OptionalSliceSpec = None,
-        **kwargs,
+        view: OptionalSliceSpec = None,
+        **kwargs: Any,
     ) -> T | None:
         store, path, _ = self._get_store_info()
-        return store.read(path, slices=slices, **kwargs)
+        return store.read(path, view=view, **kwargs)  # type: ignore
 
     def __set__(self, obj: object, value: ValueOrSlice[T]) -> None:
         if obj is None:
@@ -128,10 +138,10 @@ class Data(Generic[T]):
 
         store, path, _ = self._get_store_info()
 
-        slice: OptionalSliceSpec = None
+        view: OptionalSliceSpec = None
         if isinstance(value, tuple) and len(value) == 2:
             data: T = value[0]
-            slice = value[1]
+            view = value[1]
         else:
-            data = value
-        store.write(path, data, slice=slice)
+            data = value  # type: ignore
+        store.write(path, data, view=view)

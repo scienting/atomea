@@ -9,9 +9,6 @@ class Time(AtomeaContainer):
     A generic interval-based time schema for simulation outputs.
     """
 
-    def __init__(self):
-        self._parent = None
-
     time_step = Data[adt.UInt8](
         cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.TABLE,
@@ -47,3 +44,10 @@ class Time(AtomeaContainer):
     )
     """Number of integration steps between writing velocities.
     """
+
+    def __init__(self, parent: object) -> None:
+        self._parent = parent
+        self.time_step.bind_to_container(self)
+        self.interval_coord.bind_to_container(self)
+        self.interval_energy.bind_to_container(self)
+        self.interval_velocity.bind_to_container(self)

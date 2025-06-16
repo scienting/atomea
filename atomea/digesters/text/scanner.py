@@ -11,10 +11,12 @@ class StateScanner(Generic[S]):
         self,
         patterns: dict[S, list[bytes]],
         first_state: S,
-        engine: ScanEngine[S] = StdRegexEngine(),
+        engine: ScanEngine[S] | None = None,
     ):
         self.first_state = first_state
         """Initial state of the file."""
+        if engine is None:
+            engine = StdRegexEngine()
         self.engine = engine
         self.engine.compile(patterns)
 

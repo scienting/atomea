@@ -29,10 +29,10 @@ class MDAnalysisDigester(Digester):
 
     @classmethod
     def prepare(
-        cls, topology: str, trajectory: str, *args: Any, **kwargs: dict[str, Any]
+        cls, topology: str, trajectory: str, *args: Any, **kwargs: Any
     ) -> dict[str, Any]:
         """Load a single Universe."""
-        u = mda.Universe(topology, trajectory, *args, **kwargs)  # type: ignore
+        u = mda.Universe(topology, trajectory, *args, **kwargs)
         return {"u": u}
 
     @classmethod
@@ -56,8 +56,8 @@ class MDAnalysisDigester(Digester):
     ) -> Project:
         """Store per‐ensemble atom symbols & ff types once."""
         u = ctx["u"]
-        syms = np.array(u.atoms.elements, dtype=np.str_)
-        types = np.array(u.atoms.types, dtype=np.str_)
+        syms = np.array(u.atoms.elements, dtype=np.dtype(np.str_))
+        types = np.array(u.atoms.types, dtype=np.dtype(np.str_))
         prj.ensembles[ens_id].microstates.atom_symbol = syms
         prj.ensembles[ens_id].topology.ff_atom_type = types
         return prj

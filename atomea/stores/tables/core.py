@@ -1,6 +1,5 @@
 from typing import Any
 
-import os
 from abc import ABC, abstractmethod
 
 import polars as pl
@@ -17,33 +16,33 @@ class TableStore(Store, ABC):
     def __init__(
         self,
         path: str,
-        *args: Any,
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
         """
         Args:
-            store: Directory to store all tables. We recommend "<project>.tables".
+            path: Directory to store all tables. We recommend "<project>.tables".
             disk_format: Format to store data on disk.
         """
         self._store: dict[str, pl.DataFrame] = {}
         assert disk_format not in ArrayDiskFormats
-        super().__init__(path, *args, disk_format=disk_format, **kwargs)
+        super().__init__(path, disk_format=disk_format, **kwargs)
 
     @abstractmethod
     def query(
         self,
-        name: str,
+        path: str,
         ensemble_id: str | None = None,
+        run_id: str | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
-        *kwargs: Any,
-    ) -> pl.DataFrame:
+        **kwargs: Any,
+    ) -> Any:
         """
         Query a named table using a filter expression.
 
         Args:
-            name: logical table name.
+            path: logical table name.
             filter_expr: string expression to filter rows, e.g., "ensemble_id=='e1'".
 
         Returns:

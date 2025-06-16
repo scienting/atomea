@@ -6,10 +6,7 @@ from atomea.containers import Project
 from atomea.digesters import Digester
 from atomea.digesters.text import (
     FileParser,
-    ParsedFile,
     ParsedRegion,
-    StateParser,
-    StateScanner,
 )
 
 
@@ -19,9 +16,7 @@ class AmberOutputDigester(Digester):
         pass
 
     @classmethod
-    def prepare(
-        cls, parser: FileParser, *args: Any, **kwargs: dict[str, Any]
-    ) -> dict[str, Any]:
+    def prepare(cls, parser: FileParser, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {"parser": parser}
 
     @classmethod

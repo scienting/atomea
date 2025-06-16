@@ -55,7 +55,7 @@ Example:
 
         # Slice first 10 elements along axis 0, all elements along axis 1
         slice_spec = (slice(0, 10), slice(None))
-        data = interface(slices=slice_spec)
+        data = interface(slices=view_spec)
 
         # Equivalent to: array[0:10, :]
 
@@ -66,7 +66,7 @@ Example:
             0: (slice(0, 10),),  # First 10 elements on axis 0
             2: (slice(None, None, 2),)  # Every 2nd element on axis 2
         }
-        data = interface(slices=slice_spec)
+        data = interface(slices=view_spec)
 
         # For 3D array, equivalent to: array[0:10, :, ::2]
 
@@ -84,7 +84,7 @@ Note:
     SliceSpec formats.
 
 See Also:
-    numpy.slice: NumPy slice object documentation
+    numpy.view: NumPy slice object documentation
     atomea.store.interfaces.ArrayInterface: Array interface implementation
 """
 
@@ -138,7 +138,7 @@ Example:
             if isinstance(value, tuple) and len(value) == 2:
                 data, slices = value
                 # Partial update
-                store.write(path, data, slices=slices)
+                store.write(path, data, slices=views)
             else:
                 # Complete replacement
                 store.write(path, value, slices=None)

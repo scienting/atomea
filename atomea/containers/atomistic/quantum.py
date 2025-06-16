@@ -10,9 +10,6 @@ class Quantum(AtomeaContainer):
     It includes specialized parameters and results specific to quantum mechanics that
     are essential for advanced computational chemistry and physics analysis."""
 
-    def __init__(self):
-        self._parent = None
-
     electron_frozen_num = Data[adt.DataFrame](
         cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.TABLE,
@@ -28,3 +25,7 @@ class Quantum(AtomeaContainer):
     considered, thereby focusing on those more likely to be involved in chemical
     reactions or significant bonding interactions.
     """
+
+    def __init__(self, parent: object) -> None:
+        self._parent = parent
+        self.electron_frozen_num.bind_to_container(self)

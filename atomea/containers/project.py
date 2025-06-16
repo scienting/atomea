@@ -3,8 +3,6 @@ from loguru import logger
 from atomea.containers import AtomeaContainer, Ensemble
 from atomea.containers.atomistic import Energy, Quantum, Time
 from atomea.stores import ArrayStore, StoreKind, TableStore
-from atomea.stores.arrays import NumpyArrayStore
-from atomea.stores.tables import PolarsTableStore
 
 
 class Project(AtomeaContainer):
@@ -14,32 +12,25 @@ class Project(AtomeaContainer):
 
     def __init__(
         self,
-        array_store: ArrayStore | None = None,
-        table_store: TableStore | None = None,
+        array_store: ArrayStore,
+        table_store: TableStore,
     ) -> None:
         """
         Args:
-            array_store: Storage backend for all arrays. Defaults to NumpyArrayStore.
-            table_store: Storage backend for all tables. Defaults to PolarsTableStore.
+            array_store: Storage backend for all arrays.
+            table_store: Storage backend for all tables.
         """
-        if array_store is None:
-            array_store = NumpyArrayStore()
-        if table_store is None:
-            table_store = PolarsTableStore()
         self._stores: dict[StoreKind, object] = {
             StoreKind.ARRAY: array_store,
             StoreKind.TABLE: table_store,
         }
         self.ensembles: dict[str, Ensemble] = {}
 
-        self.quantum = Quantum()
-        self.quantum._parent = self  # type: ignore
+        self.quantum = Quantum(self)
 
-        self.energy = Energy()
-        self.energy._parent = self  # type: ignore
+        self.energy = Energy(self)
 
-        self.time = Time()
-        self.time._parent = self  # type: ignore
+        self.time = Time(self)
 
     def add_ensemble(self, ensemble_id: str) -> Ensemble:
         """
@@ -55,7 +46,7 @@ class Project(AtomeaContainer):
         if ensemble_id in self.ensembles:
             raise ValueError(f"Ensemble '{ensemble_id}' already exists")
 
-        ens = Ensemble(ensemble_id=ensemble_id, parent=self)  # type: ignore
+        ens = Ensemble(ensemble_id=ensemble_id, parent=self)
 
         logger.info("Registering ensemble: {}", ensemble_id)
         self.ensembles[ensemble_id] = ens

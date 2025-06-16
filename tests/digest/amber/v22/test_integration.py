@@ -12,7 +12,7 @@ from atomea.digesters.text import ParsedFile, StateScanner
 class TestAmberV22Parser:
     def test_scan_complete_file(self, tmp_path, complete_amber_file):
         # Write test file
-        test_file = tmp_path / "test_amber.out"
+        test_file = tmp_path / "test_amber_scan.out"
         test_file.write_bytes(complete_amber_file)
 
         parser = AmberV22Parser()
@@ -36,7 +36,7 @@ class TestAmberV22Parser:
             assert transitions[i].end_pos == transitions[i + 1].start_pos
 
     def test_parse_complete_file(self, tmp_path, complete_amber_file):
-        test_file = tmp_path / "test_amber.out"
+        test_file = tmp_path / "test_amber_parse.out"
         test_file.write_bytes(complete_amber_file)
 
         parser = AmberV22Parser()

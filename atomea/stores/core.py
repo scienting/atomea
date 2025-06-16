@@ -18,20 +18,24 @@ class Store(ABC):
     def __init__(
         self,
         path: str,
-        *args: Any,
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
+        """
+        Args:
+            path: Path to directory where data will be stored.
+            disk_format: File format when writing data to disk.
+        """
         os.makedirs(os.path.dirname(path), exist_ok=True)
+        self.path = path
         self.disk_format = disk_format
 
     @abstractmethod
     def write(
         self,
         path: str,
-        data: adt.PassableData,
-        *args: Any,
-        slice: OptionalSliceSpec = None,
+        data: Any,
+        view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -47,8 +51,7 @@ class Store(ABC):
     def append(
         self,
         path: str,
-        data: adt.PassableData,
-        *args: Any,
+        data: Any,
         **kwargs: Any,
     ) -> None:
         """
@@ -62,7 +65,7 @@ class Store(ABC):
 
     @abstractmethod
     def read(
-        self, path: str, *args, slice: OptionalSliceSpec = None, **kwargs: Any
+        self, path: str, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> adt.OptionalPassableData:
         """
         Read the entire data structure with the given name.
@@ -85,6 +88,6 @@ class Store(ABC):
         """
         ...
 
-    def dump(self, *args, prefix: str = "", **kwargs: Any) -> None:
+    def dump(self, **kwargs: Any) -> None:
         """Save all data to disk. Overwrite this method to implement when needed."""
         pass

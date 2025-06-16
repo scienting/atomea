@@ -14,7 +14,7 @@ class Digester(ABC):
 
     @classmethod
     @abstractmethod
-    def prepare(cls, *args: Any, **kwargs: dict[str, Any]) -> dict[str, Any]:
+    def prepare(cls, *args: Any, **kwargs: Any) -> dict[str, Any]:
         """
         Load files, open handles, build FSM state, etc.
         Return a dict representing the full parsing context.

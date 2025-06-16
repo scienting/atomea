@@ -7,9 +7,6 @@ from atomea.stores import StoreKind
 class Microstates(AtomeaContainer):
     """Information that specifies the physical atomistic microstates."""
 
-    def __init__(self):
-        self._parent = None
-
     atom_z = Data[adt.UInt8](
         cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.ARRAY,
@@ -63,3 +60,11 @@ class Microstates(AtomeaContainer):
     Here, $S$ can take non-negative half-integer values, such as 0, 1/2, 1, 3/2, and so on.
     The multiplicity is always an integer.
     """
+
+    def __init__(self, parent: object) -> None:
+        self._parent = parent
+        self.atom_z.bind_to_container(self)
+        self.atom_symbol.bind_to_container(self)
+        self.coordinates.bind_to_container(self)
+        self.charge_net.bind_to_container(self)
+        self.multiplicity.bind_to_container(self)

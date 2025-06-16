@@ -5,6 +5,7 @@ import os
 import numpy as np
 import numpy.typing as npt
 
+from atomea.data import OptionalSliceSpec
 from atomea.stores import DiskFormat
 from atomea.stores.arrays import ArrayStore
 
@@ -19,23 +20,27 @@ class NumpyArrayStore(ArrayStore):
     def __init__(
         self,
         path: str,
-        *args: Any,
         disk_format: DiskFormat = DiskFormat.NPZ,
         **kwargs: Any,
     ) -> None:
+        """
+        Args:
+            path: Path to directory where arrays will be stored. For example, this
+                a directory called something like `<prj_name>.arrays`.
+            disk_format: File format when writing arrays to disk.
+        """
         self._store: dict[str, npt.NDArray[np.generic]] = {}
-        super().__init__(path, *args, disk_format=disk_format, **kwargs)
+        super().__init__(path, disk_format=disk_format, **kwargs)
 
     def create(
         self,
         path: str,
         shape: tuple[int, ...],
-        *args,
         overwrite: bool = False,
         dtype: npt.DTypeLike = np.dtype(np.float64),
         fill: np.generic | None = None,
-        **kwargs,
-    ) -> None:
+        **kwargs: Any,
+    ) -> Any:
         if path in self._store and not overwrite:
             raise RuntimeError(f"{path} already exists and overwrite is False!")
         if fill:
@@ -43,18 +48,26 @@ class NumpyArrayStore(ArrayStore):
         else:
             self._store[path] = np.empty(shape, dtype=dtype)
 
-    def write(self, path: str, array: npt.NDArray[np.generic]) -> None:
+    def write(
+        self,
+        path: str,
+        data: npt.NDArray[np.generic],
+        view: OptionalSliceSpec = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Write or overwrite the array at the given path.
         """
-        self._store[path] = np.array(array, copy=True)
+        self._store[path] = np.array(data, copy=True)
 
-    def append(self, path: str, array: npt.NDArray[np.generic]) -> None:
+    def append(
+        self, path: str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Append data along the first axis to an existing array at path;
         if no array exists, creates one.
         """
-        arr = np.array(array, copy=False)
+        arr = np.array(data, copy=False)
         if path in self._store:
             existing = self._store[path]
             try:
@@ -68,16 +81,14 @@ class NumpyArrayStore(ArrayStore):
             self.write(path, arr)
 
     def read(
-        self,
-        path: str,
-        slices: tuple[slice, ...] | dict[int, slice | tuple[slice, ...]] | None = None,
+        self, path: str, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> npt.NDArray[np.generic] | None:
         """
         Read the array at path, optionally returning a subset.
 
         Args:
             path: the key of the stored array.
-            slices: either a tuple of slice objects for each axis,
+            view: either a tuple of slice objects for each axis,
                 or a dict mapping axis index to a tuple of slice objects.
                 If None, returns the full array.
 
@@ -87,15 +98,15 @@ class NumpyArrayStore(ArrayStore):
         data = self._store.get(path)
         if data is None:
             return None
-        if slices is None:
+        if view is None:
             return data
-        if isinstance(slices, dict):  # axis-wise slicing
+        if isinstance(view, dict):  # axis-wise slicing
             full = [slice(None)] * data.ndim
-            for ax, sl in slices.items():
+            for ax, sl in view.items():
                 full[ax] = sl
             return data[tuple(full)]
-        # tuple of slices
-        return data[slices]
+        # tuple of view
+        return data[view]
 
     def available(self) -> list[str]:
         """
@@ -121,10 +132,10 @@ class NumpyArrayStore(ArrayStore):
         savez_dict = {key.replace("/", "_"): arr for key, arr in self._store.items()}
         np.savez(fn, *savez_dict)
 
-    def dump(self, prefix: str = "") -> None:
+    def dump(self, **kwargs: Any) -> None:
         if self.disk_format == DiskFormat.NPY:
-            self._dump_npy(prefix)
+            self._dump_npy(self.path)
         elif self.disk_format == DiskFormat.NPZ:
-            self._dump_npz(prefix)
+            self._dump_npz(self.path)
         else:
             raise ValueError("DiskFormat of {} not supported", self.disk_format)
