@@ -3,6 +3,7 @@ from typing import Any
 import os
 
 import polars as pl
+from loguru import logger
 
 from atomea.data import OptionalSliceSpec
 from atomea.stores import DiskFormat
@@ -16,18 +17,18 @@ class PolarsTableStore(TableStore):
 
     def __init__(
         self,
-        store: str,
+        path: str,
         disk_format: DiskFormat = DiskFormat.PARQUET,
         mode: str = "r",
         **kwargs: Any,
     ) -> None:
-        super().__init__(store, disk_format=disk_format)
+        super().__init__(path, disk_format=disk_format)
 
     @classmethod
     def check_columns(cls, columns):
         if (
             "ensemble_id" not in columns
-            or "run_id" in columns
+            or "run_id" not in columns
             or "microstate_id" not in columns
         ):
             raise ValueError(
@@ -38,7 +39,6 @@ class PolarsTableStore(TableStore):
         self,
         path: str,
         data: pl.DataFrame,
-        *args: Any,
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> None:
@@ -50,7 +50,7 @@ class PolarsTableStore(TableStore):
         self.check_columns(data.columns)
         self._store[path] = data
 
-    def append(self, path: str, data: pl.DataFrame, *args: Any, **kwargs: Any) -> None:
+    def append(self, path: str, data: pl.DataFrame, **kwargs: Any) -> None:
         """
         Append a Polars DataFrame to the named table.
 
@@ -60,7 +60,7 @@ class PolarsTableStore(TableStore):
         self._store[path] = pl.concat([self._store[path], data], how="vertical")
 
     def read(
-        self, path: str, *args: Any, view: OptionalSliceSpec = None, **kwargs: Any
+        self, path: str, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> pl.DataFrame:
         """
         Read the entire table with the given name.
@@ -70,7 +70,8 @@ class PolarsTableStore(TableStore):
         try:
             return self._store[path]
         except KeyError:
-            raise KeyError(f"Table '{path}' not found")
+            logger.warning(f"Table '{path}' not found! Returning empty DataFrame")
+            return pl.DataFrame()
 
     def query(
         self,
@@ -88,6 +89,11 @@ class PolarsTableStore(TableStore):
         - `filter_expr` is a Polars expression string for further filtering.
         """
         df = self.read(path)
+
+        # Early return if df is empty
+        if df.shape == (0, 0):
+            return df
+
         if ensemble_id is not None:
             df = df.filter(pl.col("ensemble_id") == ensemble_id)
         if run_id is not None:

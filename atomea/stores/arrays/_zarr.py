@@ -54,7 +54,6 @@ class ZarrArrayStore(ArrayStore):
         self,
         path: str,
         shape: tuple[int, ...],
-        *args: Any,
         overwrite: bool = False,
         dtype: npt.DTypeLike | None = None,
         chunks: tuple[int, ...] | Literal["auto"] = "auto",

@@ -2,7 +2,7 @@ from loguru import logger
 
 from atomea.containers import AtomeaContainer, Ensemble
 from atomea.containers.atomistic import Energy, Quantum, Time
-from atomea.stores import ArrayStore, StoreKind, TableStore
+from atomea.stores import ArrayStore, Store, StoreKind, TableStore
 
 
 class Project(AtomeaContainer):
@@ -20,7 +20,7 @@ class Project(AtomeaContainer):
             array_store: Storage backend for all arrays.
             table_store: Storage backend for all tables.
         """
-        self._stores: dict[StoreKind, object] = {
+        self._stores: dict[StoreKind, Store] = {
             StoreKind.ARRAY: array_store,
             StoreKind.TABLE: table_store,
         }

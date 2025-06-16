@@ -26,7 +26,7 @@ class Store(ABC):
             path: Path to directory where data will be stored.
             disk_format: File format when writing data to disk.
         """
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+        os.makedirs(path, exist_ok=True)
         self.path = path
         self.disk_format = disk_format
 

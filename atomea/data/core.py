@@ -92,12 +92,12 @@ class Data(Generic[T]):
             self._set_parent_chain()
         return self._parent_chain
 
-    def _get_store_info(self) -> tuple[Any, Any, Any]:
+    def get_store_info(self) -> tuple[Any, Any, Any]:
         parent_chain = self.parent_chain
         project = parent_chain[0]
 
         # Determine the path based on the object hierarchy
-        if len(parent_chain) == 1:
+        if len(parent_chain) < 3:
             # This is a project-level field
             path = self.name
             obj_id = getattr(self, "id", None)
@@ -111,15 +111,15 @@ class Data(Generic[T]):
         return store, path, obj_id
 
     def write(self, data: T, view: OptionalSliceSpec = None, **kwargs: Any) -> None:
-        store, path, _ = self._get_store_info()
+        store, path, _ = self.get_store_info()
         store.write(path, data, view=view, **kwargs)
 
     def append(self, data: T, **kwargs: Any) -> None:
-        store, path, _ = self._get_store_info()
+        store, path, _ = self.get_store_info()
         store.append(path, data, **kwargs)
 
     def read(self, view: OptionalSliceSpec = None, **kwargs: Any) -> T | None:
-        store, path, _ = self._get_store_info()
+        store, path, _ = self.get_store_info()
         data = store.read(path, view=view, **kwargs)
         return data  # type: ignore
 
@@ -129,14 +129,14 @@ class Data(Generic[T]):
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> T | None:
-        store, path, _ = self._get_store_info()
+        store, path, _ = self.get_store_info()
         return store.read(path, view=view, **kwargs)  # type: ignore
 
     def __set__(self, obj: object, value: ValueOrSlice[T]) -> None:
         if obj is None:
             raise AttributeError("Cannot set attribute on class")
 
-        store, path, _ = self._get_store_info()
+        store, path, _ = self.get_store_info()
 
         view: OptionalSliceSpec = None
         if isinstance(value, tuple) and len(value) == 2:
