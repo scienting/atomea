@@ -11,21 +11,19 @@ from atomea.stores import DiskFormat
 from atomea.stores.arrays import ZarrArrayStore
 from atomea.stores.tables import PolarsTableStore
 
-from .conftest import TMP_DIR
 
-
-def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
+def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     """
     Test the digestion of Amber simulations using the roGFP2 ensemble.
 
     Verifies that MDAnalysisDigester builds a Project, creates a default Ensemble,
     and populates microstates and topology data correctly.
     """
-    path_store_array = os.path.join(TMP_DIR, "amber_rogfp2_serial.zarr")
+    path_store_array = os.path.join(tmp_dir, "amber_rogfp2_serial.zarr")
     if os.path.exists(path_store_array):
         shutil.rmtree(path_store_array)
 
-    path_store_table = os.path.join(TMP_DIR, "amber_rogfp2_serial.tables")
+    path_store_table = os.path.join(tmp_dir, "amber_rogfp2_serial.tables")
     if os.path.exists(path_store_table):
         shutil.rmtree(path_store_table)
 
@@ -70,7 +68,7 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     assert fftypes[0] == "N3"
 
 
-def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
+def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     """
     Test digestion + storage into a Zarr store.
 
@@ -78,11 +76,11 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     into a on-disk .zarr directory, then reopens the coordinates array and
     spot-checks.
     """
-    path_store_array = os.path.join(TMP_DIR, "amber_rogfp2_serial.zarr")
+    path_store_array = os.path.join(tmp_dir, "amber_rogfp2_serial.zarr")
     if os.path.exists(path_store_array):
         shutil.rmtree(path_store_array)
 
-    path_store_table = os.path.join(TMP_DIR, "amber_rogfp2_serial.tables")
+    path_store_table = os.path.join(tmp_dir, "amber_rogfp2_serial.tables")
     if os.path.exists(path_store_table):
         shutil.rmtree(path_store_table)
 
