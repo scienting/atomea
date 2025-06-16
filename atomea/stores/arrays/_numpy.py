@@ -1,3 +1,5 @@
+from typing import Any
+
 import os
 
 import numpy as np
@@ -14,9 +16,32 @@ class NumpyArrayStore(ArrayStore):
     Paths use '/' to denote nested logical structure but are stored as flat keys.
     """
 
-    def __init__(self, disk_format: DiskFormat = DiskFormat.NPZ) -> None:
+    def __init__(
+        self,
+        path: str,
+        *args: Any,
+        disk_format: DiskFormat = DiskFormat.NPZ,
+        **kwargs: Any,
+    ) -> None:
         self._store: dict[str, npt.NDArray[np.generic]] = {}
-        super().__init__(disk_format)
+        super().__init__(path, *args, disk_format=disk_format, **kwargs)
+
+    def create(
+        self,
+        path: str,
+        shape: tuple[int, ...],
+        *args,
+        overwrite: bool = False,
+        dtype: npt.DTypeLike = np.dtype(np.float64),
+        fill: np.generic | None = None,
+        **kwargs,
+    ) -> None:
+        if path in self._store and not overwrite:
+            raise RuntimeError(f"{path} already exists and overwrite is False!")
+        if fill:
+            self._store[path] = np.full(shape, fill, dtype=dtype)
+        else:
+            self._store[path] = np.empty(shape, dtype=dtype)
 
     def write(self, path: str, array: npt.NDArray[np.generic]) -> None:
         """

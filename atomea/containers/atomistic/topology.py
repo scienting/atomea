@@ -1,8 +1,6 @@
-from typing import cast
-
 import atomea.typing as adt
 from atomea.containers import AtomeaContainer
-from atomea.data import Cadence, Data, Metadata
+from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
@@ -13,13 +11,10 @@ class Topology(AtomeaContainer):
         self._parent = None
 
     ids_entity = Data[adt.UInt32](
-        meta=Metadata(
-            uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
-            cadence=Cadence.MICROSTATE,
-            store=StoreKind.ARRAY,
-            description="Uniquely identifying integer mapping atoms to chemical entities",
-        ),
-        default=None,
+        cadence=Cadence.MICROSTATE,
+        store_kind=StoreKind.ARRAY,
+        uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
+        description="Uniquely identifying integer mapping atoms to chemical entities",
     )
     """A uniquely identifying integer specifying what atoms belong to which entities.
     Entities can be a related set of atoms, molecules, or functional group.
@@ -27,13 +22,10 @@ class Topology(AtomeaContainer):
     """
 
     ids_component = Data[adt.Str](
-        meta=Metadata(
-            uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
-            cadence=Cadence.ENSEMBLE,
-            store=StoreKind.ARRAY,
-            description="Fragments label for chemical entities",
-        ),
-        default=None,
+        cadence=Cadence.ENSEMBLE,
+        store_kind=StoreKind.ARRAY,
+        uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
+        description="Fragments label for chemical entities",
     )
     """Relates [`ids_entity`][schemas.atomistic.topology.Topology.ids_entity]
     to a fragment label for chemical components or species.
@@ -41,17 +33,11 @@ class Topology(AtomeaContainer):
     etc. There are no standardized labels for species.
     """
 
-    ff_atom_type = cast(
-        adt.OptionalStr,
-        Data[adt.Str](
-            meta=Metadata(
-                uuid="e34c0e1b-0eaa-4679-b060-3fcfe737aa15",
-                cadence=Cadence.ENSEMBLE,
-                store=StoreKind.ARRAY,
-                description="Classical force field atom type",
-            ),
-            default=None,
-        ),
+    ff_atom_type = Data[adt.Str](
+        cadence=Cadence.ENSEMBLE,
+        store_kind=StoreKind.ARRAY,
+        uuid="e34c0e1b-0eaa-4679-b060-3fcfe737aa15",
+        description="Classical force field atom type",
     )
     """In the context of force fields used in molecular dynamics simulations, an
     "atom type" refers to a specific classification assigned to individual atoms within

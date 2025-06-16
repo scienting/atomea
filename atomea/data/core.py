@@ -1,12 +1,10 @@
 from typing import Any, Generic
 
-import numpy as np
-import polars as pl
+from loguru import logger
 
 from atomea.containers import AtomeaContainer
-from atomea.data import Metadata, T, ValueOrSlice
+from atomea.data import Cadence, OptionalSliceSpec, T, ValueOrSlice
 from atomea.stores import StoreKind
-from atomea.stores.interfaces import ArrayInterface, TableInterface
 
 
 class Data(Generic[T]):
@@ -19,32 +17,49 @@ class Data(Generic[T]):
     def __init__(
         self,
         *,
-        meta: Metadata,
-        default: T | None = None,
+        cadence: Cadence,
+        store_kind: StoreKind,
+        uuid: str = "",
+        description: str = "",
     ) -> None:
-        self.meta = meta
-        self.default = default
+        self.cadence = cadence
+        self.store_kind = store_kind
+        self.uuid = uuid
+        self.description = description
         self.name: str | None = None
         self._parent_chain: tuple[AtomeaContainer] = tuple()
-        self._interface: ArrayInterface | TableInterface | None = None
 
-    def _set_parent_chain(self, obj: object) -> None:
-        """Build chain from current object to root project."""
+    def __set_name__(self, owner: type, name: str) -> None:
+        self.name = name
+
+    def __repr__(self):
+        return f"Data<{self.name}>"
+
+    def _set_parent_chain(self) -> None:
+        """Build chain from current object to root project and sets the attribute
+        `_parent_chain`.
+        """
+        logger.debug("Building parent chain of {}", self)
         chain = []
-        current = obj
+        current = self
 
         while current is not None:
             chain.append(current)
             if hasattr(current, "_stores"):  # This is the project
+                logger.debug("Found root Project of {}", current)
                 break
             # Move up the hierarchy
             if hasattr(current, "_parent"):
+                logger.debug("Found parent container of {}", current)
                 current = current._parent  # type: ignore
             else:
-                raise RuntimeError(f"Cannot find project root from {obj}")
-        self._parent_chain = tuple(reversed(chain))
+                raise RuntimeError(f"Cannot find project root from {self}")
+        _parent_chain = tuple(reversed(chain))
+        logger.debug("Setting parent chain of {} to {}", self, _parent_chain)
+        self._parent_chain = _parent_chain
 
-    def parent_chain(self, obj):
+    @property
+    def parent_chain(self):
         """
         Chain of object references to get from the Project and any other
         `AtomeaContainers` to this `Data` object.
@@ -64,35 +79,18 @@ class Data(Generic[T]):
         `(Project, Ensemble, Microstates)`.
         """
         if len(self._parent_chain) == 0:
-            self._set_parent_chain(obj)
+            self._set_parent_chain()
         return self._parent_chain
 
-    def interface(self, obj: object) -> ArrayInterface | TableInterface:
-        """Interface for this Data. Cannot changed after it is called once."""
-        if self._interface:
-            return self._interface
-
-        parent_chain = self.parent_chain(obj)
-
-        assert isinstance(self.name, str)
-
-        if self.meta.store is StoreKind.ARRAY:
-            interface = ArrayInterface(parent_chain, self.name)
-        elif self.meta.store is StoreKind.TABLE:
-            interface = TableInterface(parent_chain, self.name)
-        else:
-            raise TypeError("Unknown store type of {}", self.meta.store)
-        return interface
-
-    def _get_store(self, obj=None):
-        parent_chain = self.parent_chain(obj)
+    def _get_store_info(self):
+        parent_chain = self.parent_chain
         project = parent_chain[0]
 
         # Determine the path based on the object hierarchy
         if len(parent_chain) == 1:
             # This is a project-level field
             path = self.name
-            obj_id = getattr(obj, "id", None)
+            obj_id = getattr(self, "id", None)
         else:
             # This is an ensemble or component-level field
             ensemble = parent_chain[1]
@@ -102,37 +100,38 @@ class Data(Generic[T]):
         store = project._stores[self.meta.store]  # type: ignore
         return store, path, obj_id
 
-    def append(self, data: Any) -> None:
-        store, path, _ = self._get_store()
-        store.append(path, data)
+    def write(self, data: T, slice: OptionalSliceSpec = None, **kwargs: Any) -> None:
+        store, path, _ = self._get_store_info()
+        store.write(path, data, slice=slice, **kwargs)
 
-    def __set_name__(self, owner: type, name: str) -> None:
-        self.name = name
+    def append(self, data: T, **kwargs) -> None:
+        store, path, _ = self._get_store_info()
+        store.append(path, data, **kwargs)
+
+    def read(self, slice: OptionalSliceSpec = None, **kwargs: Any) -> T | None:
+        store, path, _ = self._get_store_info()
+        data = store.read(path, slice=slice, **kwargs)
+        return data
 
     @property
     def value(
         self,
-        slices: tuple[slice, ...] | dict[int, slice | tuple[slice, ...]] | None = None,
+        slices: OptionalSliceSpec = None,
         **kwargs,
     ) -> T | None:
-        store, path, _ = self._get_store(self)
+        store, path, _ = self._get_store_info()
         return store.read(path, slices=slices, **kwargs)
 
     def __set__(self, obj: object, value: ValueOrSlice[T]) -> None:
         if obj is None:
             raise AttributeError("Cannot set attribute on class")
 
-        store, path, obj_id = self._get_store(obj)
+        store, path, _ = self._get_store_info()
 
-        if self.meta.store is StoreKind.ARRAY:
-            if isinstance(value, tuple) and len(value) == 2:
-                arr, slices = value
-            else:
-                arr, slices = value, None
-            np_arr = np.asarray(arr)
-            store.write(path, np_arr, slices=slices)
+        slice: OptionalSliceSpec = None
+        if isinstance(value, tuple) and len(value) == 2:
+            data: T = value[0]
+            slice = value[1]
         else:
-            # For table data
-            row = {"ensemble_id": obj_id, self.name: value}
-            df = pl.DataFrame([row])
-            store.write(self.name, df, append=True)
+            data = value
+        store.write(path, data, slice=slice)

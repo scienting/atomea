@@ -1,6 +1,6 @@
 import atomea.typing as adt
 from atomea.containers import AtomeaContainer
-from atomea.data import Cadence, Data, Metadata
+from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
@@ -14,13 +14,10 @@ class Quantum(AtomeaContainer):
         self._parent = None
 
     electron_frozen_num = Data[adt.DataFrame](
-        meta=Metadata(
-            uuid="5b44b60c-8435-41c4-88d5-cb4a1883b75b",
-            cadence=Cadence.ENSEMBLE,
-            store=StoreKind.TABLE,
-            description="Total number of frozen electrons",
-        ),
-        default=None,
+        cadence=Cadence.ENSEMBLE,
+        store_kind=StoreKind.TABLE,
+        uuid="5b44b60c-8435-41c4-88d5-cb4a1883b75b",
+        description="Total number of frozen electrons",
     )
     """Specifies the total number of electrons considered as frozen in quantum chemical
     calculations.

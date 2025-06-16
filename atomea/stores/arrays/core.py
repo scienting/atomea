@@ -1,8 +1,11 @@
+from typing import Any
+
 from abc import ABC, abstractmethod
 
 import numpy as np
 import numpy.typing as npt
 
+from atomea.data import OptionalSliceSpec
 from atomea.stores import ArrayDiskFormats, DiskFormat, Store
 
 
@@ -13,13 +16,33 @@ class ArrayStore(Store, ABC):
     """
 
     def __init__(
-        self, disk_format: DiskFormat = DiskFormat.NONE, *args, **kwargs
+        self,
+        path: str,
+        *args: Any,
+        disk_format: DiskFormat = DiskFormat.NONE,
+        **kwargs: Any,
     ) -> None:
         assert disk_format in ArrayDiskFormats
-        super().__init__(disk_format)
+        super().__init__(path, *args, disk_format=disk_format, **kwargs)
 
     @abstractmethod
-    def write(self, path: str, array: npt.NDArray[np.generic]) -> None:
+    def create(
+        self,
+        path: str,
+        *args: Any,
+        overwrite: bool = False,
+        **kwargs: Any,
+    ) -> Any: ...
+
+    @abstractmethod
+    def write(
+        self,
+        path: str,
+        data: npt.NDArray[np.generic],
+        *args,
+        slice: OptionalSliceSpec = None,
+        **kwargs,
+    ) -> None:
         """
         Write a new array at the given path. Overwrites if it exists.
 
@@ -30,7 +53,7 @@ class ArrayStore(Store, ABC):
         ...
 
     @abstractmethod
-    def append(self, path: str, array: npt.NDArray[np.generic]) -> None:
+    def append(self, path: str, data: npt.NDArray[np.generic], *args, **kwargs) -> None:
         """
         Append data to an existing array at the given path, creating it if needed.
         This is useful for adding new microstates one by one.
@@ -45,7 +68,9 @@ class ArrayStore(Store, ABC):
     def read(
         self,
         path: str,
-        slices: tuple[slice, ...] | dict[int, slice | tuple[slice, ...]] | None = None,
+        *args,
+        slice: OptionalSliceSpec = None,
+        **kwargs,
     ) -> npt.NDArray[np.generic] | None:
         """
         Retrieve the full array stored at the given path.
@@ -68,9 +93,4 @@ class ArrayStore(Store, ABC):
         Returns:
             A list of logical paths (e.g., ["coords", "velocities"]).
         """
-        ...
-
-    @abstractmethod
-    def dump(self, prefix: str = "") -> None:
-        """Save all arrays to disk."""
         ...

@@ -88,6 +88,9 @@ See Also:
     atomea.store.interfaces.ArrayInterface: Array interface implementation
 """
 
+OptionalSliceSpec = tuple[slice, ...] | dict[int, tuple[slice, ...]] | None
+
+
 ValueOrSlice: TypeAlias = T | tuple[T, SliceSpec]
 """Type specification for data values that support partial writing.
 

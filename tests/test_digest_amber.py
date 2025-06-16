@@ -25,12 +25,12 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     if os.path.exists(path_store_array):
         shutil.rmtree(path_store_array)
 
-    path_store_table = os.path.join(TMP_DIR, "amber_rogfp2_serial.csv")
+    path_store_table = os.path.join(TMP_DIR, "amber_rogfp2_serial.tables")
     if os.path.exists(path_store_table):
         shutil.rmtree(path_store_table)
 
-    store_array = ZarrArrayStore(DiskFormat.ZARR, path_store_array, mode="a")
-    store_table = PolarsTableStore(DiskFormat.PARQUET)
+    store_array = ZarrArrayStore(path_store_array, mode="a")
+    store_table = PolarsTableStore(path_store_table, DiskFormat.PARQUET)
     prj = Project(store_array, store_table)
     digest_args = (
         amber_rogfp2_sim_paths["mol.prmtop"],
@@ -86,7 +86,7 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     if os.path.exists(path_store_table):
         shutil.rmtree(path_store_table)
 
-    store_array = ZarrArrayStore(DiskFormat.ZARR, path_store_array, mode="a")
+    store_array = ZarrArrayStore(path_store_array, mode="a")
     store_table = PolarsTableStore(DiskFormat.PARQUET)
     prj = Project(store_array, store_table)
     digest_args = (
@@ -105,7 +105,7 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths):
     )
 
     # Re-open for reading and spot‐check
-    store_r = ZarrArrayStore(DiskFormat.ZARR, store=path_store_array, mode="r")
+    store_r = ZarrArrayStore(store=path_store_array, mode="r")
     coords = store_r.read("default/coordinates")
     assert coords is not None
     assert np.allclose(coords[0, 0, 0], 33.924496)

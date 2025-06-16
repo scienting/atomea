@@ -4,7 +4,8 @@ import os
 
 import polars as pl
 
-from atomea.stores import DiskFormat
+from atomea.data import OptionalSliceSpec
+from atomea.stores import ArrayDiskFormats, DiskFormat
 from atomea.stores.tables import TableStore
 
 
@@ -13,47 +14,73 @@ class PolarsTableStore(TableStore):
     Each table is a Polars DataFrame.
     """
 
-    def write(self, name: str, table: pl.DataFrame) -> None:
+    def __init__(
+        self,
+        store: str,
+        *args,
+        disk_format: DiskFormat = DiskFormat.PARQUET,
+        mode: str = "r",
+        **kwargs,
+    ) -> None:
+        super().__init__(store, disk_format=disk_format)
+
+    @classmethod
+    def check_columns(cls, columns):
+        if (
+            "ensemble_id" not in columns
+            or "run_id" in columns
+            or "microstate_id" not in columns
+        ):
+            raise ValueError(
+                "Table must include 'ensemble_id', 'run_id', 'microstate_id' columns"
+            )
+
+    def write(
+        self,
+        path: str,
+        data: pl.DataFrame,
+        *args: Any,
+        slice: OptionalSliceSpec = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Write a Polars DataFrame to the named table.
 
-        The DataFrame must contain `ensemble_id` and `microstate_id` columns.
+        The DataFrame must contain `ensemble_id`, `run_id`, and `microstate_id` columns.
         """
-        if "ensemble_id" not in table.columns or "microstate_id" not in table.columns:
-            raise ValueError(
-                "Table must include 'ensemble_id' and 'microstate_id' columns"
-            )
-        self._store[name] = table
+        self.check_columns(data.columns)
+        self._store[path] = data
 
-    def append(self, name: str, table: pl.DataFrame) -> None:
+    def append(self, path: str, data: pl.DataFrame, *args: Any, **kwargs: Any) -> None:
         """
         Append a Polars DataFrame to the named table.
 
         The DataFrame must contain `ensemble_id` and `microstate_id` columns.
         """
-        if "ensemble_id" not in table.columns or "microstate_id" not in table.columns:
-            raise ValueError(
-                "Table must include 'ensemble_id' and 'microstate_id' columns"
-            )
-        self._store[name] = pl.concat([self._store[name], table], how="vertical")
+        self.check_columns(data.columns)
+        self._store[path] = pl.concat([self._store[path], data], how="vertical")
 
-    def read(self, name: str) -> pl.DataFrame:
+    def read(
+        self, path: str, *args: Any, slice: OptionalSliceSpec = None, **kwargs: Any
+    ) -> pl.DataFrame:
         """
         Read the entire table with the given name.
 
         Raises KeyError if the table does not exist.
         """
         try:
-            return self._store[name]
+            return self._store[path]
         except KeyError:
-            raise KeyError(f"Table '{name}' not found")
+            raise KeyError(f"Table '{path}' not found")
 
     def query(
         self,
         name: str,
         ensemble_id: str | None = None,
+        run_id: int | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
+        **kwargs: Any,
     ) -> pl.DataFrame:
         """
         Query a named table by keys and/or additional expression.
@@ -64,6 +91,8 @@ class PolarsTableStore(TableStore):
         df = self.read(name)
         if ensemble_id is not None:
             df = df.filter(pl.col("ensemble_id") == ensemble_id)
+        if run_id is not None:
+            df = df.filter(pl.column("run_id") == run_id)
         if microstate_id is not None:
             df = df.filter(pl.col("microstate_id") == microstate_id)
         if filter_expr:
@@ -74,30 +103,28 @@ class PolarsTableStore(TableStore):
         """List all table names."""
         return list(self._store.keys())
 
-    def dump(
-        self,
-        prefix: str,
-        file_type: DiskFormat,
-        **options: Any,
-    ) -> None:
+    def dump(self, prefix: str, **kwargs: Any) -> None:
         """
         Dump all stored tables to files in the specified directory/prefix.
 
         Args:
             prefix: directory or file prefix where files will be written.
-            file_type: File type to dump the data to.
-            options: backend-specific write options (e.g., compression='snappy').
+                We recommend using `"<project>.tables`.
         """
         os.makedirs(prefix, exist_ok=True)
         for name, df in self._store.items():
-            path = os.path.join(prefix, f"{name}.{file_type}")
-            if file_type == DiskFormat.CSV:
-                df.write_csv(path, **options)
-            elif file_type == DiskFormat.PARQUET:
-                df.write_parquet(path, **options)
-            elif file_type == DiskFormat.IPC:
-                df.write_ipc(path, **options)
-            elif file_type == DiskFormat.EXCEL:
-                df.write_excel(path, **options)
+            path = os.path.join(prefix, f"{name}")
+            if self.disk_format == DiskFormat.CSV:
+                path += ".csv"
+                df.write_csv(path, **kwargs)
+            elif self.disk_format == DiskFormat.PARQUET:
+                path += ".parquet"
+                df.write_parquet(path, **kwargs)
+            elif self.disk_format == DiskFormat.IPC:
+                path += ".ipc"
+                df.write_ipc(path, **kwargs)
+            elif self.disk_format == DiskFormat.EXCEL:
+                path += ".xlsx"
+                df.write_excel(path, **kwargs)
             else:
-                raise ValueError(f"Unsupported file_type: {file_type}")
+                raise ValueError(f"Unsupported file_type: {self.disk_format}")

@@ -1,6 +1,6 @@
 import atomea.typing as adt
 from atomea.containers import AtomeaContainer
-from atomea.data import Cadence, Data, Metadata
+from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
@@ -13,49 +13,37 @@ class Time(AtomeaContainer):
         self._parent = None
 
     time_step = Data[adt.UInt8](
-        meta=Metadata(
-            uuid="ec042cd8-c4de-4655-b663-cb96493b2ded",
-            cadence=Cadence.ENSEMBLE,
-            store=StoreKind.TABLE,
-            description="Integration time step in femtoseconds (fs)",
-        ),
-        default=None,
+        cadence=Cadence.ENSEMBLE,
+        store_kind=StoreKind.TABLE,
+        uuid="ec042cd8-c4de-4655-b663-cb96493b2ded",
+        description="Integration time step in femtoseconds (fs)",
     )
     """Integration time step in femtoseconds (fs).
     """
 
     interval_coord = Data[adt.UInt32](
-        meta=Metadata(
-            uuid="ecd65483-ef07-4893-8b39-5d46118ce97a",
-            cadence=Cadence.ENSEMBLE,
-            store=StoreKind.TABLE,
-            description="Number of integration steps between writing coordinates",
-        ),
-        default=None,
+        cadence=Cadence.ENSEMBLE,
+        store_kind=StoreKind.TABLE,
+        uuid="ecd65483-ef07-4893-8b39-5d46118ce97a",
+        description="Number of integration steps between writing coordinates",
     )
     """Number of integration steps between writing coordinates.
     """
 
     interval_energy = Data[adt.UInt32](
-        meta=Metadata(
-            uuid="86ecb388-2760-41af-a989-433402dfcf44",
-            cadence=Cadence.ENSEMBLE,
-            store=StoreKind.TABLE,
-            description="Number of integration steps between writing energies",
-        ),
-        default=None,
+        cadence=Cadence.ENSEMBLE,
+        store_kind=StoreKind.TABLE,
+        uuid="86ecb388-2760-41af-a989-433402dfcf44",
+        description="Number of integration steps between writing energies",
     )
     """Number of integration steps between writing energies.
     """
 
     interval_velocity = Data[adt.UInt32](
-        meta=Metadata(
-            uuid="2ec3f6c5-01d8-4565-bc50-c91bda41f28c",
-            cadence=Cadence.ENSEMBLE,
-            store=StoreKind.TABLE,
-            description="Number of integration steps between writing velocities",
-        ),
-        default=None,
+        cadence=Cadence.ENSEMBLE,
+        store_kind=StoreKind.TABLE,
+        uuid="2ec3f6c5-01d8-4565-bc50-c91bda41f28c",
+        description="Number of integration steps between writing velocities",
     )
     """Number of integration steps between writing velocities.
     """

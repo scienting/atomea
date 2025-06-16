@@ -1,5 +1,12 @@
-from .types import T, SliceSpec, ValueOrSlice
-from .meta import Cadence, Metadata
+from .types import T, SliceSpec, OptionalSliceSpec, ValueOrSlice
+from .meta import Cadence
 from .core import Data
 
-__all__ = ["T", "SliceSpec", "ValueOrSlice", "Cadence", "Metadata", "Data"]
+__all__ = [
+    "T",
+    "SliceSpec",
+    "OptionalSliceSpec",
+    "ValueOrSlice",
+    "Cadence",
+    "Data",
+]

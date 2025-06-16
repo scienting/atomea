@@ -56,6 +56,7 @@ from ._array import (
     OptionalStr,
 )
 from ._dataframe import DataFrame, OptionalDataFrame
+from .passable import PassableData, OptionalPassableData
 
 __all__ = [
     "Float64",
@@ -82,4 +83,6 @@ __all__ = [
     "OptionalStr",
     "DataFrame",
     "OptionalDataFrame",
+    "PassableData",
+    "OptionalPassableData",
 ]

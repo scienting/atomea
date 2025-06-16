@@ -1,10 +1,11 @@
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import numpy.typing as npt
 import zarr
 from zarr.core.group import Group, GroupMetadata
 
+from atomea.data import OptionalSliceSpec
 from atomea.stores import DiskFormat
 from atomea.stores.arrays import ArrayStore
 
@@ -18,11 +19,11 @@ class ZarrArrayStore(ArrayStore):
 
     def __init__(
         self,
-        disk_format: DiskFormat,
-        store: str | zarr.abc.store.Store,  # type: ignore
+        path: str | zarr.abc.store.Store,  # type: ignore
+        *args: Any,
+        disk_format: DiskFormat = DiskFormat.ZARR,
         mode: str = "r",
-        *args,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Open a Zarr store using
@@ -47,28 +48,28 @@ class ZarrArrayStore(ArrayStore):
                 - `w-` means create (fail if exists).
         """
         assert disk_format == DiskFormat.ZARR
-        self._store: Group = zarr.open_group(store=store, mode=mode, *args, **kwargs)
-        super().__init__(disk_format)
+        self._store: Group = zarr.open_group(store=path, mode=mode, *args, **kwargs)
+        super().__init__(path, *args, disk_format=disk_format, **kwargs)
 
     def create(
         self,
         path: str,
         shape: tuple[int, ...],
+        *args,
+        overwrite: bool = False,
         dtype: npt.DTypeLike | None = None,
         chunks: tuple[int, ...] | Literal["auto"] = "auto",
-        overwrite: bool = False,
-        *args,
         **kwargs,
-    ) -> zarr.Array:
+    ) -> None:
         """
         Pre-allocate an array with the given shape and dtype.
 
         Args:
             path: hierarchical key, e.g. 'coords'.
             shape: full shape of the array.
+            overwrite: if True, delete existing before create; otherwise error if exists.
             dtype: numpy-compatible dtype.
             chunks: chunk shape or 'auto'.
-            overwrite: if True, delete existing before create; otherwise error if exists.
         """
         group_path, _ = path.rsplit("/", 1) if "/" in path else ("", path)
         self._store.create_hierarchy({group_path: GroupMetadata()})
@@ -77,16 +78,17 @@ class ZarrArrayStore(ArrayStore):
             shape=shape,
             dtype=dtype,
             chunks=chunks,
-            overwrite=overwrite * args,
+            overwrite=overwrite,
             **kwargs,
         )
-        return z
 
     def write(
         self,
         path: str,
-        array: npt.NDArray[np.generic],
-        slices: tuple[slice, ...] | dict[int, tuple[slice, ...]] | None = None,
+        data: npt.NDArray[np.generic],
+        *args,
+        slices: OptionalSliceSpec = None,
+        **kwargs,
     ) -> None:
         """
         Write data to an array, whole or sliced. Will create the array if it does not
@@ -101,23 +103,25 @@ class ZarrArrayStore(ArrayStore):
         """
         z = self._store.get(path=path)
         if z is None:
-            z = self.create(path, array.shape, array.dtype)
-            z[:] = array
+            z = self.create(path, data.shape, data.dtype, **kwargs)
+            z[:] = data
         else:
-            z.set_basic_selection(slices, array)  # type: ignore
+            z.set_basic_selection(slices, data, **kwargs)  # type: ignore
 
-    def append(self, path: str, array: npt.NDArray[np.generic]) -> None:
+    def append(self, path: str, data: npt.NDArray[np.generic], *args, **kwargs) -> None:
         """
         Append data along the first axis to an existing Zarr array;
         creates the array with an unlimited first dimension if it does not exist.
         """
-        arr_0 = self.read(path)
-        arr_0.append(array)  # type: ignore
+        arr = self.read(path)
+        arr.append(data, **kwargs)  # type: ignore
 
     def read(
         self,
         path: str,
-        slices: tuple[slice, ...] | dict[int, slice | tuple[slice, ...]] | None = None,
+        *args,
+        slices: OptionalSliceSpec = None,
+        **kwargs,
     ) -> npt.NDArray[np.generic] | None:
         """
         Read the array from Zarr, optionally returning a subset efficiently.
@@ -139,6 +143,3 @@ class ZarrArrayStore(ArrayStore):
         """
         keys = list(self._store.array_keys())
         return keys
-
-    def dump(self, prefix: str = "") -> None:
-        pass
