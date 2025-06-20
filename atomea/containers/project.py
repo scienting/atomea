@@ -20,10 +20,17 @@ class Project(AtomeaContainer):
             array_store: Storage backend for all arrays.
             table_store: Storage backend for all tables.
         """
+        assert isinstance(array_store, ArrayStore)
+        assert isinstance(table_store, TableStore)
+
         self._stores: dict[StoreKind, Store] = {
             StoreKind.ARRAY: array_store,
             StoreKind.TABLE: table_store,
         }
+        """
+        We store array and table stores as a dictionary mainly to use `_stores`
+        as an attribute only existing in a Project class.
+        """
         self.ensembles: dict[str, Ensemble] = {}
 
         self.quantum = Quantum(self)
@@ -56,7 +63,7 @@ class Project(AtomeaContainer):
         """
         Retrieve an existing Ensemble by its ID, or None if not found.
         """
-        return self.ensembles.get(ensemble_id)
+        return self.ensembles.get(ensemble_id, None)
 
     def remove_ensemble(self, ensemble_id: str) -> None:
         """
