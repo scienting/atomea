@@ -8,7 +8,6 @@ class Microstates(AtomeaContainer):
     """Information that specifies the physical atomistic microstates."""
 
     atom_z = Data[adt.UInt8](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.ARRAY,
         uuid="d051abd9-c815-40b1-ab2d-e7a50a2d3259",
         description="Atomic numbers",
@@ -20,7 +19,6 @@ class Microstates(AtomeaContainer):
     """
 
     atom_symbol = Data[adt.Str](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.ARRAY,
         uuid="81c21a83-4b72-48c6-a576-4541b468eb90",
         description="Elemental symbols",
@@ -30,7 +28,6 @@ class Microstates(AtomeaContainer):
     """
 
     coordinates = Data[adt.Float64](
-        cadence=Cadence.MICROSTATE,
         store_kind=StoreKind.ARRAY,
         uuid="81c7cec9-beec-4126-b6d8-91bee28951d6",
         description="Atomic coordinates",
@@ -40,7 +37,6 @@ class Microstates(AtomeaContainer):
     """
 
     charge_net = Data[adt.DataFrame](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.TABLE,
         uuid="6ff82a49-4666-4cbb-978a-409bfa6a511",
         description="Net charge",
@@ -50,7 +46,6 @@ class Microstates(AtomeaContainer):
     """
 
     multiplicity = Data[adt.DataFrame](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.TABLE,
         uuid="8e3eb55a-ed81-46d3-9f34-0ea00fa8c8e4",
         description="Spin multiplicity",
@@ -62,6 +57,7 @@ class Microstates(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.cadence = Cadence.ENSEMBLE
         self._parent = parent
         self.atom_z.bind_to_container(self)
         self.atom_symbol.bind_to_container(self)

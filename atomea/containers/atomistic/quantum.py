@@ -11,7 +11,6 @@ class Quantum(AtomeaContainer):
     are essential for advanced computational chemistry and physics analysis."""
 
     electron_frozen_num = Data[adt.DataFrame](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.TABLE,
         uuid="5b44b60c-8435-41c4-88d5-cb4a1883b75b",
         description="Total number of frozen electrons",
@@ -27,5 +26,6 @@ class Quantum(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.cadence = Cadence.ENSEMBLE
         self._parent = parent
         self.electron_frozen_num.bind_to_container(self)

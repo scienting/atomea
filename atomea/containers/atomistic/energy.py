@@ -8,7 +8,6 @@ class Energy(AtomeaContainer):
     """Information that characterizes various energies of a microstates."""
 
     electronic = Data[adt.DataFrame](
-        cadence=Cadence.MICROSTATE,
         store_kind=StoreKind.TABLE,
         uuid="9e4bdf45-0150-4605-9528-e23aed0be9f2",
         description="Electronic energy",
@@ -18,7 +17,6 @@ class Energy(AtomeaContainer):
     """
 
     potential_mm = Data[adt.DataFrame](
-        cadence=Cadence.MICROSTATE,
         store_kind=StoreKind.TABLE,
         uuid="399ff4fb-1b3d-41a4-a87a-8143c1646b28",
         description="Classical potential energy",
@@ -28,7 +26,6 @@ class Energy(AtomeaContainer):
     """
 
     kinetic = Data[adt.DataFrame](
-        cadence=Cadence.MICROSTATE,
         store_kind=StoreKind.TABLE,
         uuid="0095592c-587d-4a65-a7f0-d85b588bf2dc",
         description="Total kinetic energy",
@@ -38,6 +35,7 @@ class Energy(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.cadence = Cadence.MICROSTATE
         self._parent = parent
         self.electronic.bind_to_container(self)
         self.potential_mm.bind_to_container(self)

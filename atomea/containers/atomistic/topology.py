@@ -8,7 +8,6 @@ class Topology(AtomeaContainer):
     """Information that specifies the physical atomistic microstates."""
 
     ids_entity = Data[adt.UInt32](
-        cadence=Cadence.MICROSTATE,
         store_kind=StoreKind.ARRAY,
         uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
         description="Uniquely identifying integer mapping atoms to chemical entities",
@@ -19,7 +18,6 @@ class Topology(AtomeaContainer):
     """
 
     ids_component = Data[adt.Str](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.ARRAY,
         uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
         description="Fragments label for chemical entities",
@@ -31,7 +29,6 @@ class Topology(AtomeaContainer):
     """
 
     ff_atom_type = Data[adt.Str](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.ARRAY,
         uuid="e34c0e1b-0eaa-4679-b060-3fcfe737aa15",
         description="Classical force field atom type",
@@ -51,6 +48,7 @@ class Topology(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.cadence = Cadence.MICROSTATE
         self._parent = parent
         self.ids_entity.bind_to_container(self)
         self.ids_component.bind_to_container(self)

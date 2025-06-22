@@ -10,7 +10,6 @@ class Time(AtomeaContainer):
     """
 
     time_step = Data[adt.UInt8](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.TABLE,
         uuid="ec042cd8-c4de-4655-b663-cb96493b2ded",
         description="Integration time step in femtoseconds (fs)",
@@ -19,7 +18,6 @@ class Time(AtomeaContainer):
     """
 
     interval_coord = Data[adt.UInt32](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.TABLE,
         uuid="ecd65483-ef07-4893-8b39-5d46118ce97a",
         description="Number of integration steps between writing coordinates",
@@ -28,7 +26,6 @@ class Time(AtomeaContainer):
     """
 
     interval_energy = Data[adt.UInt32](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.TABLE,
         uuid="86ecb388-2760-41af-a989-433402dfcf44",
         description="Number of integration steps between writing energies",
@@ -37,7 +34,6 @@ class Time(AtomeaContainer):
     """
 
     interval_velocity = Data[adt.UInt32](
-        cadence=Cadence.ENSEMBLE,
         store_kind=StoreKind.TABLE,
         uuid="2ec3f6c5-01d8-4565-bc50-c91bda41f28c",
         description="Number of integration steps between writing velocities",
@@ -46,6 +42,7 @@ class Time(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.cadence = Cadence.ENSEMBLE
         self._parent = parent
         self.time_step.bind_to_container(self)
         self.interval_coord.bind_to_container(self)

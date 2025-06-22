@@ -5,7 +5,7 @@ import polars as pl
 from loguru import logger
 
 from atomea.containers import AtomeaContainer
-from atomea.data import Cadence, OptionalSliceSpec, T, ValueOrSlice
+from atomea.data import OptionalSliceSpec, T, ValueOrSlice
 from atomea.stores import StoreKind
 
 
@@ -19,12 +19,10 @@ class Data(Generic[T]):
     def __init__(
         self,
         *,
-        cadence: Cadence,
         store_kind: StoreKind,
         uuid: str = "",
         description: str = "",
     ) -> None:
-        self.cadence = cadence
         self.store_kind = store_kind
         self.uuid = uuid
         self.description = description
