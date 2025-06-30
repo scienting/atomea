@@ -48,6 +48,7 @@ class Topology(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.id = "topology"
         self.cadence = Cadence.MICROSTATE
         self._parent = parent
         self.ids_entity.bind_to_container(self)

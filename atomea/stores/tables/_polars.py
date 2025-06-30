@@ -1,6 +1,7 @@
 from typing import Any
 
 import os
+from pathlib import Path
 
 import polars as pl
 from loguru import logger
@@ -17,7 +18,7 @@ class PolarsTableStore(TableStore):
 
     def __init__(
         self,
-        path: str,
+        path: Path | str,
         disk_format: DiskFormat = DiskFormat.PARQUET,
         mode: str = "r",
         **kwargs: Any,
@@ -37,7 +38,7 @@ class PolarsTableStore(TableStore):
 
     def write(
         self,
-        path: str,
+        path: Path | str,
         data: pl.DataFrame,
         view: OptionalSliceSpec = None,
         **kwargs: Any,
@@ -48,19 +49,20 @@ class PolarsTableStore(TableStore):
         The DataFrame must contain `ensemble_id`, `run_id`, and `microstate_id` columns.
         """
         self.check_columns(data.columns)
-        self._store[path] = data
+        self._store[str(path)] = data
 
-    def append(self, path: str, data: pl.DataFrame, **kwargs: Any) -> None:
+    def append(self, path: Path | str, data: pl.DataFrame, **kwargs: Any) -> None:
         """
         Append a Polars DataFrame to the named table.
 
         The DataFrame must contain `ensemble_id` and `microstate_id` columns.
         """
+        path = str(path)
         self.check_columns(data.columns)
         self._store[path] = pl.concat([self._store[path], data], how="vertical")
 
     def read(
-        self, path: str, view: OptionalSliceSpec = None, **kwargs: Any
+        self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> pl.DataFrame:
         """
         Read the entire table with the given name.
@@ -68,16 +70,16 @@ class PolarsTableStore(TableStore):
         Raises KeyError if the table does not exist.
         """
         try:
-            return self._store[path]
+            return self._store[str(path)]
         except KeyError:
             logger.warning(f"Table '{path}' not found! Returning empty DataFrame")
             return pl.DataFrame()
 
     def query(
         self,
-        path: str,
+        path: Path | str,
         ensemble_id: str | None = None,
-        run_id: str | None = None,
+        run_id: int | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
         **kwargs: Any,
@@ -85,8 +87,17 @@ class PolarsTableStore(TableStore):
         """
         Query a named table by keys and/or additional expression.
 
-        - If `ensemble_id` or `microstate_id` is provided, filters on those.
-        - `filter_expr` is a Polars expression string for further filtering.
+        Args:
+            path: Container/table name.
+            ensemble_id: A unique identification label for an ensemble.
+                This can be `"1"`, `"default"`, `"exp3829"`, etc.
+            run_id: An unique, independent run within the same ensemble.
+                This often arises when running multiple independent molecular
+                simulation trajectories with different random seeds.
+            microstate_id: An index specifying a microstate with some relationship to
+                order. This can be a frame in a molecular simulation trajectories,
+                docking scores from best to worst, optimization steps, etc.
+            filter_expr: string expression to filter rows.
         """
         df = self.read(path)
 

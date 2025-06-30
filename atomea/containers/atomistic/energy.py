@@ -35,6 +35,7 @@ class Energy(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.id = "energy"
         self.cadence = Cadence.MICROSTATE
         self._parent = parent
         self.electronic.bind_to_container(self)

@@ -1,6 +1,7 @@
 from typing import Any
 
 import os
+from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
@@ -19,7 +20,7 @@ class NumpyArrayStore(ArrayStore):
 
     def __init__(
         self,
-        path: str,
+        path: Path | str,
         disk_format: DiskFormat = DiskFormat.NPZ,
         **kwargs: Any,
     ) -> None:
@@ -34,13 +35,14 @@ class NumpyArrayStore(ArrayStore):
 
     def create(
         self,
-        path: str,
+        path: Path | str,
         shape: tuple[int, ...],
         overwrite: bool = False,
         dtype: npt.DTypeLike = np.dtype(np.float64),
         fill: np.generic | None = None,
         **kwargs: Any,
     ) -> Any:
+        path = str(path)
         if path in self._store and not overwrite:
             raise RuntimeError(f"{path} already exists and overwrite is False!")
         if fill:
@@ -50,7 +52,7 @@ class NumpyArrayStore(ArrayStore):
 
     def write(
         self,
-        path: str,
+        path: Path | str,
         data: npt.NDArray[np.generic],
         view: OptionalSliceSpec = None,
         **kwargs: Any,
@@ -58,15 +60,17 @@ class NumpyArrayStore(ArrayStore):
         """
         Write or overwrite the array at the given path.
         """
+        path = str(path)
         self._store[path] = np.array(data, copy=True)
 
     def append(
-        self, path: str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
+        self, path: Path | str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
     ) -> None:
         """
         Append data along the first axis to an existing array at path;
         if no array exists, creates one.
         """
+        path = str(path)
         arr = np.array(data, copy=False)
         if path in self._store:
             existing = self._store[path]
@@ -81,7 +85,7 @@ class NumpyArrayStore(ArrayStore):
             self.write(path, arr)
 
     def read(
-        self, path: str, view: OptionalSliceSpec = None, **kwargs: Any
+        self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> npt.NDArray[np.generic] | None:
         """
         Read the array at path, optionally returning a subset.
@@ -95,6 +99,7 @@ class NumpyArrayStore(ArrayStore):
         Returns:
             The requested ndarray, or None if path not found.
         """
+        path = str(path)
         data = self._store.get(path)
         if data is None:
             return None
@@ -133,9 +138,10 @@ class NumpyArrayStore(ArrayStore):
         np.savez(fn, *savez_dict)
 
     def dump(self, **kwargs: Any) -> None:
+        path = str(self.path)
         if self.disk_format == DiskFormat.NPY:
-            self._dump_npy(self.path)
+            self._dump_npy(path)
         elif self.disk_format == DiskFormat.NPZ:
-            self._dump_npz(self.path)
+            self._dump_npz(path)
         else:
             raise ValueError("DiskFormat of {} not supported", self.disk_format)

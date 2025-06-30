@@ -106,7 +106,7 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
 
     # Re-open for reading and spot‐check
     store_r = ZarrArrayStore(path=path_store_array, mode="r")
-    coords = store_r.read("default/coordinates")
+    coords = store_r.read("default/microstate/coordinates")
     assert coords is not None
     assert np.allclose(coords[0, 0, 0], 33.924496)
     assert np.allclose(coords[0, 32, 0], 27.2496)

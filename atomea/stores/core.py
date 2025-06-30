@@ -2,28 +2,30 @@ from typing import Any
 
 import os
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import atomea.typing as adt
 from atomea.data import OptionalSliceSpec
-from atomea.stores import DiskFormat
+from atomea.stores import DiskFormat, StoreKind
 
 
 class Store(ABC):
     """
-    Abstract interface for data stores.
+    An abstract interface for handling data stored in memory or on disk.
     """
 
+    kind: StoreKind
     _store: Any
 
     def __init__(
         self,
-        path: str,
+        path: Path | str,
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
         """
         Args:
-            path: Path to directory where data will be stored.
+            path: Path where data will be stored.
             disk_format: File format when writing data to disk.
         """
         os.makedirs(path, exist_ok=True)
@@ -33,7 +35,7 @@ class Store(ABC):
     @abstractmethod
     def write(
         self,
-        path: str,
+        path: Path | str,
         data: Any,
         view: OptionalSliceSpec = None,
         **kwargs: Any,
@@ -42,7 +44,7 @@ class Store(ABC):
         Write data.
 
         Args:
-            path: logical name.
+            path: Path where data will be stored.
             data: Data to write.
         """
         ...
@@ -50,7 +52,7 @@ class Store(ABC):
     @abstractmethod
     def append(
         self,
-        path: str,
+        path: Path | str,
         data: Any,
         **kwargs: Any,
     ) -> None:
@@ -58,20 +60,20 @@ class Store(ABC):
         Append data.
 
         Args:
-            path: logical name.
+            path: Path where data will be stored.
             data: Data to append.
         """
         ...
 
     @abstractmethod
     def read(
-        self, path: str, view: OptionalSliceSpec = None, **kwargs: Any
+        self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> adt.OptionalPassableData:
         """
         Read the entire data structure with the given name.
 
         Args:
-            path: logical name.
+            path: Path where data will be stored.
 
         Returns:
             The requested data.

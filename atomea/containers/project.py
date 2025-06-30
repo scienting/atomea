@@ -14,15 +14,19 @@ class Project(AtomeaContainer):
         self,
         array_store: ArrayStore,
         table_store: TableStore,
+        id: str = "prj",
     ) -> None:
         """
         Args:
             array_store: Storage backend for all arrays.
             table_store: Storage backend for all tables.
+            id: Unique ID for this container.
         """
         assert isinstance(array_store, ArrayStore)
         assert isinstance(table_store, TableStore)
+        assert isinstance(id, str)
 
+        self.id = id
         self._stores: dict[StoreKind, Store] = {
             StoreKind.ARRAY: array_store,
             StoreKind.TABLE: table_store,

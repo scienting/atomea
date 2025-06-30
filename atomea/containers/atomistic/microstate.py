@@ -57,6 +57,7 @@ class Microstates(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.id = "microstate"
         self.cadence = Cadence.ENSEMBLE
         self._parent = parent
         self.atom_z.bind_to_container(self)

@@ -42,6 +42,7 @@ class Time(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.id = "time"
         self.cadence = Cadence.ENSEMBLE
         self._parent = parent
         self.time_step.bind_to_container(self)

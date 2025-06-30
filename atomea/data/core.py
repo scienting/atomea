@@ -6,7 +6,7 @@ from loguru import logger
 
 from atomea.containers import AtomeaContainer
 from atomea.data import OptionalSliceSpec, T, ValueOrSlice
-from atomea.stores import StoreKind
+from atomea.stores import Store, StoreKind
 
 
 class Data(Generic[T]):
@@ -26,12 +26,12 @@ class Data(Generic[T]):
         self.store_kind = store_kind
         self.uuid = uuid
         self.description = description
-        self.name: str | None = None
+        self.id: str | None = None
         self._container: AtomeaContainer | None = None
         self._parent_chain: tuple[AtomeaContainer, ...] = tuple()
 
     def __set_name__(self, owner: type, name: str) -> None:
-        self.name = name
+        self.id = name
 
     def bind_to_container(self, container: AtomeaContainer) -> object:
         """Explicitly bind this Data object to a container."""
@@ -40,7 +40,7 @@ class Data(Generic[T]):
         return self
 
     def __repr__(self):
-        return f"Data<{self.name}>"
+        return f"Data<{self.id}>"
 
     def _set_parent_chain(self) -> None:
         """Build chain from current object to root project and sets the attribute
@@ -61,7 +61,7 @@ class Data(Generic[T]):
             # Move up the hierarchy
             if hasattr(current, "_parent"):
                 logger.debug("Found parent container of {}", current)
-                current = current._parent
+                current = current._parent  # type: ignore
             else:
                 raise RuntimeError(f"Cannot find project root from {self}")
         _parent_chain = tuple(reversed(chain))
@@ -72,7 +72,8 @@ class Data(Generic[T]):
     def parent_chain(self) -> tuple[AtomeaContainer, ...]:
         """
         Chain of object references to get from the Project and any other
-        `AtomeaContainers` to this `Data` object.
+        `AtomeaContainers` to this `Data` object. This does not include the `Data`
+        object itself.
 
         An atomea `Project` is the root container for any and all data for a
         specific project. We often nest `AtomeaContainers` to group
@@ -92,34 +93,44 @@ class Data(Generic[T]):
             self._set_parent_chain()
         return self._parent_chain
 
-    def get_store_info(self) -> tuple[Any, Any, Any]:
-        parent_chain = self.parent_chain
+    def _get_store(self, parent_chain: tuple[AtomeaContainer, ...]) -> Store:
         project = parent_chain[0]
-
-        # Determine the path based on the object hierarchy
-        if len(parent_chain) < 3:
-            # This is a project-level field
-            path = self.name
-            obj_id = getattr(self, "id", None)
-        else:
-            # This is an ensemble or component-level field
-            ensemble = parent_chain[1]
-            path = f"{ensemble.id}/{self.name}"  # type: ignore
-            obj_id = ensemble.id  # type: ignore
-
         store = project._stores[self.store_kind]  # type: ignore
-        return store, path, obj_id
+        return store
+
+    def _get_path(self, parent_chain: tuple[AtomeaContainer, ...]) -> str:
+        """
+        Determine the path of data in store based on the object hierarchy.
+        """
+        path = "/".join([obj.id for obj in parent_chain[1:]])
+        if self.store_kind == StoreKind.ARRAY:
+            path += f"/{self.id}"
+        return path
+
+    def get_store_info(self) -> tuple[Store, str]:
+        """Determines information needed to access this data from a store.
+
+        Returns:
+            Table or Array store from the project owning this data.
+
+            Path needed to get this data out of the store.
+        """
+        parent_chain = self.parent_chain
+        store = self._get_store(parent_chain)
+        path = self._get_path(parent_chain)
+        logger.debug("Getting <Data '{}'> from <Store '{}'>", path, store.path)
+        return store, path
 
     def write(self, data: T, view: OptionalSliceSpec = None, **kwargs: Any) -> None:
-        store, path, _ = self.get_store_info()
+        store, path = self.get_store_info()
         store.write(path, data, view=view, **kwargs)
 
     def append(self, data: T, **kwargs: Any) -> None:
-        store, path, _ = self.get_store_info()
+        store, path = self.get_store_info()
         store.append(path, data, **kwargs)
 
     def read(self, view: OptionalSliceSpec = None, **kwargs: Any) -> T | None:
-        store, path, _ = self.get_store_info()
+        store, path = self.get_store_info()
         data = store.read(path, view=view, **kwargs)
         return data  # type: ignore
 
@@ -129,14 +140,14 @@ class Data(Generic[T]):
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> T | None:
-        store, path, _ = self.get_store_info()
+        store, path = self.get_store_info()
         return store.read(path, view=view, **kwargs)  # type: ignore
 
     def __set__(self, obj: object, value: ValueOrSlice[T]) -> None:
         if obj is None:
             raise AttributeError("Cannot set attribute on class")
 
-        store, path, _ = self.get_store_info()
+        store, path = self.get_store_info()
 
         view: OptionalSliceSpec = None
         if isinstance(value, tuple) and len(value) == 2:
@@ -158,9 +169,12 @@ class Data(Generic[T]):
         Returns:
             The next `microstate_id`.
         """
-        store, path, _ = self.get_store_info()
+        store, path = self.get_store_info()
+        assert store.kind == StoreKind.TABLE, (
+            "Can only check for microstate IDs on table data"
+        )
         # Need to determine this by using the key
-        df = store.query(path, ensemble_id=ensemble_id, run_id=run_id)
+        df = store.query(path, ensemble_id=ensemble_id, run_id=run_id)  # type: ignore
         if df.shape == (0, 0):
             return 0
 
@@ -179,7 +193,7 @@ class Data(Generic[T]):
                 "ensemble_id": np.full(microstate_ids.shape, ensemble_id),
                 "run_id": np.full(microstate_ids.shape, run_id),
                 "microstate_id": microstate_ids,
-                self.name: data,
+                self.id: data,
             }
         )
         return df

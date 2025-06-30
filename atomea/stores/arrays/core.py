@@ -1,12 +1,13 @@
 from typing import Any
 
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
 
 from atomea.data import OptionalSliceSpec
-from atomea.stores import ArrayDiskFormats, DiskFormat, Store
+from atomea.stores import ArrayDiskFormats, DiskFormat, Store, StoreKind
 
 
 class ArrayStore(Store, ABC):
@@ -15,17 +16,17 @@ class ArrayStore(Store, ABC):
     e.g., coordinates, velocities, forces, etc.
     """
 
+    kind = StoreKind.ARRAY
+
     def __init__(
         self,
-        path: str,
+        path: Path | str,
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
         """
         Args:
-            path: Path to directory where arrays will be stored. For example, this
-                should be to a Zarr store ending in `.zarr` or a directory of
-                `<prj_name>.arrays` for NumPy.
+            path: Container/table name.
             disk_format: File format when writing arrays to disk.
         """
         assert disk_format in ArrayDiskFormats
@@ -34,7 +35,7 @@ class ArrayStore(Store, ABC):
     @abstractmethod
     def create(
         self,
-        path: str,
+        path: Path | str,
         shape: tuple[int, ...],
         overwrite: bool = False,
         **kwargs: Any,
@@ -43,7 +44,7 @@ class ArrayStore(Store, ABC):
     @abstractmethod
     def write(
         self,
-        path: str,
+        path: Path | str,
         data: Any,
         view: OptionalSliceSpec = None,
         **kwargs: Any,
@@ -52,19 +53,21 @@ class ArrayStore(Store, ABC):
         Write a new array at the given path. Overwrites if it exists.
 
         Args:
-            path: logical path or key within the ensemble (e.g., "coords/0").
+            path: Container/table name.
             array: numpy array to store.
         """
         ...
 
     @abstractmethod
-    def append(self, path: str, data: npt.NDArray[np.generic], **kwargs: Any) -> None:
+    def append(
+        self, path: Path | str, data: npt.NDArray[np.generic], **kwargs: Any
+    ) -> None:
         """
         Append data to an existing array at the given path, creating it if needed.
         This is useful for adding new microstates one by one.
 
         Args:
-            path: logical path or key within the ensemble.
+            path: Container/table name.
             array: numpy array to append along the first axis.
         """
         ...
@@ -72,7 +75,7 @@ class ArrayStore(Store, ABC):
     @abstractmethod
     def read(
         self,
-        path: str,
+        path: Path | str,
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> npt.NDArray[np.generic] | None:
@@ -80,10 +83,11 @@ class ArrayStore(Store, ABC):
         Retrieve the full array stored at the given path.
 
         Args:
-            path: logical path or key within the ensemble.
+            path: Container/table name.
             view: either a tuple of slice objects corresponding to each dimension,
-                    or a dict of {axis_index: slice} for partial reads.
-                    If None, returns the full array.
+                or a dict of {axis_index: slice} for partial reads.
+                If None, returns the full array.
+
         Returns:
             numpy array previously stored.
         """

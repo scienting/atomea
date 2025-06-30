@@ -1,5 +1,7 @@
 from typing import Any, Literal
 
+from pathlib import Path
+
 import numpy as np
 import numpy.typing as npt
 import zarr
@@ -19,7 +21,7 @@ class ZarrArrayStore(ArrayStore):
 
     def __init__(
         self,
-        path: str,
+        path: Path | str,
         disk_format: DiskFormat = DiskFormat.ZARR,
         mode: str = "r",
         **kwargs: Any,
@@ -47,12 +49,12 @@ class ZarrArrayStore(ArrayStore):
                 - `w-` means create (fail if exists).
         """
         assert disk_format == DiskFormat.ZARR
-        self._store: Group = zarr.open_group(store=path, mode=mode, **kwargs)
+        self._store: Group = zarr.open_group(store=str(path), mode=mode, **kwargs)
         super().__init__(path, disk_format=disk_format, **kwargs)
 
     def create(
         self,
-        path: str,
+        path: Path | str,
         shape: tuple[int, ...],
         overwrite: bool = False,
         dtype: npt.DTypeLike | None = None,
@@ -69,6 +71,7 @@ class ZarrArrayStore(ArrayStore):
             dtype: numpy-compatible dtype.
             chunks: chunk shape or 'auto'.
         """
+        path = str(path)
         group_path, _ = path.rsplit("/", 1) if "/" in path else ("", path)
         self._store.create_hierarchy({group_path: GroupMetadata()})
         z = self._store.create_array(
@@ -83,7 +86,7 @@ class ZarrArrayStore(ArrayStore):
 
     def write(
         self,
-        path: str,
+        path: Path | str,
         data: npt.NDArray[np.generic],
         view: OptionalSliceSpec = None,
         dtype: npt.DTypeLike | None = None,
@@ -100,7 +103,7 @@ class ZarrArrayStore(ArrayStore):
                     else write into the specified slice region.
             overwrite: if True and slices is None, replaces existing array definition.
         """
-        z = self._store.get(path=path)
+        z = self._store.get(path=str(path))
         if not dtype:
             dtype = data.dtype
         if z is None:
@@ -110,18 +113,18 @@ class ZarrArrayStore(ArrayStore):
             z.set_basic_selection(view, data, **kwargs)  # type: ignore
 
     def append(
-        self, path: str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
+        self, path: Path | str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
     ) -> None:
         """
         Append data along the first axis to an existing Zarr array;
         creates the array with an unlimited first dimension if it does not exist.
         """
-        arr = self.read(path)
+        arr = self.read(str(path))
         arr.append(data, **kwargs)  # type: ignore
 
     def read(
         self,
-        path: str,
+        path: Path | str,
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> npt.NDArray[np.generic] | None:
@@ -129,7 +132,7 @@ class ZarrArrayStore(ArrayStore):
         Read the array from Zarr, optionally returning a subset efficiently.
         Returns None if the path does not exist.
         """
-        z = self._store.get(path)
+        z = self._store.get(str(path))
         if view is None:
             return z[:]  # type: ignore
         if isinstance(view, dict):

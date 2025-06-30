@@ -1,21 +1,23 @@
 from typing import Any
 
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import polars as pl
 
-from atomea.stores import ArrayDiskFormats, DiskFormat, Store
+from atomea.stores import ArrayDiskFormats, DiskFormat, Store, StoreKind
 
 
 class TableStore(Store, ABC):
     """
-    Abstract interface for tabular data mappable to ensembles and microstates,
-    e.g., energy, time stamps, indices, and other per-microstate properties.
+    Abstract interface for tabular data.
     """
+
+    kind = StoreKind.TABLE
 
     def __init__(
         self,
-        path: str,
+        path: Path | str,
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
@@ -31,9 +33,9 @@ class TableStore(Store, ABC):
     @abstractmethod
     def query(
         self,
-        path: str,
+        path: Path | str,
         ensemble_id: str | None = None,
-        run_id: str | None = None,
+        run_id: int | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
         **kwargs: Any,
@@ -42,8 +44,16 @@ class TableStore(Store, ABC):
         Query a named table using a filter expression.
 
         Args:
-            path: logical table name.
-            filter_expr: string expression to filter rows, e.g., "ensemble_id=='e1'".
+            path: Container/table name.
+            ensemble_id: A unique identification label for an ensemble.
+                This can be `"1"`, `"default"`, `"exp3829"`, etc.
+            run_id: An unique, independent run within the same ensemble.
+                This often arises when running multiple independent molecular
+                simulation trajectories with different random seeds.
+            microstate_id: An index specifying a microstate with some relationship to
+                order. This can be a frame in a molecular simulation trajectories,
+                docking scores from best to worst, optimization steps, etc.
+            filter_expr: string expression to filter rows.
 
         Returns:
             Filtered DataFrame.

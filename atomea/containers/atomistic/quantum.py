@@ -26,6 +26,7 @@ class Quantum(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
+        self.id = "quantum"
         self.cadence = Cadence.ENSEMBLE
         self._parent = parent
         self.electron_frozen_num.bind_to_container(self)
