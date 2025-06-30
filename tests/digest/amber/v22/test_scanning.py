@@ -1,5 +1,5 @@
-from atomea.digesters.amber.v22 import AMBER_V22_PATTERNS, AmberV22State
-from atomea.digesters.text import StateScanner
+from atomea.io.amber.v22 import AMBER_V22_PATTERNS, AmberV22State
+from atomea.io.text import StateScanner
 
 
 class TestAmberV22Scanner:

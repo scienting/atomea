@@ -2,7 +2,7 @@ from typing import Iterator
 
 import re
 
-from atomea.digesters.text.engines import S, ScanEngine
+from atomea.io.text.engines import S, ScanEngine
 
 
 class StdRegexEngine(ScanEngine[S]):

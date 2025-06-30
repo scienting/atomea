@@ -1,12 +1,12 @@
 import pytest
 
-from atomea.digesters.amber.v22 import (
+from atomea.io.amber.v22 import (
     AMBER_V22_PATTERNS,
     AmberV22Parser,
     AmberV22State,
     parsers,
 )
-from atomea.digesters.text import ParsedFile, StateScanner
+from atomea.io.text import ParsedFile, StateScanner
 
 
 class TestAmberV22Parser:

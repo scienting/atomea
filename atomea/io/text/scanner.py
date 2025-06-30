@@ -1,7 +1,7 @@
 from typing import Generic
 
-from atomea.digesters.text import StateTransition
-from atomea.digesters.text.engines import S, ScanEngine, StdRegexEngine
+from atomea.io.text import StateTransition
+from atomea.io.text.engines import S, ScanEngine, StdRegexEngine
 
 
 class StateScanner(Generic[S]):

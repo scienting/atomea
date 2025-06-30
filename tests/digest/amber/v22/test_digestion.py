@@ -2,8 +2,8 @@ import os
 import shutil
 
 from atomea.containers import Project
-from atomea.digesters.amber import AmberOutputDigester
-from atomea.digesters.amber.v22 import (
+from atomea.io.amber import AmberOutputReader
+from atomea.io.amber.v22 import (
     AmberV22Parser,
 )
 from atomea.stores import DiskFormat
@@ -11,8 +11,8 @@ from atomea.stores.arrays import ZarrArrayStore
 from atomea.stores.tables import PolarsTableStore
 
 
-class TestOutputDigestion:
-    """Test digestion of amber output files"""
+class TestOutputReading:
+    """Test reading of amber output files"""
 
     def test_amber_npt_output(self, amber_rogfp2_sim_paths, tmp_dir):
         path_store_array = os.path.join(tmp_dir, "amber_rogfp2_npt_output.zarr")
@@ -28,23 +28,23 @@ class TestOutputDigestion:
 
         prj = Project(store_array, store_table)
         parser = AmberV22Parser()
-        digest_args = (
+        reader_args = (
             amber_rogfp2_sim_paths["07_relax_npt.out"],
             parser,
         )
-        digest_kwargs = {}
-        prj = AmberOutputDigester.run(
+        reader_kwargs = {}
+        prj = AmberOutputReader.run(
             prj,
             "default",
             "0",
-            digest_args,
-            digest_kwargs,
+            reader_args,
+            reader_kwargs,
         )
         # Duplicate to test appending
-        prj = AmberOutputDigester.run(
+        prj = AmberOutputReader.run(
             prj,
             "default",
             "0",
-            digest_args,
-            digest_kwargs,
+            reader_args,
+            reader_kwargs,
         )

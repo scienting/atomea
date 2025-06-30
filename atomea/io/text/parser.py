@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 
-from atomea.digesters.text import StateScanner, StateTransition
+from atomea.io.text import StateScanner, StateTransition
 
 S = TypeVar("S")
 

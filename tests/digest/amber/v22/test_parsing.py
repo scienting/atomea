@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from atomea.digesters.amber.v22 import AmberV22State, parsers
+from atomea.io.amber.v22 import AmberV22State, parsers
 
 
 class TestAmberResultsParser:

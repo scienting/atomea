@@ -7,9 +7,9 @@ from loguru import logger
 from atomea.containers import Project
 
 
-class Digester(ABC):
+class Reader(ABC):
     """
-    Base class for all digesters.
+    Base class for all readers.
     """
 
     @classmethod
@@ -40,10 +40,10 @@ class Digester(ABC):
         Args:
             prj: Destination project to put extracted information.
             id_ens: ID to store any ensemble data under.
-            context: Information needed for the digestion process.
+            context: Information needed for the reader.
 
         Returns:
-            Project after digestion.
+            Project after extracting all information.
         """
         ...
 
@@ -53,30 +53,30 @@ class Digester(ABC):
         prj: Project,
         id_ens: str,
         id_run: str,
-        digest_args: tuple[Any] | None = None,
-        digest_kwargs: dict[str, Any] | None = None,
+        reader_args: tuple[Any] | None = None,
+        reader_kwargs: dict[str, Any] | None = None,
     ) -> Project:
         """
-        Run the digestion process from start to finish for a single ensemble.
+        Read and extract data from start to finish for a single ensemble.
 
         Args:
-            prj: Project to store all digested data to.
+            prj: Project to store all extracted data to.
             id_ens: ID of this ensemble. This function will create the ensemble
                 if it does not exist in `prj`.
-            digest_args: Arguments for preparing the context needed for digestion.
-            digest_kwargs: Keyword arguments for preparing the context needed for
-                the digestion.
+            reader_args: Arguments for preparing the context needed for the reader.
+            reader_kwargs: Keyword arguments for preparing the context needed for
+                the reader.
 
         Returns:
-            Project after digestion.
+            Project after extracting data.
         """
-        logger.info("Running digestion")
-        if digest_args is None:
-            digest_args = tuple()
-        if digest_kwargs is None:
-            digest_kwargs = dict()
+        logger.info("Running the reader")
+        if reader_args is None:
+            reader_args = tuple()
+        if reader_kwargs is None:
+            reader_kwargs = dict()
         cls.checks()
-        ctx = cls.prepare(*digest_args, **digest_kwargs)
+        ctx = cls.prepare(*reader_args, **reader_kwargs)
 
         _ = prj.get_ensemble(id_ens) or prj.add_ensemble(id_ens)
 

@@ -1,9 +1,9 @@
-from atomea.digesters.amber.v22 import (
+from atomea.io.amber.v22 import (
     AMBER_V22_PATTERNS,
     AmberV22State,
     parsers,
 )
-from atomea.digesters.text import (
+from atomea.io.text import (
     FileParser,
     ParsedFile,
     ParsedRegion,

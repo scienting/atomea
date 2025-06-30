@@ -6,17 +6,17 @@ import shutil
 import numpy as np
 
 from atomea.containers import Project
-from atomea.digesters import MDAnalysisDigester
+from atomea.io import MDAnalysisReader
 from atomea.stores import DiskFormat
 from atomea.stores.arrays import ZarrArrayStore
 from atomea.stores.tables import PolarsTableStore
 
 
-def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
+def test_reader_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     """
-    Test the digestion of Amber simulations using the roGFP2 ensemble.
+    Test the reading Amber simulations using the roGFP2 ensemble.
 
-    Verifies that MDAnalysisDigester builds a Project, creates a default Ensemble,
+    Verifies that MDAnalysisReader builds a Project, creates a default Ensemble,
     and populates microstates and topology data correctly.
     """
     path_store_array = os.path.join(tmp_dir, "amber_rogfp2_serial.zarr")
@@ -30,20 +30,20 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     store_array = ZarrArrayStore(path_store_array, mode="a")
     store_table = PolarsTableStore(path_store_table, DiskFormat.PARQUET)
     prj = Project(store_array, store_table)
-    digest_args = (
+    reader_args = (
         amber_rogfp2_sim_paths["mol.prmtop"],
         amber_rogfp2_sim_paths["07_relax_npt.nc"],
     )
-    digest_kwargs = {
+    reader_kwargs = {
         "topology_format": "PRMTOP",
         "format": "NC",
     }
-    prj: Project = MDAnalysisDigester.run(
+    prj: Project = MDAnalysisReader.run(
         prj,
         "default",
         "0",
-        digest_args,  # type: ignore
-        digest_kwargs,
+        reader_args,  # type: ignore
+        reader_kwargs,
     )
     ensemble = prj.ensembles["default"]
 
@@ -69,13 +69,9 @@ def test_digest_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     assert fftypes[0] == "N3"
 
 
-def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
+def test_reader_write_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     """
-    Test digestion + storage into a Zarr store.
-
-    Uses ZarrManager.digest_and_store to run MDAnalysisDigester and persist
-    into a on-disk .zarr directory, then reopens the coordinates array and
-    spot-checks.
+    Test reader + storage into a Zarr store.
     """
     path_store_array = os.path.join(tmp_dir, "amber_rogfp2_serial.zarr")
     if os.path.exists(path_store_array):
@@ -88,20 +84,20 @@ def test_digest_write_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     store_array = ZarrArrayStore(path_store_array, mode="a")
     store_table = PolarsTableStore(path_store_table, DiskFormat.PARQUET)
     prj = Project(store_array, store_table)
-    digest_args = (
+    reader_args = (
         amber_rogfp2_sim_paths["mol.prmtop"],
         amber_rogfp2_sim_paths["07_relax_npt.nc"],
     )
-    digest_kwargs = {
+    reader_kwargs = {
         "topology_format": "PRMTOP",
         "format": "NC",
     }
-    MDAnalysisDigester.run(
+    MDAnalysisReader.run(
         prj,
         "default",
         "0",
-        digest_args,  # type: ignore
-        digest_kwargs,
+        reader_args,  # type: ignore
+        reader_kwargs,
     )
 
     # Re-open for reading and spot‐check

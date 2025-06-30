@@ -3,9 +3,9 @@ from typing import Any
 import numpy as np
 from loguru import logger
 
-from atomea.digesters.amber.v22 import AmberV22State
-from atomea.digesters.text import StateParser
-from atomea.digesters.text.engines import ScanEngine, StdRegexEngine
+from atomea.io.amber.v22 import AmberV22State
+from atomea.io.text import StateParser
+from atomea.io.text.engines import ScanEngine, StdRegexEngine
 
 PAT_NATOM = rb"NATOM\s*=\s*\d+"
 PAT_NRES = rb"NRES\s*=\s*\d+"

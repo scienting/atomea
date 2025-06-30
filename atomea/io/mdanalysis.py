@@ -14,18 +14,18 @@ except ImportError:
 from typing import Any
 
 from atomea.containers import Project
-from atomea.digesters import Digester
+from atomea.io import Reader
 
 
-class MDAnalysisDigester(Digester):
+class MDAnalysisReader(Reader):
     """
-    Digests a trajectory via MDAnalysis.
+    Read a trajectory via MDAnalysis.
     """
 
     @classmethod
     def checks(cls) -> None:
         if not HAS_MDANALYSIS:
-            raise ImportError("MDAnalysis is required for MDAnalysisDigester")
+            raise ImportError("MDAnalysis is required for MDAnalysisReader")
 
     @classmethod
     def prepare(

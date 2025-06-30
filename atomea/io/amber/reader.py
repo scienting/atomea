@@ -1,14 +1,14 @@
 from typing import Any
 
 from atomea.containers import Project
-from atomea.digesters import Digester
-from atomea.digesters.text import (
+from atomea.io import Reader
+from atomea.io.text import (
     FileParser,
     ParsedRegion,
 )
 
 
-class AmberOutputDigester(Digester):
+class AmberOutputReader(Reader):
     @classmethod
     def checks(cls) -> None:
         pass
