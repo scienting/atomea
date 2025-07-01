@@ -22,7 +22,7 @@ function descending$2(a, b) {
 function bisector(f) {
   let compare1, compare2, delta;
 
-  // If an accessor is specified, promote it to a comparator. In this case we
+  // If an interface is specified, promote it to a comparator. In this case we
   // can test whether the search value is (self-) comparable. We can’t do this
   // for a comparator (except for specific, known comparators) because we can’t
   // tell if the comparator is symmetric, and an asymmetric comparator can’t be

@@ -1,5 +1,0 @@
-nav:
-    - Schemas: index.md
-    - Atomistic: atomistic
-    - Workflow: workflow
-    - "*"

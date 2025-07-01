@@ -2,7 +2,7 @@ import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-from atomea.schemas.workflow.amber import Amber22CLI
+from atomea.containers.workflow.amber import Amber22CLI
 
 amber_cli = Amber22CLI(
     mdin="min.in",

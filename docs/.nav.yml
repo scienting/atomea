@@ -1,6 +1,13 @@
 nav:
     - Home: index.md
-    - Schemas: schemas
+    - Containers:
+      - containers/index.md
+      - Levels:
+        - containers/levels/index.md
+        - Project: containers/levels/project.md
+        - Ensemble: containers/levels/ensemble.md
+        - Microstate: containers/levels/microstate.md
+      - UUIDs: containers/uuids.md
     - Digesters: digesters
     - Examples: examples
     - API: api

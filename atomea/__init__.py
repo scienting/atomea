@@ -8,6 +8,10 @@ from ast import literal_eval
 
 from loguru import logger
 
+from .containers import Project
+
+__all__ = ["Project"]
+
 logger.disable("atomea")
 
 LOG_FORMAT = (
