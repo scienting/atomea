@@ -19,7 +19,7 @@ from atomea.io import Reader
 
 class MDAnalysisReader(Reader):
     """
-    Read a trajectory via MDAnalysis.
+    Read data via MDAnalysis.
     """
 
     @classmethod
@@ -57,9 +57,13 @@ class MDAnalysisReader(Reader):
         """Store per‐ensemble atom symbols & ff types once."""
         u = ctx["u"]
         syms = np.array(u.atoms.elements, dtype=np.dtype(np.str_))
-        types = np.array(u.atoms.types, dtype=np.dtype(np.str_))
         prj.ensembles[ens_id].microstates.atom_symbol = syms
+        types = np.array(u.atoms.types, dtype=np.dtype(np.str_))
         prj.ensembles[ens_id].topology.ff_atom_type = types
+        ids_component = np.array(u.atoms.resids, dtype=np.dtype(np.uint32))
+        prj.ensembles[ens_id].topology.ids_component = ids_component
+        labels_component = np.array(u.atoms.resnames, dtype=np.dtype(np.str_))
+        prj.ensembles[ens_id].topology.labels_component = labels_component
         return prj
 
     @staticmethod

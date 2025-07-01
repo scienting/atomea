@@ -7,26 +7,37 @@ from atomea.stores import StoreKind
 class Topology(AtomeaContainer):
     """Information that specifies the physical atomistic microstates."""
 
-    ids_entity = Data[adt.UInt32](
+    ids_molecule = Data[adt.UInt32](
         store_kind=StoreKind.ARRAY,
         uuid="b490f2db-548e-4c92-a71a-8222c041ca54",
-        description="Uniquely identifying integer mapping atoms to chemical entities",
+        description="Uniquely identifying integer mapping atoms to a molecule.",
     )
-    """A uniquely identifying integer specifying what atoms belong to which entities.
-    Entities can be a related set of atoms, molecules, or functional group.
+    """A uniquely identifying integer specifying which atoms belong to a single,
+    physical, covalently bonded molecule. A molecule can be an organic compound,
+    ion, protein, single-stranded DNA, etc.
     For example, a water and methanol molecule could be `[0, 0, 0, 1, 1, 1, 1, 1, 1]`.
     """
 
-    ids_component = Data[adt.Str](
+    ids_component = Data[adt.UInt32](
         store_kind=StoreKind.ARRAY,
         uuid="cf39af62-d372-4747-a431-cf2fa0c8e119",
-        description="Fragments label for chemical entities",
+        description="Unique integer that maps atoms to substructures within a molecule.",
     )
-    """Relates [`ids_entity`][schemas.atomistic.topology.Topology.ids_entity]
-    to a fragment label for chemical components or species.
-    Labels could be `WAT` or `h2o` for water, `MeOH` for methanol, `bz` for benzene,
-    etc. There are no standardized labels for species.
+    """Assigns atoms from a single `id_molecule` into various substructures.
+    Substructures and represent functional groups in organic compounds,
+    amino acids in proteins, nucleotides in DNA, etc.
+
+    The number of unique components is constant between microstates.
+    Atoms can change components; for example, a proton transfer would result in
+    one hydrogen changing from one component to another (e.g., `32` -> `59`).
     """
+
+    labels_component = Data[adt.Str](
+        store_kind=StoreKind.ARRAY,
+        uuid="3466ffde-1ac0-4e07-ad5f-832420c3943f",
+        description="Maps a Component ID to a human-readable label.",
+    )
+    """An array of human-readable component labels on a per-atom basis."""
 
     ff_atom_type = Data[adt.Str](
         store_kind=StoreKind.ARRAY,
@@ -51,6 +62,7 @@ class Topology(AtomeaContainer):
         self.id = "topology"
         self.cadence = Cadence.MICROSTATE
         self._parent = parent
-        self.ids_entity.bind_to_container(self)
+        self.ids_molecule.bind_to_container(self)
         self.ids_component.bind_to_container(self)
+        self.labels_component.bind_to_container(self)
         self.ff_atom_type.bind_to_container(self)

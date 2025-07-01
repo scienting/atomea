@@ -63,6 +63,16 @@ def test_reader_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     assert syms[8324] == "H"
     assert syms[-1] == "H"
 
+    ids_component = ensemble.topology.ids_component.value
+    assert ids_component is not None
+    assert ids_component[0] == 1
+    assert ids_component[-1] == 10270
+
+    labels_component = ensemble.topology.labels_component.value
+    assert labels_component is not None
+    assert labels_component[0] == "MET"
+    assert labels_component[-1] == "WAT"
+
     # force-field atom types in topology
     fftypes = ensemble.topology.ff_atom_type.value
     assert fftypes is not None
