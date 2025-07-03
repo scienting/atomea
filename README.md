@@ -1,5 +1,5 @@
 <h1 align="center">atomea</h1>
-<h4 align="center">Extensible schema for atomistic data and calculations.</h4>
+<h4 align="center">Robust data structure for atomistic data</h4>
 <p align="center">
     <a href="https://github.com/oasci/atomea/actions/workflows/tests.yml">
         <img src="https://github.com/oasci/atomea/actions/workflows/tests.yml/badge.svg" alt="Build Status ">
@@ -37,15 +37,7 @@
 
 ## Overview
 
-Atomea is a Python package designed to simplify and standardize the setup and data management for atomistic data and calculations.
-It leverages the power of [Pydantic][pydantic] for schema definition and [Jinja2][jinja] templates for input file generation, making it easy to automate, document, and prepare input files for various computational chemistry and biology tools.
-
-## Key features
-
--   **Extensible Schema Definition:** Easily define schemas for various computational packages using [Pydantic][pydantic].
--   **Automated Input File Preparation:** Generate input files with [Jinja2][jinja] templates to ensure consistency and reproducibility.
--   **Data Digestion:** Convert raw output files into optimized storage formats (e.g., [Zarr][zarr]) with a consistent interface.
--   **YAML Integration:** Save and load configurations and data in YAML format for easy sharing and reproducibility.
+Atomea is a Python package for atomistic data and calculations.
 
 ## Installation
 
@@ -83,6 +75,4 @@ This project is released under the Apache-2.0 License as specified in [`LICENSE.
 
 <!-- REFERENCES -->
 
-[pydantic]: https://docs.pydantic.dev/latest/
-[jinja]: https://palletsprojects.com/p/jinja/
 [zarr]: https://zarr.dev/
