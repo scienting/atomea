@@ -1,11 +1,16 @@
 import atomea.typing as adt
 from atomea.containers import AtomeaContainer
+from atomea.containers.atomistic import Bonding
 from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
 class Topology(AtomeaContainer):
-    """Information that specifies the physical atomistic microstates."""
+    """Information that specifies the physical atomistic ensemble.
+
+    Note that this topology is assumed constant; a reactive topology needs
+    to be implemented.
+    """
 
     ids_molecule = Data[adt.UInt32](
         store_kind=StoreKind.ARRAY,
@@ -60,8 +65,11 @@ class Topology(AtomeaContainer):
 
     def __init__(self, parent: object) -> None:
         self.id = "topology"
-        self.cadence = Cadence.MICROSTATE
+        self.cadence = Cadence.ENSEMBLE
         self._parent = parent
+
+        self.bonding = Bonding(self)
+
         self.ids_molecule.bind_to_container(self)
         self.ids_component.bind_to_container(self)
         self.labels_component.bind_to_container(self)

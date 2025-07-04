@@ -51,6 +51,29 @@ class MDAnalysisReader(Reader):
         return prj
 
     @staticmethod
+    def parse_topology(
+        prj: Project, ens_id: str, ctx: dict[str, Any]
+    ) -> Project:
+        """Store topology."""
+        u = ctx["u"]
+        ids_component = np.array(u.atoms.resids, dtype=np.dtype(np.uint32))
+        prj.ensembles[ens_id].topology.ids_component = ids_component
+
+        labels_component = np.array(u.atoms.resnames, dtype=np.dtype(np.str_))
+        prj.ensembles[ens_id].topology.labels_component = labels_component
+
+        bonding = np.array(u.bonds.indices, dtype=np.dtype(np.uint64))
+        prj.ensembles[ens_id].topology.bonding.covalent = bonding
+
+        if len(bonding) > 0:
+            # TODO: Compute molecule IDs based on binding and
+            # from scipy.sparse import csr_matrix
+            # from scipy.sparse.csgraph import connected_components
+            pass
+
+        return prj    
+
+    @staticmethod
     def parse_ensemble_metadata(
         prj: Project, ens_id: str, ctx: dict[str, Any]
     ) -> Project:
@@ -60,10 +83,6 @@ class MDAnalysisReader(Reader):
         prj.ensembles[ens_id].microstates.atom_symbol = syms
         types = np.array(u.atoms.types, dtype=np.dtype(np.str_))
         prj.ensembles[ens_id].topology.ff_atom_type = types
-        ids_component = np.array(u.atoms.resids, dtype=np.dtype(np.uint32))
-        prj.ensembles[ens_id].topology.ids_component = ids_component
-        labels_component = np.array(u.atoms.resnames, dtype=np.dtype(np.str_))
-        prj.ensembles[ens_id].topology.labels_component = labels_component
         return prj
 
     @staticmethod
