@@ -19,7 +19,6 @@ class Reader(ABC):
         Load files, open handles, build FSM state, etc.
         Return a dict representing the full parsing context.
         """
-        ...
 
     @classmethod
     def checks(cls) -> None:
@@ -27,7 +26,6 @@ class Reader(ABC):
         Optional pre‐flight checks (e.g. dependencies).
         Override if needed.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -45,7 +43,6 @@ class Reader(ABC):
         Returns:
             Project after extracting all information.
         """
-        ...
 
     @classmethod
     def run(

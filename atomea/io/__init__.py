@@ -1,5 +1,4 @@
 from .reader import Reader
-from . import text
-from .mdanalysis import MDAnalysisReader
+from .writer import Writer
 
-__all__ = ["Reader", "text", "MDAnalysisReader"]
+__all__ = ["Reader", "Writer"]

@@ -36,7 +36,7 @@ class MDAnalysisReader(Reader):
         return {"u": u}
 
     @classmethod
-    def extract(cls, prj: Project, id_ens: str, id_run, ctx: dict[str, Any]) -> Project:
+    def extract(cls, prj: Project, id_ens: str, id_run: str, ctx: dict[str, Any]) -> Project:
         """Extract and parse all possible information given the context.
         This method is responsible for calling all other methods.
         """
@@ -54,7 +54,7 @@ class MDAnalysisReader(Reader):
     def parse_ensemble_metadata(
         prj: Project, ens_id: str, ctx: dict[str, Any]
     ) -> Project:
-        """Store per‐ensemble atom symbols & ff types once."""
+        """Store per-ensemble atom symbols & ff types once."""
         u = ctx["u"]
         syms = np.array(u.atoms.elements, dtype=np.dtype(np.str_))
         prj.ensembles[ens_id].microstates.atom_symbol = syms

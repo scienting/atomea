@@ -6,7 +6,7 @@ import shutil
 import numpy as np
 
 from atomea.containers import Project
-from atomea.io import MDAnalysisReader
+from atomea.io.formats import MDAnalysisReader
 from atomea.stores import DiskFormat
 from atomea.stores.arrays import ZarrArrayStore
 from atomea.stores.tables import PolarsTableStore

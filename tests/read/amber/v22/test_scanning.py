@@ -1,4 +1,4 @@
-from atomea.io.amber.v22 import AMBER_V22_PATTERNS, AmberV22State
+from atomea.io.formats.amber.v22 import AMBER_V22_PATTERNS, AmberV22State
 from atomea.io.text import StateScanner
 
 

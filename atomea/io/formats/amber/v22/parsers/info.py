@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 from loguru import logger
 
-from atomea.io.amber.v22 import AmberV22State
+from atomea.io.formats.amber.v22 import AmberV22State
 from atomea.io.text import StateParser
 from atomea.io.text.engines import ScanEngine, StdRegexEngine
 

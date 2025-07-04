@@ -2,8 +2,8 @@ import os
 import shutil
 
 from atomea.containers import Project
-from atomea.io.amber import AmberOutputReader
-from atomea.io.amber.v22 import (
+from atomea.io.formats.amber import AmberOutputReader
+from atomea.io.formats.amber.v22 import (
     AmberV22Parser,
 )
 from atomea.stores import DiskFormat
