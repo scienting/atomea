@@ -26,12 +26,12 @@ class Data(Generic[T]):
         self.store_kind = store_kind
         self.uuid = uuid
         self.description = description
-        self.id: str | None = None
+        self.label: str | None = None
         self._container: AtomeaContainer | None = None
         self._parent_chain: tuple[AtomeaContainer, ...] = tuple()
 
     def __set_name__(self, owner: type, name: str) -> None:
-        self.id = name
+        self.label = name
 
     def bind_to_container(self, container: AtomeaContainer) -> object:
         """Explicitly bind this Data object to a container."""
@@ -40,7 +40,7 @@ class Data(Generic[T]):
         return self
 
     def __repr__(self):
-        return f"Data<{self.id}>"
+        return f"Data<{self.label}>"
 
     def _set_parent_chain(self) -> None:
         """Build chain from current object to root project and sets the attribute
@@ -102,9 +102,9 @@ class Data(Generic[T]):
         """
         Determine the path of data in store based on the object hierarchy.
         """
-        path = "/".join([obj.id for obj in parent_chain[1:]])
+        path = "/".join([obj.label for obj in parent_chain[1:]])
         if self.store_kind == StoreKind.ARRAY:
-            path += f"/{self.id}"
+            path += f"/{self.label}"
         return path
 
     def get_store_info(self) -> tuple[Store, str]:
@@ -193,7 +193,7 @@ class Data(Generic[T]):
                 "ensemble_id": np.full(microstate_ids.shape, ensemble_id),
                 "run_id": np.full(microstate_ids.shape, run_id),
                 "microstate_id": microstate_ids,
-                self.id: data,
+                self.label: data,
             }
         )
         return df

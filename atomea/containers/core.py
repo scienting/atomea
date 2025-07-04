@@ -6,7 +6,7 @@ import polars as pl
 
 
 class AtomeaContainer(ABC):
-    id: str
+    label: str
     """Label for the container."""
 
     @classmethod

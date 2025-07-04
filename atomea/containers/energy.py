@@ -12,8 +12,9 @@ class Energy(AtomeaContainer):
         uuid="9e4bdf45-0150-4605-9528-e23aed0be9f2",
         description="Electronic energy",
     )
-    """Electronic energy is the quantum-mechanical expectation value of the electronic Hamiltonian.
-    It encompasses all kinetic and potential contributions from the Coulombic interactions of the electrons.
+    """Electronic energy is the quantum-mechanical expectation value of the electronic
+    Hamiltonian. It encompasses all kinetic and potential contributions from the
+    Coulombic interactions of the electrons.
     """
 
     potential_mm = Data[adt.DataFrame](
@@ -35,7 +36,7 @@ class Energy(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
-        self.id = "energy"
+        self.label = "energy"
         self.cadence = Cadence.MICROSTATE
         self._parent = parent
         self.electronic.bind_to_container(self)

@@ -36,7 +36,9 @@ class MDAnalysisReader(Reader):
         return {"u": u}
 
     @classmethod
-    def extract(cls, prj: Project, id_ens: str, id_run: str, ctx: dict[str, Any]) -> Project:
+    def extract(
+        cls, prj: Project, id_ens: str, id_run: str, ctx: dict[str, Any]
+    ) -> Project:
         """Extract and parse all possible information given the context.
         This method is responsible for calling all other methods.
         """
@@ -51,19 +53,17 @@ class MDAnalysisReader(Reader):
         return prj
 
     @staticmethod
-    def parse_topology(
-        prj: Project, ens_id: str, ctx: dict[str, Any]
-    ) -> Project:
+    def parse_topology(prj: Project, ens_id: str, ctx: dict[str, Any]) -> Project:
         """Store topology."""
         u = ctx["u"]
         ids_component = np.array(u.atoms.resids, dtype=np.dtype(np.uint32))
-        prj.ensembles[ens_id].topology.ids_component = ids_component
+        prj[ens_id].topology.ids.components = ids_component
 
         labels_component = np.array(u.atoms.resnames, dtype=np.dtype(np.str_))
-        prj.ensembles[ens_id].topology.labels_component = labels_component
+        prj[ens_id].topology.labels.components = labels_component
 
         bonding = np.array(u.bonds.indices, dtype=np.dtype(np.uint64))
-        prj.ensembles[ens_id].topology.bonding.covalent = bonding
+        prj[ens_id].topology.bonds.covalent = bonding
 
         if len(bonding) > 0:
             # TODO: Compute molecule IDs based on binding and
@@ -71,7 +71,7 @@ class MDAnalysisReader(Reader):
             # from scipy.sparse.csgraph import connected_components
             pass
 
-        return prj    
+        return prj
 
     @staticmethod
     def parse_ensemble_metadata(
@@ -80,9 +80,9 @@ class MDAnalysisReader(Reader):
         """Store per-ensemble atom symbols & ff types once."""
         u = ctx["u"]
         syms = np.array(u.atoms.elements, dtype=np.dtype(np.str_))
-        prj.ensembles[ens_id].microstates.atom_symbol = syms
+        prj[ens_id].topology.atoms.symbols = syms
         types = np.array(u.atoms.types, dtype=np.dtype(np.str_))
-        prj.ensembles[ens_id].topology.ff_atom_type = types
+        prj[ens_id].topology.atoms.types = types
         return prj
 
     @staticmethod
@@ -92,7 +92,7 @@ class MDAnalysisReader(Reader):
         coords = [ts.positions.copy() for ts in u.trajectory]
         arr = np.stack(coords, axis=0)
         # this writes a 3D microstate array
-        prj.ensembles[ens_id].microstates.coordinates = arr
+        prj[ens_id].coordinates = arr
         return prj
 
     @staticmethod
@@ -100,5 +100,5 @@ class MDAnalysisReader(Reader):
         """Store the atomic numbers as an ensemble‐level array."""
         u = ctx["u"]
         zs = np.array([SYMB2Z.get(sym, 0) for sym in u.atoms.elements])
-        prj.ensembles[ens_id].microstates.atom_z = zs
+        prj[ens_id].topology.atoms.atomic_numbers = zs
         return prj

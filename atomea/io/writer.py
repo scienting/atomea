@@ -58,4 +58,3 @@ class Writer(ABC):
         _ = prj.get_ensemble(id_ens) or prj.add_ensemble(id_ens)
 
         # TODO: implement
-

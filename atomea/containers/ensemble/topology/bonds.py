@@ -4,9 +4,8 @@ from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
-class Bonding(AtomeaContainer):
-    """Information that specifies (constant) binding.
-    """
+class Bonds(AtomeaContainer):
+    """Information that specifies (constant) binding."""
 
     covalent = Data[adt.UInt64](
         store_kind=StoreKind.ARRAY,
@@ -19,7 +18,7 @@ class Bonding(AtomeaContainer):
     """
 
     def __init__(self, parent: object) -> None:
-        self.id = "bonding"
+        self.label = "bonds"
         self.cadence = Cadence.ENSEMBLE
         self._parent = parent
 

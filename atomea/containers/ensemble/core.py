@@ -1,7 +1,10 @@
 from typing import TYPE_CHECKING
 
+import atomea.typing as adt
 from atomea.containers import AtomeaContainer
-from atomea.containers.atomistic import Microstates, Topology
+from atomea.containers.ensemble import Topology
+from atomea.data import Cadence, Data
+from atomea.stores import StoreKind
 
 if TYPE_CHECKING:
     from atomea.containers import Project
@@ -20,14 +23,23 @@ class Ensemble(AtomeaContainer):
     data should be stored in a [`Project`][schemas.Project].
     """
 
-    def __init__(self, ensemble_id: str, parent: "Project") -> None:
-        self.id: str = ensemble_id
-        self._parent = parent
+    coordinates = Data[adt.Float64](
+        store_kind=StoreKind.ARRAY,
+        uuid="81c7cec9-beec-4126-b6d8-91bee28951d6",
+        description="Atomic coordinates",
+    )
+    """Coordinates refer to the specific three-dimensional positions of particles
+    defined using a set of Cartesian coordinates ($x$, $y$, $z$).
+    """
 
-        # Initialize components with parent reference
-        self.microstates = Microstates(self)
+    def __init__(self, ensemble_id: str, parent: "Project") -> None:
+        self.label = ensemble_id
+        self.cadence = Cadence.MICROSTATE
+        self._parent = parent
 
         self.topology = Topology(self)
 
+        self.coordinates.bind_to_container(self)
+
     def __repr__(self) -> str:
-        return f"<Ensemble id={self.id!r}>"
+        return f"<Ensemble id={self.label!r}>"

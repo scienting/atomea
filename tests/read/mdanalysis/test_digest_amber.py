@@ -45,10 +45,10 @@ def test_reader_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
         reader_args,  # type: ignore
         reader_kwargs,
     )
-    ensemble = prj.ensembles["default"]
+    ensemble = prj["default"]
 
     # coordinates: shape (n_frames, n_atoms, 3)
-    coords = ensemble.microstates.coordinates.value
+    coords = ensemble.coordinates.value
     assert coords is not None
     assert coords.shape[0] == 100
     # spot‐check a few values
@@ -57,24 +57,24 @@ def test_reader_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     assert np.allclose(coords[-1, 78, 0], 29.406982)
 
     # atom symbols
-    syms = ensemble.microstates.atom_symbol.value
+    syms = ensemble.topology.atoms.symbols.value
     assert syms is not None
     assert syms[0] == "N"
     assert syms[8324] == "H"
     assert syms[-1] == "H"
 
-    ids_component = ensemble.topology.ids_component.value
+    ids_component = ensemble.topology.ids.components.value
     assert ids_component is not None
     assert ids_component[0] == 1
     assert ids_component[-1] == 10270
 
-    labels_component = ensemble.topology.labels_component.value
+    labels_component = ensemble.topology.labels.components.value
     assert labels_component is not None
     assert labels_component[0] == "MET"
     assert labels_component[-1] == "WAT"
 
     # force-field atom types in topology
-    fftypes = ensemble.topology.ff_atom_type.value
+    fftypes = ensemble.topology.atoms.types.value
     assert fftypes is not None
     assert fftypes[0] == "N3"
 
@@ -112,7 +112,7 @@ def test_reader_write_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
 
     # Re-open for reading and spot‐check
     store_r = ZarrArrayStore(path=path_store_array, mode="r")
-    coords = store_r.read("default/microstate/coordinates")
+    coords = store_r.read("default/coordinates")
     assert coords is not None
     assert np.allclose(coords[0, 0, 0], 33.924496)
     assert np.allclose(coords[0, 32, 0], 27.2496)
