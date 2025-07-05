@@ -43,20 +43,10 @@ class PolarsTableStore(TableStore):
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Write a Polars DataFrame to the named table.
-
-        The DataFrame must contain `ensemble_id`, `run_id`, and `microstate_id` columns.
-        """
         self.check_columns(data.columns)
         self._store[str(path)] = data
 
     def append(self, path: Path | str, data: pl.DataFrame, **kwargs: Any) -> None:
-        """
-        Append a Polars DataFrame to the named table.
-
-        The DataFrame must contain `ensemble_id` and `microstate_id` columns.
-        """
         path = str(path)
         self.check_columns(data.columns)
         self._store[path] = pl.concat([self._store[path], data], how="vertical")
@@ -65,13 +55,7 @@ class PolarsTableStore(TableStore):
         self,
         path: Path | str,
         **kwargs: Any,
-    ) -> pl.DataFrame | None:
-        """Get the store-specific object that represents the data stored here.
-
-        For example, if the data is stored on disk using some type of memory map, this
-        would return the memory map object, not the in-memory data. If you want to
-        guarantee the data is loaded into memory, use `read`.
-        """
+    ) -> pl.DataFrame:
         try:
             return self._store[str(path)]
         except KeyError:
@@ -81,12 +65,6 @@ class PolarsTableStore(TableStore):
     def read(
         self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> pl.Series:
-        """
-        Read the entire table with the given name.
-
-        TODO: Consider returning only the series of the exact column instead of the
-        whole dataframe.
-        """
         df = self.get(path)
         return df
 
@@ -99,21 +77,6 @@ class PolarsTableStore(TableStore):
         filter_expr: str | None = None,
         **kwargs: Any,
     ) -> pl.DataFrame:
-        """
-        Query a named table by keys and/or additional expression.
-
-        Args:
-            path: Container/table name.
-            ensemble_id: A unique identification label for an ensemble.
-                This can be `"1"`, `"default"`, `"exp3829"`, etc.
-            run_id: An unique, independent run within the same ensemble.
-                This often arises when running multiple independent molecular
-                simulation trajectories with different random seeds.
-            microstate_id: An index specifying a microstate with some relationship to
-                order. This can be a frame in a molecular simulation trajectories,
-                docking scores from best to worst, optimization steps, etc.
-            filter_expr: string expression to filter rows.
-        """
         df = self.get(path)
 
         # Early return if df is empty
@@ -131,13 +94,9 @@ class PolarsTableStore(TableStore):
         return df
 
     def available(self) -> list[str]:
-        """List all table names."""
         return list(self._store.keys())
 
     def flush(self, **kwargs: Any) -> None:
-        """
-        flush all stored tables to files in the specified directory/prefix.
-        """
         for name, df in self._store.items():
             path = os.path.join(self.path, f"{name}")
             if self.disk_format == DiskFormat.CSV:

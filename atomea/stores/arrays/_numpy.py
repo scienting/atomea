@@ -57,19 +57,12 @@ class NumpyArrayStore(ArrayStore):
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Write or overwrite the array at the given path.
-        """
         path = str(path)
         self._store[path] = np.array(data, copy=True)
 
     def append(
         self, path: Path | str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
     ) -> None:
-        """
-        Append data along the first axis to an existing array at path;
-        if no array exists, creates one.
-        """
         path = str(path)
         arr = np.array(data, copy=False)
         if path in self._store:
@@ -89,12 +82,6 @@ class NumpyArrayStore(ArrayStore):
         path: Path | str,
         **kwargs: Any,
     ) -> npt.NDArray[np.generic] | None:
-        """Get the store-specific object that represents the data stored here.
-
-        For example, if the data is stored on disk using some type of memory map, this
-        would return the memory map object, not the in-memory data. If you want to
-        guarantee the data is loaded into memory, use `read`.
-        """
         path = str(path)
         data = self._store.get(path)
         return data
@@ -102,18 +89,6 @@ class NumpyArrayStore(ArrayStore):
     def read(
         self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> npt.NDArray[np.generic] | None:
-        """
-        Read the array at path, optionally returning a subset.
-
-        Args:
-            path: the key of the stored array.
-            view: either a tuple of slice objects for each axis,
-                or a dict mapping axis index to a tuple of slice objects.
-                If None, returns the full array.
-
-        Returns:
-            The requested ndarray, or None if path not found.
-        """
         data = self.get(path)
         if data is None:
             return None

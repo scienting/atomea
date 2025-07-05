@@ -21,13 +21,8 @@ class TableStore(Store, ABC):
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
-        """
-        Args:
-            path: Directory to store all tables. We recommend "<project>.tables".
-            disk_format: Format to store data on disk.
-        """
         self._store: dict[str, pl.DataFrame] = {}
-        assert disk_format not in ArrayDiskFormats
+        assert disk_format not in ArrayDiskFormats or disk_format == DiskFormat.NONE
         super().__init__(path, disk_format=disk_format, **kwargs)
 
     @abstractmethod
@@ -35,7 +30,7 @@ class TableStore(Store, ABC):
         self,
         path: Path | str,
         ensemble_id: str | None = None,
-        run_id: int | None = None,
+        run_id: str | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
         **kwargs: Any,

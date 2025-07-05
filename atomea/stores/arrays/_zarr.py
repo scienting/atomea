@@ -92,17 +92,6 @@ class ZarrArrayStore(ArrayStore):
         dtype: npt.DTypeLike | None = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Write data to an array, whole or sliced. Will create the array if it does not
-        exist.
-
-        Args:
-            path: hierarchical key of the array.
-            array: data to write.
-            view: if None, overwrite entire array (requires create or existing),
-                    else write into the specified slice region.
-            overwrite: if True and slices is None, replaces existing array definition.
-        """
         z = self._store.get(path=str(path))
         if not dtype:
             dtype = data.dtype
@@ -115,10 +104,6 @@ class ZarrArrayStore(ArrayStore):
     def append(
         self, path: Path | str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
     ) -> None:
-        """
-        Append data along the first axis to an existing Zarr array;
-        creates the array with an unlimited first dimension if it does not exist.
-        """
         arr = self.read(str(path))
         arr.append(data, **kwargs)  # type: ignore
 
@@ -127,13 +112,8 @@ class ZarrArrayStore(ArrayStore):
         path: Path | str,
         **kwargs: Any,
     ) -> zarr.Array | None:
-        """Get the store-specific object that represents the data stored here.
-
-        For example, if the data is stored on disk using some type of memory map, this
-        would return the memory map object, not the in-memory data. If you want to
-        guarantee the data is loaded into memory, use `read`.
-        """
         z = self._store.get(str(path))
+        assert not isinstance(z, zarr.Group)
         return z
 
     def read(
@@ -142,10 +122,6 @@ class ZarrArrayStore(ArrayStore):
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> npt.NDArray[np.generic] | None:
-        """
-        Read the array from Zarr, optionally returning a subset efficiently.
-        Returns None if the path does not exist.
-        """
         z = self.get(path)
         if view is None:
             return z[:]  # type: ignore
@@ -157,8 +133,5 @@ class ZarrArrayStore(ArrayStore):
         return z[view]  # type: ignore
 
     def available(self) -> list[str]:
-        """
-        List all stored Zarr array paths (joined by '/').
-        """
         keys = list(self._store.array_keys())
         return keys
