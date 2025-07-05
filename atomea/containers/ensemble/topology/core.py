@@ -1,5 +1,5 @@
 from atomea.containers import AtomeaContainer
-from atomea.containers.ensemble.topology import Atoms, Bonds, IDs, Labels
+from atomea.containers.ensemble.topology import Atoms, Connectivity, IDs, Labels
 from atomea.data import Cadence
 
 
@@ -16,6 +16,6 @@ class Topology(AtomeaContainer):
         self._parent = parent
 
         self.atoms = Atoms(self)
-        self.bonds = Bonds(self)
+        self.connectivity = Connectivity(self)
         self.ids = IDs(self)
         self.labels = Labels(self)
