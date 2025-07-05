@@ -1,10 +1,10 @@
 import atomea.typing as adt
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
-class Quantum(AtomeaContainer):
+class Quantum(Container):
     """This section encompasses data pertaining to quantum mechanical descriptions."""
 
     electron_frozen_num = Data[adt.DataFrame](

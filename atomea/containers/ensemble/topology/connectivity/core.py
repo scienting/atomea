@@ -1,11 +1,11 @@
 import atomea.typing as adt
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.containers.ensemble.topology.connectivity import Bonds
 from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
-class Connectivity(AtomeaContainer):
+class Connectivity(Container):
     """Information that specifies (constant) binding."""
 
     angles = Data[adt.UInt64](

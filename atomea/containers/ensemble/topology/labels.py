@@ -1,10 +1,10 @@
 import atomea.typing as adt
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
-class Labels(AtomeaContainer):
+class Labels(Container):
     """Information that specifies the physical atomistic ensemble.
 
     Note that this topology is assumed constant; a reactive topology needs

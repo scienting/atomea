@@ -1,10 +1,10 @@
 import atomea.typing as adt
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
-class Energy(AtomeaContainer):
+class Energy(Container):
     """Information that characterizes various energies of a microstates."""
 
     electronic = Data[adt.DataFrame](

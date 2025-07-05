@@ -1,10 +1,10 @@
 import atomea.typing as adt
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
-class Atoms(AtomeaContainer):
+class Atoms(Container):
     """Information that specifies atoms."""
 
     atomic_numbers = Data[adt.UInt8](

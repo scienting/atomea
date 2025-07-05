@@ -1,11 +1,11 @@
 import atomea.typing as adt
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.containers.time import Interval
 from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
-class Time(AtomeaContainer):
+class Time(Container):
     """
     A generic interval-based time schema for simulation outputs.
     """

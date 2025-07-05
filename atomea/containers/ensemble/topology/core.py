@@ -1,9 +1,9 @@
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.containers.ensemble.topology import Atoms, Connectivity, IDs, Labels
 from atomea.data import Cadence
 
 
-class Topology(AtomeaContainer):
+class Topology(Container):
     """Information that specifies the physical atomistic ensemble.
 
     Note that this topology is assumed constant; a reactive topology needs

@@ -4,7 +4,7 @@ import numpy as np
 import polars as pl
 from loguru import logger
 
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.data import OptionalSliceSpec, T, ValueOrSlice
 from atomea.stores import Store, StoreKind
 
@@ -27,13 +27,13 @@ class Data(Generic[T]):
         self.uuid = uuid
         self.description = description
         self.label: str | None = None
-        self._container: AtomeaContainer | None = None
-        self._parent_chain: tuple[AtomeaContainer, ...] = tuple()
+        self._container: Container | None = None
+        self._parent_chain: tuple[Container, ...] = tuple()
 
     def __set_name__(self, owner: type, name: str) -> None:
         self.label = name
 
-    def bind_to_container(self, container: AtomeaContainer) -> object:
+    def bind_to_container(self, container: Container) -> object:
         """Explicitly bind this Data object to a container."""
         self._container = container
         self._set_parent_chain()
@@ -69,21 +69,21 @@ class Data(Generic[T]):
         self._parent_chain = _parent_chain
 
     @property
-    def parent_chain(self) -> tuple[AtomeaContainer, ...]:
+    def parent_chain(self) -> tuple[Container, ...]:
         """
         Chain of object references to get from the Project and any other
-        `AtomeaContainers` to this `Data` object. This does not include the `Data`
+        `Containers` to this `Data` object. This does not include the `Data`
         object itself.
 
         An atomea `Project` is the root container for any and all data for a
-        specific project. We often nest `AtomeaContainers` to group
+        specific project. We often nest `Containers` to group
         related information together and provide an intuitive interface. However,
         the root `Project` is the only container that keeps track of the
         `Store` backends for arrays and tables in its `Project._stores` attribute.
         This ensures that there is only one storage interface per project. All other
-        nested containers contain a parent reference in `AtomeaContainer._parent`.
+        nested containers contain a parent reference in `Container._parent`.
 
-        Thus, `Data.parent_chain` traverses these `AtomeaContainer._parent` attributes
+        Thus, `Data.parent_chain` traverses these `Container._parent` attributes
         backwards until it reaches the root `Project` to get access to
         `Project._stores`. However, we store it in order of `Project` to `Data` as you
         would to access this `Data` object. For example,
@@ -93,12 +93,12 @@ class Data(Generic[T]):
             self._set_parent_chain()
         return self._parent_chain
 
-    def _get_store(self, parent_chain: tuple[AtomeaContainer, ...]) -> Store:
+    def _get_store(self, parent_chain: tuple[Container, ...]) -> Store:
         project = parent_chain[0]
         store = project._stores[self.store_kind]  # type: ignore
         return store
 
-    def _get_path(self, parent_chain: tuple[AtomeaContainer, ...]) -> str:
+    def _get_path(self, parent_chain: tuple[Container, ...]) -> str:
         """
         Determine the path of data in store based on the object hierarchy.
         """

@@ -1,10 +1,10 @@
 import atomea.typing as adt
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
 
 
-class Bonds(AtomeaContainer):
+class Bonds(Container):
     """Information that specifies (constant) binding."""
 
     covalent = Data[adt.UInt64](

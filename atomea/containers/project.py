@@ -1,10 +1,10 @@
 from loguru import logger
 
-from atomea.containers import AtomeaContainer, Energy, Ensemble, Quantum, Time
+from atomea.containers import Container, Energy, Ensemble, Quantum, Time
 from atomea.stores import ArrayStore, Store, StoreKind, TableStore
 
 
-class Project(AtomeaContainer):
+class Project(Container):
     """
     The project is the core interface you have for interacting with data through
     atomea.
@@ -88,8 +88,8 @@ class Project(AtomeaContainer):
     they are theoretically sampled from the same ensemble.
 
     Data must also be stored in the same order as the table indices of that
-    `AtomeaContainer`. Thus, row indices from tables can be used to slice arrays.
-    Note that row indices can change between `AtomeaContainers` since not all
+    `Container`. Thus, row indices from tables can be used to slice arrays.
+    Note that row indices can change between `Containers` since not all
     data is collected on the same cadence.
     """
 

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 import atomea.typing as adt
-from atomea.containers import AtomeaContainer
+from atomea.containers import Container
 from atomea.containers.ensemble import Topology
 from atomea.data import Cadence, Data
 from atomea.stores import StoreKind
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from atomea.containers import Project
 
 
-class Ensemble(AtomeaContainer):
+class Ensemble(Container):
     """
     The `Ensemble` class represents a collection of molecular structures,
     each referred to as a microstate. This class is used to
