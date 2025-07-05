@@ -14,6 +14,7 @@ except ImportError:
 from typing import Any
 
 from atomea.containers import Project
+from atomea.helpers.bonding import get_molecule_ids
 from atomea.io import Reader
 
 
@@ -62,14 +63,18 @@ class MDAnalysisReader(Reader):
         labels_component = np.array(u.atoms.resnames, dtype=np.dtype(np.str_))
         prj[ens_id].topology.labels.components = labels_component
 
-        bonding = np.array(u.bonds.indices, dtype=np.dtype(np.uint64))
-        prj[ens_id].topology.bonds.covalent = bonding
+        covalent = np.array(u.bonds.indices, dtype=np.dtype(np.uint64))
+        prj[ens_id].topology.connectivity.bonds.covalent = covalent
 
-        if len(bonding) > 0:
-            # TODO: Compute molecule IDs based on binding and
-            # from scipy.sparse import csr_matrix
-            # from scipy.sparse.csgraph import connected_components
-            pass
+        angles = np.array(u.angles.indices, dtype=np.dtype(np.uint64))
+        prj[ens_id].topology.connectivity.angles = angles
+
+        dihedrals = np.array(u.dihedrals.indices, dtype=np.dtype(np.uint64))
+        prj[ens_id].topology.connectivity.dihedrals = dihedrals
+
+        if len(covalent) > 0:
+            molecule_ids = get_molecule_ids(covalent, u.atoms.n_atoms)
+            prj[ens_id].topology.ids.molecules = molecule_ids
 
         return prj
 
