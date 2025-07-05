@@ -23,7 +23,7 @@ class PolarsTableStore(TableStore):
         mode: str = "r",
         **kwargs: Any,
     ) -> None:
-        super().__init__(path, disk_format=disk_format)
+        super().__init__(path, disk_format=disk_format, mode=mode)
 
     @classmethod
     def check_columns(cls, columns):

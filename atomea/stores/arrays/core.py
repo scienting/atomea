@@ -17,8 +17,9 @@ class ArrayStore(Store, ABC):
     def __init__(
         self,
         path: Path | str,
+        mode: str = "r",
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
         assert disk_format in ArrayDiskFormats or disk_format == DiskFormat.NONE
-        super().__init__(path, disk_format=disk_format, **kwargs)
+        super().__init__(path, mode=mode, disk_format=disk_format, **kwargs)

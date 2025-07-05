@@ -23,6 +23,7 @@ class Store(ABC):
     def __init__(
         self,
         path: Path | str = "",
+        mode: str = "r",
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
@@ -31,11 +32,19 @@ class Store(ABC):
             path: Path where data will be stored on disk. We will create this
                 directory if it does not exist depending on the value of
                 `disk_format`.
+            mode: Persistence modes:
+
+                - `r` means read only (must exist);
+                - `r+` means read/write (must exist);
+                - `a` means read/write (create if doesn't exist);
+                - `w` means create (overwrite if exists);
+                - `w-` means create (fail if exists).
             disk_format: File format when writing data to disk. If left as the
                 default `DiskFormat.NONE`, then we will not check for the existence
                 of `path`.
         """
         self.path = path
+        self.mode = mode
         self.disk_format = disk_format
         if path != "" and disk_format != DiskFormat.NONE:
             os.makedirs(path, exist_ok=True)

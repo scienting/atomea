@@ -21,6 +21,7 @@ class NumpyArrayStore(ArrayStore):
     def __init__(
         self,
         path: Path | str,
+        mode: str = "r",
         disk_format: DiskFormat = DiskFormat.NPZ,
         **kwargs: Any,
     ) -> None:
@@ -31,7 +32,7 @@ class NumpyArrayStore(ArrayStore):
             disk_format: File format when writing arrays to disk.
         """
         self._store: dict[str, npt.NDArray[np.generic]] = {}
-        super().__init__(path, disk_format=disk_format, **kwargs)
+        super().__init__(path, mode=mode, disk_format=disk_format, **kwargs)
 
     def create(
         self,

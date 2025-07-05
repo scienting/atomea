@@ -22,8 +22,8 @@ class ZarrArrayStore(ArrayStore):
     def __init__(
         self,
         path: Path | str,
-        disk_format: DiskFormat = DiskFormat.ZARR,
         mode: str = "r",
+        disk_format: DiskFormat = DiskFormat.ZARR,
         **kwargs: Any,
     ) -> None:
         """
@@ -50,7 +50,7 @@ class ZarrArrayStore(ArrayStore):
         """
         assert disk_format == DiskFormat.ZARR
         self._store: Group = zarr.open_group(store=str(path), mode=mode, **kwargs)
-        super().__init__(path, disk_format=disk_format, **kwargs)
+        super().__init__(path, mode=mode, disk_format=disk_format, **kwargs)
 
     def create(
         self,

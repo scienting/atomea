@@ -28,7 +28,7 @@ def test_reader_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
         shutil.rmtree(path_store_table)
 
     store_array = ZarrArrayStore(path_store_array, mode="a")
-    store_table = PolarsTableStore(path_store_table, DiskFormat.PARQUET)
+    store_table = PolarsTableStore(path_store_table, mode="a", disk_format=DiskFormat.PARQUET)
     prj = Project(store_array, store_table)
     reader_args = (
         amber_rogfp2_sim_paths["mol.prmtop"],
@@ -97,7 +97,7 @@ def test_reader_write_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
         shutil.rmtree(path_store_table)
 
     store_array = ZarrArrayStore(path_store_array, mode="a")
-    store_table = PolarsTableStore(path_store_table, DiskFormat.PARQUET)
+    store_table = PolarsTableStore(path_store_table, mode="a", disk_format=DiskFormat.PARQUET)
     prj = Project(store_array, store_table)
     reader_args = (
         amber_rogfp2_sim_paths["mol.prmtop"],
