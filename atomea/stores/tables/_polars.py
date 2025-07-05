@@ -61,19 +61,34 @@ class PolarsTableStore(TableStore):
         self.check_columns(data.columns)
         self._store[path] = pl.concat([self._store[path], data], how="vertical")
 
-    def read(
-        self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
-    ) -> pl.DataFrame:
-        """
-        Read the entire table with the given name.
+    def get(
+        self,
+        path: Path | str,
+        **kwargs: Any,
+    ) -> pl.DataFrame | None:
+        """Get the store-specific object that represents the data stored here.
 
-        Raises KeyError if the table does not exist.
+        For example, if the data is stored on disk using some type of memory map, this
+        would return the memory map object, not the in-memory data. If you want to
+        guarantee the data is loaded into memory, use `read`.
         """
         try:
             return self._store[str(path)]
         except KeyError:
             logger.warning(f"Table '{path}' not found! Returning empty DataFrame")
             return pl.DataFrame()
+
+    def read(
+        self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
+    ) -> pl.Series:
+        """
+        Read the entire table with the given name.
+
+        TODO: Consider returning only the series of the exact column instead of the
+        whole dataframe.
+        """
+        df = self.get(path)
+        return df
 
     def query(
         self,
@@ -99,7 +114,7 @@ class PolarsTableStore(TableStore):
                 docking scores from best to worst, optimization steps, etc.
             filter_expr: string expression to filter rows.
         """
-        df = self.read(path)
+        df = self.get(path)
 
         # Early return if df is empty
         if df.shape == (0, 0):

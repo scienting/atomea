@@ -122,6 +122,20 @@ class ZarrArrayStore(ArrayStore):
         arr = self.read(str(path))
         arr.append(data, **kwargs)  # type: ignore
 
+    def get(
+        self,
+        path: Path | str,
+        **kwargs: Any,
+    ) -> zarr.Array | None:
+        """Get the store-specific object that represents the data stored here.
+
+        For example, if the data is stored on disk using some type of memory map, this
+        would return the memory map object, not the in-memory data. If you want to
+        guarantee the data is loaded into memory, use `read`.
+        """
+        z = self._store.get(str(path))
+        return z
+
     def read(
         self,
         path: Path | str,
@@ -132,7 +146,7 @@ class ZarrArrayStore(ArrayStore):
         Read the array from Zarr, optionally returning a subset efficiently.
         Returns None if the path does not exist.
         """
-        z = self._store.get(str(path))
+        z = self.get(path)
         if view is None:
             return z[:]  # type: ignore
         if isinstance(view, dict):

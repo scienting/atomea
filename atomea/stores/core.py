@@ -63,7 +63,19 @@ class Store(ABC):
             path: Path where data will be stored.
             data: Data to append.
         """
-        ...
+
+    @abstractmethod
+    def get(
+        self,
+        path: Path | str,
+        **kwargs: Any,
+    ) -> Any | None:
+        """Get the store-specific object that represents the data stored here.
+
+        For example, if the data is stored on disk using some type of memory map, this
+        would return the memory map object, not the in-memory data. If you want to
+        guarantee the data is loaded into memory, use `read`.
+        """
 
     @abstractmethod
     def read(

@@ -84,6 +84,21 @@ class NumpyArrayStore(ArrayStore):
         else:
             self.write(path, arr)
 
+    def get(
+        self,
+        path: Path | str,
+        **kwargs: Any,
+    ) -> npt.NDArray[np.generic] | None:
+        """Get the store-specific object that represents the data stored here.
+
+        For example, if the data is stored on disk using some type of memory map, this
+        would return the memory map object, not the in-memory data. If you want to
+        guarantee the data is loaded into memory, use `read`.
+        """
+        path = str(path)
+        data = self._store.get(path)
+        return data
+
     def read(
         self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
     ) -> npt.NDArray[np.generic] | None:
@@ -99,8 +114,7 @@ class NumpyArrayStore(ArrayStore):
         Returns:
             The requested ndarray, or None if path not found.
         """
-        path = str(path)
-        data = self._store.get(path)
+        data = self.get(path)
         if data is None:
             return None
         if view is None:

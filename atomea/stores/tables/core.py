@@ -58,4 +58,3 @@ class TableStore(Store, ABC):
         Returns:
             Filtered DataFrame.
         """
-        ...

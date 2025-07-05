@@ -40,7 +40,7 @@ class Data(Generic[T]):
         return self
 
     def __repr__(self):
-        return f"Data<{self.label}>"
+        return f"<Data {self.label}>"
 
     def _set_parent_chain(self) -> None:
         """Build chain from current object to root project and sets the attribute
@@ -56,16 +56,16 @@ class Data(Generic[T]):
         while current is not None:
             chain.append(current)
             if hasattr(current, "_stores"):  # This is the project
-                logger.debug("Found root Project of {}", current)
+                logger.trace("Found root Project of {}", current)
                 break
             # Move up the hierarchy
             if hasattr(current, "_parent"):
-                logger.debug("Found parent container of {}", current)
+                logger.trace("Found parent container of {}", current)
                 current = current._parent  # type: ignore
             else:
                 raise RuntimeError(f"Cannot find project root from {self}")
         _parent_chain = tuple(reversed(chain))
-        logger.debug("Setting parent chain of {} to {}", self, _parent_chain)
+        logger.trace("Setting parent chain of {} to {}", self, _parent_chain)
         self._parent_chain = _parent_chain
 
     @property
@@ -134,12 +134,25 @@ class Data(Generic[T]):
         data = store.read(path, view=view, **kwargs)
         return data  # type: ignore
 
-    @property
-    def value(
+    def get(
+        self,
+        **kwargs: Any,
+    ) -> Any:
+        """Get the store-specific object that represents the data stored here.
+
+        For example, if the data is stored on disk using some type of memory map, this
+        would return the memory map object, not the in-memory data. If you want to
+        guarantee the data is loaded into memory, use `values`.
+        """
+        store, path = self.get_store_info()
+        return store.get(path, **kwargs)  # type: ignore
+
+    def values(
         self,
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> T | None:
+        """Access and load the data into memory."""
         store, path = self.get_store_info()
         return store.read(path, view=view, **kwargs)  # type: ignore
 

@@ -56,7 +56,6 @@ class ArrayStore(Store, ABC):
             path: Container/table name.
             array: numpy array to store.
         """
-        ...
 
     @abstractmethod
     def append(
@@ -70,7 +69,6 @@ class ArrayStore(Store, ABC):
             path: Container/table name.
             array: numpy array to append along the first axis.
         """
-        ...
 
     @abstractmethod
     def read(
@@ -91,7 +89,6 @@ class ArrayStore(Store, ABC):
         Returns:
             numpy array previously stored.
         """
-        ...
 
     @abstractmethod
     def available(self) -> list[str]:
@@ -101,4 +98,3 @@ class ArrayStore(Store, ABC):
         Returns:
             A list of logical paths (e.g., ["coords", "velocities"]).
         """
-        ...

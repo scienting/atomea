@@ -26,9 +26,9 @@ Example:
     Type-safe access::
 
         # Type checkers understand these return the correct types
-        coords: Float64 | None = ensemble.coordinates.value
-        atoms: Uint8 | None = ensemble.atom_numbers.value
-        data: pl.DataFrame | None = ensemble.results.value
+        coords: Float64 | None = ensemble.coordinates.values()
+        atoms: Uint8 | None = ensemble.atom_numbers.values()
+        data: pl.DataFrame | None = ensemble.results.values()
 """
 
 from ._array import (

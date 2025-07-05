@@ -63,7 +63,7 @@ Example:
 
     Conditional processing::
 
-        data = ensemble.analysis.value
+        data = ensemble.analysis.values()
         if data is not None:
             hydrogen_data = data.filter(pl.col('element') == 'H')
             mean_energy = data['energy'].mean()

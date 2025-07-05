@@ -48,7 +48,7 @@ def test_reader_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     ensemble = prj["default"]
 
     # coordinates: shape (n_frames, n_atoms, 3)
-    coords = ensemble.coordinates.value
+    coords = ensemble.coordinates.values()
     assert coords is not None
     assert coords.shape[0] == 100
     # spot‐check a few values
@@ -57,24 +57,29 @@ def test_reader_amber_rogfp2_serial(amber_rogfp2_sim_paths, tmp_dir):
     assert np.allclose(coords[-1, 78, 0], 29.406982)
 
     # atom symbols
-    syms = ensemble.topology.atoms.symbols.value
+    syms = ensemble.topology.atoms.symbols.values()
     assert syms is not None
     assert syms[0] == "N"
     assert syms[8324] == "H"
     assert syms[-1] == "H"
 
-    ids_component = ensemble.topology.ids.components.value
+    ids_component = ensemble.topology.ids.components.values()
     assert ids_component is not None
     assert ids_component[0] == 1
     assert ids_component[-1] == 10270
 
-    labels_component = ensemble.topology.labels.components.value
+    labels_component = ensemble.topology.labels.components.values()
     assert labels_component is not None
     assert labels_component[0] == "MET"
     assert labels_component[-1] == "WAT"
 
-    # force-field atom types in topology
-    fftypes = ensemble.topology.atoms.types.value
+    ids_molecules = ensemble.topology.ids.molecules.values()
+    assert ids_molecules is not None
+    assert ids_molecules[0] == 0
+    assert ids_molecules[5729] == 701
+    assert ids_molecules[-1] == 9985
+
+    fftypes = ensemble.topology.atoms.types.values()
     assert fftypes is not None
     assert fftypes[0] == "N3"
 
