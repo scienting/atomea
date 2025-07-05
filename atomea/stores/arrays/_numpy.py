@@ -25,12 +25,6 @@ class NumpyArrayStore(ArrayStore):
         disk_format: DiskFormat = DiskFormat.NPZ,
         **kwargs: Any,
     ) -> None:
-        """
-        Args:
-            path: Path to directory where arrays will be stored. For example, this
-                a directory called something like `<prj_name>.arrays`.
-            disk_format: File format when writing arrays to disk.
-        """
         self._store: dict[str, npt.NDArray[np.generic]] = {}
         super().__init__(path, mode=mode, disk_format=disk_format, **kwargs)
 
@@ -43,6 +37,8 @@ class NumpyArrayStore(ArrayStore):
         fill: np.generic | None = None,
         **kwargs: Any,
     ) -> Any:
+        if self.mode == "r":
+            raise ValueError("Cannot write when in 'r' mode")
         path = str(path)
         if path in self._store and not overwrite:
             raise RuntimeError(f"{path} already exists and overwrite is False!")
@@ -58,12 +54,19 @@ class NumpyArrayStore(ArrayStore):
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> None:
+        if self.mode == "r":
+            raise ValueError("Cannot write when in 'r' mode")
         path = str(path)
+        if path in self._store.keys():
+            if self.mode in ("r+", "w-"):
+                raise ValueError(f"Cannot create data when in '{self.mode}' mode")
         self._store[path] = np.array(data, copy=True)
 
     def append(
         self, path: Path | str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
     ) -> None:
+        if self.mode in ("r", "w-"):
+            raise ValueError(f"Cannot append when in '{self.mode}' mode")
         path = str(path)
         arr = np.array(data, copy=False)
         if path in self._store:
@@ -104,9 +107,6 @@ class NumpyArrayStore(ArrayStore):
         return data[view]
 
     def available(self) -> list[str]:
-        """
-        List all stored paths.
-        """
         return list(self._store.keys())
 
     def _flush_npy(self, prefix: str = "") -> None:

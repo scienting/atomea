@@ -24,7 +24,9 @@ class TestOutputReading:
             shutil.rmtree(path_store_table)
 
         store_array = ZarrArrayStore(path_store_array, mode="a")
-        store_table = PolarsTableStore(path_store_table, mode="a", disk_format=DiskFormat.CSV)
+        store_table = PolarsTableStore(
+            path_store_table, mode="a", disk_format=DiskFormat.CSV
+        )
 
         prj = Project(store_array, store_table)
         parser = AmberV22Parser()

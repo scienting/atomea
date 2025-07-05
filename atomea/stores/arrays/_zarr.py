@@ -26,28 +26,6 @@ class ZarrArrayStore(ArrayStore):
         disk_format: DiskFormat = DiskFormat.ZARR,
         **kwargs: Any,
     ) -> None:
-        """
-        Open a Zarr store using
-        [`zarr.open_group`](https://zarr.readthedocs.io/en/stable/api/zarr/index.html#zarr.open_group).
-        Please refer to it's
-        [documentation](https://zarr.readthedocs.io/en/stable/api/zarr/index.html#zarr.open_group)
-        for information on available `args` and `kwargs`.
-
-        Args:
-            store: Store or path to directory in file system or name of zip file.
-                Strings are interpreted as paths on the local file system and used as
-                the root argument to `zarr.storage.LocalStore`.
-                Dictionaries are used as the store_dict argument in
-                `zarr.storage.MemoryStore`.
-                By default (store=None) a new zarr.storage.MemoryStore is created.
-            mode: Persistence modes:
-
-                - `r` means read only (must exist);
-                - `r+` means read/write (must exist);
-                - `a` means read/write (create if doesn't exist);
-                - `w` means create (overwrite if exists);
-                - `w-` means create (fail if exists).
-        """
         assert disk_format == DiskFormat.ZARR
         self._store: Group = zarr.open_group(store=str(path), mode=mode, **kwargs)
         super().__init__(path, mode=mode, disk_format=disk_format, **kwargs)
@@ -61,16 +39,8 @@ class ZarrArrayStore(ArrayStore):
         chunks: tuple[int, ...] | Literal["auto"] = "auto",
         **kwargs: Any,
     ) -> Any:
-        """
-        Pre-allocate an array with the given shape and dtype.
-
-        Args:
-            path: hierarchical key, e.g. 'coords'.
-            shape: full shape of the array.
-            overwrite: if True, delete existing before create; otherwise error if exists.
-            dtype: numpy-compatible dtype.
-            chunks: chunk shape or 'auto'.
-        """
+        if self.mode == "r":
+            raise ValueError("Cannot create when in 'r' mode")
         path = str(path)
         group_path, _ = path.rsplit("/", 1) if "/" in path else ("", path)
         self._store.create_hierarchy({group_path: GroupMetadata()})
@@ -92,10 +62,14 @@ class ZarrArrayStore(ArrayStore):
         dtype: npt.DTypeLike | None = None,
         **kwargs: Any,
     ) -> None:
+        if self.mode == "r":
+            raise ValueError("Cannot write when in 'r' mode")
         z = self._store.get(path=str(path))
         if not dtype:
             dtype = data.dtype
         if z is None:
+            if self.mode in ("r+", "w-"):
+                raise ValueError(f"Cannot create data when in '{self.mode}' mode")
             z = self.create(path, data.shape, dtype=dtype, **kwargs)
             z[:] = data
         else:
@@ -104,6 +78,8 @@ class ZarrArrayStore(ArrayStore):
     def append(
         self, path: Path | str, data: npt.NDArray[np.generic], *args: Any, **kwargs: Any
     ) -> None:
+        if self.mode in ("r", "w-"):
+            raise ValueError(f"Cannot append when in '{self.mode}' mode")
         arr = self.read(str(path))
         arr.append(data, **kwargs)  # type: ignore
 

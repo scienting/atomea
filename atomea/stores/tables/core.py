@@ -18,12 +18,13 @@ class TableStore(Store, ABC):
     def __init__(
         self,
         path: Path | str,
+        mode: str = "r",
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
         self._store: dict[str, pl.DataFrame] = {}
         assert disk_format not in ArrayDiskFormats or disk_format == DiskFormat.NONE
-        super().__init__(path, disk_format=disk_format, **kwargs)
+        super().__init__(path, mode=mode, disk_format=disk_format, **kwargs)
 
     @abstractmethod
     def query(

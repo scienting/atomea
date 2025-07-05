@@ -19,11 +19,11 @@ class PolarsTableStore(TableStore):
     def __init__(
         self,
         path: Path | str,
-        disk_format: DiskFormat = DiskFormat.PARQUET,
         mode: str = "r",
+        disk_format: DiskFormat = DiskFormat.PARQUET,
         **kwargs: Any,
     ) -> None:
-        super().__init__(path, disk_format=disk_format, mode=mode)
+        super().__init__(path, mode=mode, disk_format=disk_format)
 
     @classmethod
     def check_columns(cls, columns):
@@ -43,10 +43,14 @@ class PolarsTableStore(TableStore):
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> None:
+        if self.mode == "r":
+            raise ValueError("Cannot create when in 'r' mode")
         self.check_columns(data.columns)
         self._store[str(path)] = data
 
     def append(self, path: Path | str, data: pl.DataFrame, **kwargs: Any) -> None:
+        if self.mode in ("r", "w-"):
+            raise ValueError(f"Cannot append when in '{self.mode}' mode")
         path = str(path)
         self.check_columns(data.columns)
         self._store[path] = pl.concat([self._store[path], data], how="vertical")
