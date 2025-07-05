@@ -133,12 +133,12 @@ class NumpyArrayStore(ArrayStore):
         """
         return list(self._store.keys())
 
-    def _dump_npy(self, prefix: str = "") -> None:
+    def _flush_npy(self, prefix: str = "") -> None:
         for key, arr in self._store:
             path = os.path.join(prefix, key + ".npy")
             np.save(path, arr)
 
-    def _dump_npz(self, prefix: str = "") -> None:
+    def _flush_npz(self, prefix: str = "") -> None:
         if not prefix:
             prefix = "arrays"
         fn = prefix if prefix.endswith(".npz") else prefix + ".npz"
@@ -151,11 +151,11 @@ class NumpyArrayStore(ArrayStore):
         savez_dict = {key.replace("/", "_"): arr for key, arr in self._store.items()}
         np.savez(fn, *savez_dict)
 
-    def dump(self, **kwargs: Any) -> None:
+    def flush(self, **kwargs: Any) -> None:
         path = str(self.path)
         if self.disk_format == DiskFormat.NPY:
-            self._dump_npy(path)
+            self._flush_npy(path)
         elif self.disk_format == DiskFormat.NPZ:
-            self._dump_npz(path)
+            self._flush_npz(path)
         else:
             raise ValueError("DiskFormat of {} not supported", self.disk_format)

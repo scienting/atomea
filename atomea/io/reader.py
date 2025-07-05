@@ -79,6 +79,6 @@ class Reader(ABC):
 
         project = cls.extract(prj, id_ens, id_run, ctx)
         for store_kind, store in project._stores.items():
-            store.dump()
+            store.flush()
 
         return project

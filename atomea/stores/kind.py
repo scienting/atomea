@@ -2,11 +2,13 @@ from enum import Enum, auto
 
 
 class StoreKind(Enum):
+    """The kind of storage backend."""
     ARRAY = auto()
     TABLE = auto()
 
 
 class DiskFormat(Enum):
+    """Format of data when flushed to disk."""
     NONE = auto()
 
     # Arrays

@@ -134,9 +134,9 @@ class PolarsTableStore(TableStore):
         """List all table names."""
         return list(self._store.keys())
 
-    def dump(self, **kwargs: Any) -> None:
+    def flush(self, **kwargs: Any) -> None:
         """
-        Dump all stored tables to files in the specified directory/prefix.
+        flush all stored tables to files in the specified directory/prefix.
         """
         for name, df in self._store.items():
             path = os.path.join(self.path, f"{name}")
