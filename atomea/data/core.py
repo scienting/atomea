@@ -1,4 +1,4 @@
-from typing import Any, Generic
+from typing import Any, Generic, Iterator
 
 import numpy as np
 import polars as pl
@@ -166,6 +166,26 @@ class Data(Generic[T]):
         """
         store, path = self.get_store_info(run_id=run_id)
         return store.get(path, **kwargs)  # type: ignore
+
+    def iter(
+        self,
+        run_id: str | None = None,
+        view: OptionalSliceSpec = None,
+        chunk_size: int = 1,
+        **kwargs: Any,
+    ) -> Iterator[Any]:
+        """Yield chunks of data instead of reading all into memory.
+
+        Args:
+            run_id:
+            view: Slice spec for all but the first dimension.
+            chunk: Number of data points of the first axis to yield at each time.
+        """
+        store, path = self.get_store_info(run_id=run_id)
+        if store.kind != StoreKind.ARRAY:
+            raise TypeError(f"Can only iterator over Array store, not {store.kind}")
+        for chunk in store.iter(path, view, chunk_size, **kwargs):  # type: ignore
+            yield chunk
 
     def next_microstate_id(self, ens_id: str, run_id: str) -> int:
         """Determine the next `microstate_id` by adding one to the currently

@@ -1,8 +1,11 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator
 
 from abc import ABC, abstractmethod
 
 import numpy as np
+import numpy.typing as npt
+
+from atomea.data import OptionalSliceSpec
 
 if TYPE_CHECKING:
     from atomea.containers import Ensemble
@@ -11,24 +14,29 @@ if TYPE_CHECKING:
 class SelectionExpression(ABC):
     """
     Abstract base class for all selection criteria and logical operations.
-    Each expression can be evaluated to produce a boolean mask for a given microstate.
+    Each expression can be evaluated to produce a boolean mask for atoms.
     """
 
     @abstractmethod
     def evaluate(
-        self, ensemble: "Ensemble", run_id: str | None = None
-    ) -> np.ndarray:
+        self,
+        ensemble: "Ensemble",
+        run_id: str | None = None,
+        micro_id: OptionalSliceSpec = None,
+    ) -> Iterator[npt.NDArray[np.bool]]:
         """
-        Evaluates this expression for a specific microstate and returns an atom-level boolean mask.
+        Evaluates this expression for a specific microstate and returns an atom-level
+        boolean mask.
 
         Args:
             ensemble: The Ensemble object containing the data.
             run_id: The ID of the run within the ensemble.
-            microstate_id: The ID of the microstate for which to generate the mask.
+            micro_id: Microstate IDs to evaluate expression for. If `None`, then it
+                evaluates for every single possible microstate.
 
         Returns:
             A 1D boolean NumPy array, where each element corresponds to an atom
-            in the specified microstate, indicating if it meets the selection criteria.
+                in the specified microstate, indicating if it meets the selection criteria.
         """
 
     def __and__(self, other: "SelectionExpression") -> "SelectionExpression":
@@ -53,22 +61,28 @@ class AndExpression(BinaryLogicalExpression):
     """Represents a logical AND operation between two selection expressions."""
 
     def evaluate(
-        self, ensemble: "Ensemble", run_id: str | None = None
-    ) -> np.ndarray:
-        left_mask = self.left.evaluate(ensemble, run_id)
-        right_mask = self.right.evaluate(ensemble, run_id)
-        return np.logical_and(left_mask, right_mask)
+        self,
+        ensemble: "Ensemble",
+        run_id: str | None = None,
+        micro_id: OptionalSliceSpec = None,
+    ) -> Iterator[npt.NDArray[np.bool]]:
+        left_mask = self.left.evaluate(ensemble, run_id, micro_id)
+        right_mask = self.right.evaluate(ensemble, run_id, micro_id)
+        yield np.logical_and(left_mask, right_mask)
 
 
 class OrExpression(BinaryLogicalExpression):
     """Represents a logical OR operation between two selection expressions."""
 
     def evaluate(
-        self, ensemble: "Ensemble", run_id: str | None = None
-    ) -> np.ndarray:
-        left_mask = self.left.evaluate(ensemble, run_id)
-        right_mask = self.right.evaluate(ensemble, run_id)
-        return np.logical_or(left_mask, right_mask)
+        self,
+        ensemble: "Ensemble",
+        run_id: str | None = None,
+        micro_id: OptionalSliceSpec = None,
+    ) -> Iterator[npt.NDArray[np.bool]]:
+        left_mask = self.left.evaluate(ensemble, run_id, micro_id)
+        right_mask = self.right.evaluate(ensemble, run_id, micro_id)
+        yield np.logical_or(left_mask, right_mask)
 
 
 class NotExpression(SelectionExpression):
@@ -78,7 +92,10 @@ class NotExpression(SelectionExpression):
         self.expression = expression
 
     def evaluate(
-        self, ensemble: "Ensemble", run_id: str | None = None
-    ) -> np.ndarray:
-        mask = self.expression.evaluate(ensemble, run_id)
-        return np.logical_not(mask)
+        self,
+        ensemble: "Ensemble",
+        run_id: str | None = None,
+        micro_id: OptionalSliceSpec = None,
+    ) -> Iterator[npt.NDArray[np.bool]]:
+        mask = self.expression.evaluate(ensemble, run_id, micro_id)
+        yield np.logical_not(mask)

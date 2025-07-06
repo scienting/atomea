@@ -17,19 +17,17 @@ class MolIdIs(SelectionExpression):
             None  # Cache for ensemble-level data
         )
 
-    def evaluate(
-        self, ensemble: "Ensemble", run_id: str | None = None
-    ) -> np.ndarray:
+    def evaluate(self, ensemble: "Ensemble", run_id: str | None = None) -> np.ndarray:
         # Molecule IDs are ENSEMBLE cadence, so load once and cache
         if self._cached_all_mol_ids is None:
-            self._cached_all_mol_ids = ensemble.topology.ids.molecules.values(
+            self._cached_all_mol_ids = ensemble.topology.ids.molecules.read(
                 ens_id=ensemble.label,
                 run_id=run_id,  # Run ID might be relevant for some ensemble data if partitioned
             )
             if self._cached_all_mol_ids is None:
                 # Handle case where data might not exist for this ensemble/run
                 # Determine number of atoms from coordinates if possible
-                coords = ensemble.coordinates.values(
+                coords = ensemble.coordinates.read(
                     run_id=run_id,
                 )
                 num_atoms = coords.shape[1] if coords is not None else 0
