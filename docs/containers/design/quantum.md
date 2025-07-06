@@ -1,6 +1,6 @@
 # Quantum
 
-::: containers.atomistic.quantum.Quantum
+::: containers.quantum.Quantum
     handler: python
     options:
       inherited_members: true

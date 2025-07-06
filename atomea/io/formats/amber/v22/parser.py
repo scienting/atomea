@@ -13,7 +13,26 @@ from atomea.io.text import (
 
 
 class AmberV22Parser(FileParser[AmberV22State]):
+    """A concrete `FileParser` implementation for Amber v22 output files.
+
+    This parser specializes in understanding the structure of Amber 22 PMEMD
+    output files. It uses a `StateScanner` configured with `AMBER_V22_PATTERNS`
+    to identify different sections (states) within the file and then employs
+    specific `StateParser` instances (e.g., `AmberSystemInfoParser`,
+    `AmberResultsParser`) to extract structured data from those sections.
+
+    Inherits from:
+        FileParser[AmberV22State]: The generic base class for file parsers,
+            specialized for `AmberV22State` enum.
+    """
+
     def __init__(self):
+        """Initializes the AmberV22Parser.
+
+        Configures the internal `StateScanner` with Amber v22 specific patterns
+        and sets up a dictionary of `StateParser` instances for handling
+        different identified states within the Amber output file.
+        """
         self._scanner = StateScanner(
             AMBER_V22_PATTERNS, first_state=AmberV22State.PRELUDE
         )
@@ -28,12 +47,20 @@ class AmberV22Parser(FileParser[AmberV22State]):
         """Scan and parse file into regions with data ready to put
         into a store.
 
+        This method performs the complete parsing workflow for an Amber v22
+        output file. It first reads the file, then scans it to identify
+        state transitions, and finally iterates through these transitions
+        to parse each relevant region using the appropriate `StateParser`.
+        The extracted data is then encapsulated into `ParsedRegion` objects
+        and aggregated into a `ParsedFile`.
+
         Args:
-            file_path: Path to file to parse.
+            file_path: Path to the Amber v22 output file to parse.
 
         Returns:
-            Parsed data from the file. You should use this to write
-                into stores.
+            A `ParsedFile` object containing all extracted data from the
+                file, organized into `ParsedRegion` objects. This structured
+                output is suitable for further processing or storage.
         """
         with open(file_path, "rb") as fh:
             buf = fh.read()

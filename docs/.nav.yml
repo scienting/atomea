@@ -8,8 +8,20 @@ nav:
         - Ensemble: containers/levels/ensemble.md
         - Microstate: containers/levels/microstate.md
       - UUIDs: containers/uuids.md
-    - Digesters: digesters
-    - Examples: examples
+      - Design:
+        - containers/design/index.md
+        - Energy: containers/design/energy.md
+        - Quantum: containers/design/quantum.md
+        - Time: containers/design/time.md
+        - Topology: containers/design/topology.md
+    - IO:
+      - io/index.md
+      - Readers:
+        - io/readers/index.md
+      - Writers:
+        - io/writers/index.md
+    - Examples:
+      - examples/index.md
     - API: api
 
 sort:

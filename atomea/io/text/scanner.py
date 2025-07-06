@@ -5,7 +5,15 @@ from atomea.io.text.engines import S, ScanEngine, StdRegexEngine
 
 
 class StateScanner(Generic[S]):
-    """Single-pass scanner for state transitions."""
+    """Single-pass scanner for state transitions.
+
+    This class orchestrates the scanning of a byte buffer or file
+    to identify transitions between different states based on predefined
+    patterns. It uses a `ScanEngine` to perform the actual pattern matching.
+
+    Type variables:
+        S: An Enum type representing the possible states a file can be in.
+    """
 
     def __init__(
         self,
@@ -13,8 +21,18 @@ class StateScanner(Generic[S]):
         first_state: S,
         engine: ScanEngine[S] | None = None,
     ):
+        """Initializes the StateScanner.
+
+        Args:
+            patterns: A dictionary where keys are state Enum members and
+                values are lists of byte patterns (regex or literal) that
+                signify a transition *to* that state.
+            first_state: The initial state of the file, which is used to
+                begin the scanning process.
+            engine: An optional `ScanEngine` instance to use for pattern
+                matching. If `None`, `StdRegexEngine` will be used by default.
+        """
         self.first_state = first_state
-        """Initial state of the file."""
         if engine is None:
             engine = StdRegexEngine()
         self.engine = engine
@@ -22,10 +40,33 @@ class StateScanner(Generic[S]):
 
     @property
     def patterns(self):
+        """Returns the compiled patterns used by the internal scan engine.
+
+        This property provides access to the patterns that the scanner
+        is configured to detect.
+
+        Returns:
+            The underlying patterns from the scan engine.
+        """
         return self.engine._patterns
 
     def scan(self, buf: bytes) -> list[StateTransition]:
-        """Single-pass scan of bytes to identify states and their transitions."""
+        """Single-pass scan of bytes to identify states and their transitions.
+
+        This method iterates through the provided byte buffer, identifying
+        all occurrences of predefined patterns that indicate a change in state.
+        It constructs a list of `StateTransition` objects, each detailing
+        the `from_state`, `to_state`, and byte `start_pos`/`end_pos` of
+        each identified region.
+
+        Args:
+            buf: The byte buffer to be scanned for state transitions.
+
+        Returns:
+            A list of `StateTransition` objects, ordered by their appearance
+                in the buffer, representing the sequence of states and their
+                corresponding byte ranges.
+        """
         cur_state, trans, last = self.first_state, [], 0
 
         for start, _end, pattern, next_state in sorted(

@@ -1,6 +1,6 @@
 # Energy
 
-::: containers.atomistic.energy.Energy
+::: containers.energy.Energy
     handler: python
     options:
       inherited_members: true
