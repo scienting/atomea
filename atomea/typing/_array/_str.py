@@ -90,7 +90,7 @@ Example:
         )
 
         # Conditional symbol processing
-        symbol_data = molecule.symbols.values()
+        symbol_data = molecule.symbols.read()
         if symbol_data is not None:
             hydrogen_mask = symbol_data == 'H'
 

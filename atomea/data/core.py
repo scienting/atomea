@@ -167,16 +167,6 @@ class Data(Generic[T]):
         store, path = self.get_store_info(run_id=run_id)
         return store.get(path, **kwargs)  # type: ignore
 
-    def values(
-        self,
-        run_id: str | None = None,
-        view: OptionalSliceSpec = None,
-        **kwargs: Any,
-    ) -> T | None:
-        """Access and load the data into memory."""
-        store, path = self.get_store_info(run_id=run_id)
-        return store.read(path, view=view, **kwargs)  # type: ignore
-
     def next_microstate_id(self, ens_id: str, run_id: str) -> int:
         """Determine the next `microstate_id` by adding one to the currently
         largest one for this `ens_id` and `run_id`.

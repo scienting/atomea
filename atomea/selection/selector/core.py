@@ -152,7 +152,7 @@ class EnsembleSelector:
 
             masks = {}
             for ms_id in all_microstate_ids:
-                coords = self._ensemble.coordinates.values(
+                coords = self._ensemble.coordinates.read(
                     ens_id=self._ensemble.label,
                     run_id=self._run_id,
                     microstate_id=ms_id,
