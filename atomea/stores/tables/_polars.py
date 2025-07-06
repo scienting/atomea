@@ -28,12 +28,12 @@ class PolarsTableStore(TableStore):
     @classmethod
     def check_columns(cls, columns):
         if (
-            "ensemble_id" not in columns
+            "ens_id" not in columns
             or "run_id" not in columns
             or "microstate_id" not in columns
         ):
             raise ValueError(
-                "Table must include 'ensemble_id', 'run_id', 'microstate_id' columns"
+                "Table must include 'ens_id', 'run_id', 'microstate_id' columns"
             )
 
     def write(
@@ -75,7 +75,7 @@ class PolarsTableStore(TableStore):
     def query(
         self,
         path: Path | str,
-        ensemble_id: str | None = None,
+        ens_id: str | None = None,
         run_id: int | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
@@ -87,8 +87,8 @@ class PolarsTableStore(TableStore):
         if df.shape == (0, 0):
             return df
 
-        if ensemble_id is not None:
-            df = df.filter(pl.col("ensemble_id") == ensemble_id)
+        if ens_id is not None:
+            df = df.filter(pl.col("ens_id") == ens_id)
         if run_id is not None:
             df = df.filter(pl.col("run_id") == run_id)
         if microstate_id is not None:

@@ -71,7 +71,7 @@ class Project(Container):
     All data should be stored in a way that assumes multiple ensembles and
     microstates will be present. Each table item must include:
 
-    - `ensemble_id` (`str`): A unique identification label for an ensemble.
+    - `ens_id` (`str`): A unique identification label for an ensemble.
         This can be `"1"`, `"default"`, `"exp3829"`, etc.
     - `run_id` (`str`): An unique, independent run within the same ensemble.
         This often arises when running multiple independent molecular simulation
@@ -123,36 +123,36 @@ class Project(Container):
 
         self.time = Time(self)
 
-    def __getitem__(self, ensemble_id: str) -> Ensemble:
-        return self.get_ensemble(ensemble_id)
+    def __getitem__(self, ens_id: str) -> Ensemble:
+        return self.get_ensemble(ens_id)
 
-    def add_ensemble(self, ensemble_id: str) -> Ensemble:
+    def add_ensemble(self, ens_id: str) -> Ensemble:
         """
         Create and register a new Ensemble with given ID, using the project's stores.
 
         Args:
-            ensemble_id: Unique label for the ensemble.
+            ens_id: Unique label for the ensemble.
 
         Returns:
             The newly created Ensemble.
         """
-        assert isinstance(ensemble_id, str)
-        if ensemble_id in self._ensembles:
-            raise ValueError(f"Ensemble '{ensemble_id}' already exists")
+        assert isinstance(ens_id, str)
+        if ens_id in self._ensembles:
+            raise ValueError(f"Ensemble '{ens_id}' already exists")
 
-        ens = Ensemble(ensemble_id=ensemble_id, parent=self)
+        ens = Ensemble(ens_id=ens_id, parent=self)
 
-        logger.info("Registering ensemble: {}", ensemble_id)
-        self._ensembles[ensemble_id] = ens
+        logger.info("Registering ensemble: {}", ens_id)
+        self._ensembles[ens_id] = ens
         return ens
 
-    def get_ensemble(self, ensemble_id: str) -> Ensemble | None:
+    def get_ensemble(self, ens_id: str) -> Ensemble | None:
         """
         Retrieve an existing Ensemble by its ID, or None if not found.
         """
-        return self._ensembles.get(ensemble_id, None)
+        return self._ensembles.get(ens_id, None)
 
-    def remove_ensemble(self, ensemble_id: str) -> None:
+    def remove_ensemble(self, ens_id: str) -> None:
         """
         Remove an Ensemble from the project by its ID.
 
@@ -161,8 +161,8 @@ class Project(Container):
         Raises:
             KeyError: if the ensemble does not exist.
         """
-        del self._ensembles[ensemble_id]
-        logger.info("Removed ensemble: {}", ensemble_id)
+        del self._ensembles[ens_id]
+        logger.info("Removed ensemble: {}", ens_id)
 
     def list_ensembles(self) -> list[str]:
         """

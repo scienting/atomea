@@ -5,7 +5,7 @@ import polars as pl
 from loguru import logger
 
 from atomea.containers import Container
-from atomea.data import OptionalSliceSpec, T, ValueOrSlice
+from atomea.data import Cadence, OptionalSliceSpec, T
 from atomea.stores import Store, StoreKind
 
 
@@ -73,7 +73,7 @@ class Data(Generic[T]):
         """
         Chain of object references to get from the Project and any other
         `Containers` to this `Data` object. This does not include the `Data`
-        object itself.
+        object itself or the user-specified `run_id`.
 
         An atomea `Project` is the root container for any and all data for a
         specific project. We often nest `Containers` to group
@@ -98,16 +98,27 @@ class Data(Generic[T]):
         store = project._stores[self.store_kind]  # type: ignore
         return store
 
-    def _get_path(self, parent_chain: tuple[Container, ...]) -> str:
+    def _get_path(
+        self, parent_chain: tuple[Container, ...], run_id: str | None = None
+    ) -> str:
         """
         Determine the path of data in store based on the object hierarchy.
+
+        Args:
+            parent_chain:
+            run_id: Optional run_id to store multiple runs for an Ensemble. This
+                only impact arrays since tables store `run_id` in columns.
         """
         path = "/".join([obj.label for obj in parent_chain[1:]])
         if self.store_kind == StoreKind.ARRAY:
+            if run_id is not None:
+                # Cadences of ensembles should never change between run_ids.
+                if self.parent_chain[-1].cadence == Cadence.MICROSTATE:
+                    path += f"/{run_id}"
             path += f"/{self.label}"
         return path
 
-    def get_store_info(self) -> tuple[Store, str]:
+    def get_store_info(self, run_id: str | None = None) -> tuple[Store, str]:
         """Determines information needed to access this data from a store.
 
         Returns:
@@ -117,25 +128,34 @@ class Data(Generic[T]):
         """
         parent_chain = self.parent_chain
         store = self._get_store(parent_chain)
-        path = self._get_path(parent_chain)
+        path = self._get_path(parent_chain, run_id=run_id)
         logger.debug("Getting <Data '{}'> from <Store '{}'>", path, store.path)
         return store, path
 
-    def write(self, data: T, view: OptionalSliceSpec = None, **kwargs: Any) -> None:
-        store, path = self.get_store_info()
+    def write(
+        self,
+        data: T,
+        view: OptionalSliceSpec = None,
+        run_id: str | None = None,
+        **kwargs: Any,
+    ) -> None:
+        store, path = self.get_store_info(run_id=run_id)
         store.write(path, data, view=view, **kwargs)
 
-    def append(self, data: T, **kwargs: Any) -> None:
-        store, path = self.get_store_info()
+    def append(self, data: T, run_id: str | None = None, **kwargs: Any) -> None:
+        store, path = self.get_store_info(run_id=run_id)
         store.append(path, data, **kwargs)
 
-    def read(self, view: OptionalSliceSpec = None, **kwargs: Any) -> T | None:
-        store, path = self.get_store_info()
+    def read(
+        self, view: OptionalSliceSpec = None, run_id: str | None = None, **kwargs: Any
+    ) -> T | None:
+        store, path = self.get_store_info(run_id=run_id)
         data = store.read(path, view=view, **kwargs)
         return data  # type: ignore
 
     def get(
         self,
+        run_id: str | None = None,
         **kwargs: Any,
     ) -> Any:
         """Get the store-specific object that represents the data stored here.
@@ -144,39 +164,26 @@ class Data(Generic[T]):
         would return the memory map object, not the in-memory data. If you want to
         guarantee the data is loaded into memory, use `values`.
         """
-        store, path = self.get_store_info()
+        store, path = self.get_store_info(run_id=run_id)
         return store.get(path, **kwargs)  # type: ignore
 
     def values(
         self,
+        run_id: str | None = None,
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> T | None:
         """Access and load the data into memory."""
-        store, path = self.get_store_info()
+        store, path = self.get_store_info(run_id=run_id)
         return store.read(path, view=view, **kwargs)  # type: ignore
 
-    def __set__(self, obj: object, value: ValueOrSlice[T]) -> None:
-        if obj is None:
-            raise AttributeError("Cannot set attribute on class")
-
-        store, path = self.get_store_info()
-
-        view: OptionalSliceSpec = None
-        if isinstance(value, tuple) and len(value) == 2:
-            data: T = value[0]
-            view = value[1]
-        else:
-            data = value  # type: ignore
-        store.write(path, data, view=view)
-
-    def next_microstate_id(self, ensemble_id: str, run_id: str) -> int:
+    def next_microstate_id(self, ens_id: str, run_id: str) -> int:
         """Determine the next `microstate_id` by adding one to the currently
-        largest one for this `ensemble_id` and `run_id`.
+        largest one for this `ens_id` and `run_id`.
 
         Args:
             path: Path to table.
-            ensemble_id: ID of the ensemble to query.
+            ens_id: ID of the ensemble to query.
             run_id: ID of the run to query.
 
         Returns:
@@ -187,7 +194,7 @@ class Data(Generic[T]):
             "Can only check for microstate IDs on table data"
         )
         # Need to determine this by using the key
-        df = store.query(path, ensemble_id=ensemble_id, run_id=run_id)  # type: ignore
+        df = store.query(path, ens_id=ens_id, run_id=run_id)  # type: ignore
         if df.shape == (0, 0):
             return 0
 
@@ -196,14 +203,16 @@ class Data(Generic[T]):
         microstate_id_max = microstate_ids.top_k(1).to_numpy()[0]
         return int(microstate_id_max + 1)
 
-    def prep_dataframe(self, ensemble_id, run_id, microstate_id_next, data):
+    def prep_dataframe(
+        self, ens_id: str, run_id: str, microstate_id_next: int, data: Any
+    ):
         n_microstates = data.shape[0]
         microstate_ids = np.arange(
             microstate_id_next, microstate_id_next + n_microstates
         )
         df = pl.DataFrame(
             {
-                "ensemble_id": np.full(microstate_ids.shape, ensemble_id),
+                "ens_id": np.full(microstate_ids.shape, ens_id),
                 "run_id": np.full(microstate_ids.shape, run_id),
                 "microstate_id": microstate_ids,
                 self.label: data,

@@ -30,14 +30,14 @@ class Reader(ABC):
     @classmethod
     @abstractmethod
     def extract(
-        cls, prj: Project, id_ens: str, id_run: str, ctx: dict[str, Any]
+        cls, prj: Project, ens_id: str, run_id: str, ctx: dict[str, Any]
     ) -> Project:
         """Extract and parse all possible information given the context.
         This method is responsible for calling all other methods.
 
         Args:
             prj: Destination project to put extracted information.
-            id_ens: ID to store any ensemble data under.
+            ens_id: ID to store any ensemble data under.
             context: Information needed for the reader.
 
         Returns:
@@ -48,8 +48,8 @@ class Reader(ABC):
     def run(
         cls,
         prj: Project,
-        id_ens: str,
-        id_run: str,
+        ens_id: str,
+        run_id: str,
         reader_args: tuple[Any] | None = None,
         reader_kwargs: dict[str, Any] | None = None,
     ) -> Project:
@@ -58,7 +58,7 @@ class Reader(ABC):
 
         Args:
             prj: Project to store all extracted data to.
-            id_ens: ID of this ensemble. This function will create the ensemble
+            ens_id: ID of this ensemble. This function will create the ensemble
                 if it does not exist in `prj`.
             reader_args: Arguments for preparing the context needed for the reader.
             reader_kwargs: Keyword arguments for preparing the context needed for
@@ -75,9 +75,9 @@ class Reader(ABC):
         cls.checks()
         ctx = cls.prepare(*reader_args, **reader_kwargs)
 
-        _ = prj.get_ensemble(id_ens) or prj.add_ensemble(id_ens)
+        _ = prj.get_ensemble(ens_id) or prj.add_ensemble(ens_id)
 
-        project = cls.extract(prj, id_ens, id_run, ctx)
+        project = cls.extract(prj, ens_id, run_id, ctx)
         for store_kind, store in project._stores.items():
             store.flush()
 

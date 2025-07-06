@@ -30,7 +30,7 @@ class TableStore(Store, ABC):
     def query(
         self,
         path: Path | str,
-        ensemble_id: str | None = None,
+        ens_id: str | None = None,
         run_id: str | None = None,
         microstate_id: int | None = None,
         filter_expr: str | None = None,
@@ -41,7 +41,7 @@ class TableStore(Store, ABC):
 
         Args:
             path: Container/table name.
-            ensemble_id: A unique identification label for an ensemble.
+            ens_id: A unique identification label for an ensemble.
                 This can be `"1"`, `"default"`, `"exp3829"`, etc.
             run_id: An unique, independent run within the same ensemble.
                 This often arises when running multiple independent molecular

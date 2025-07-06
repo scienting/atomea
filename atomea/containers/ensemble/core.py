@@ -8,6 +8,7 @@ from atomea.stores import StoreKind
 
 if TYPE_CHECKING:
     from atomea.containers import Project
+    from atomea.selection.selector import EnsembleSelector
 
 
 class Ensemble(Container):
@@ -32,8 +33,8 @@ class Ensemble(Container):
     defined using a set of Cartesian coordinates ($x$, $y$, $z$).
     """
 
-    def __init__(self, ensemble_id: str, parent: "Project") -> None:
-        self.label = ensemble_id
+    def __init__(self, ens_id: str, parent: "Project") -> None:
+        self.label = ens_id
         self.cadence = Cadence.MICROSTATE
         self._parent = parent
 

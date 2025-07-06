@@ -31,8 +31,8 @@ class Writer(ABC):
     def run(
         cls,
         prj: Project,
-        id_ens: str,
-        id_run: str,
+        ens_id: str,
+        run_id: str,
         writer_args: tuple[Any] | None = None,
         writer_kwargs: dict[str, Any] | None = None,
     ) -> Project:
@@ -41,7 +41,7 @@ class Writer(ABC):
 
         Args:
             prj: Project to store all extracted data to.
-            id_ens: ID of this ensemble. This function will create the ensemble
+            ens_id: ID of this ensemble. This function will create the ensemble
                 if it does not exist in `prj`.
             writer_args: Arguments for preparing the context needed for the writer.
             writer_kwargs: Keyword arguments for preparing the context needed for
@@ -55,6 +55,6 @@ class Writer(ABC):
         cls.checks()
         ctx = cls.prepare(*writer_args, **writer_kwargs)
 
-        _ = prj.get_ensemble(id_ens) or prj.add_ensemble(id_ens)
+        _ = prj.get_ensemble(ens_id) or prj.add_ensemble(ens_id)
 
         # TODO: implement
