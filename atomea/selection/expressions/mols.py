@@ -1,7 +1,9 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator
 
 import numpy as np
+import numpy.typing as npt
 
+from atomea.data import OptionalSliceSpec
 from atomea.selection.expressions import SelectionExpression
 
 if TYPE_CHECKING:
@@ -17,7 +19,12 @@ class MolIdIs(SelectionExpression):
             None  # Cache for ensemble-level data
         )
 
-    def evaluate(self, ensemble: "Ensemble", run_id: str | None = None) -> np.ndarray:
+    def evaluate(
+        self,
+        ensemble: "Ensemble",
+        run_id: str | None = None,
+        micro_id: OptionalSliceSpec = None,
+    ) -> Iterator[npt.NDArray[np.bool]]:
         # Molecule IDs are ENSEMBLE cadence, so load once and cache
         if self._cached_all_mol_ids is None:
             self._cached_all_mol_ids = ensemble.topology.ids.molecules.read(
@@ -31,6 +38,6 @@ class MolIdIs(SelectionExpression):
                     run_id=run_id,
                 )
                 num_atoms = coords.shape[1] if coords is not None else 0
-                return np.zeros(num_atoms, dtype=bool)
+                yield np.zeros(num_atoms, dtype=np.dtype(np.bool))
 
-        return np.isin(self._cached_all_mol_ids, self.mol_ids)
+        yield np.isin(self._cached_all_mol_ids, self.mol_ids)

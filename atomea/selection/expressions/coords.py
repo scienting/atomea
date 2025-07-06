@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Iterator
 import numpy as np
 import numpy.typing as npt
 
-from atomea.data import SliceSpec, OptionalSliceSpec
+from atomea.data import OptionalSliceSpec, SliceSpec
 from atomea.selection.expressions import SelectionExpression
 
 if TYPE_CHECKING:
@@ -12,7 +12,8 @@ if TYPE_CHECKING:
 
 class DistanceWithin(SelectionExpression):
     """
-    Selects atoms within a certain distance from a selection.
+    Selects atoms within a certain distance from a reference selection.
+    Selections include the reference atoms.
     """
 
     def __init__(self, from_atoms: SliceSpec, dist: float):
@@ -31,17 +32,15 @@ class DistanceWithin(SelectionExpression):
         micro_id: OptionalSliceSpec = None,
     ) -> Iterator[npt.NDArray[np.bool]]:
         if micro_id:
-            view = (slice(None), slice(None))
+            view = (micro_id, slice(None), slice(None))
         else:
-            view = 
+            view = (slice(None),)
 
-        for coords in ensemble.coordinates.iter(run_id, 
-        coords = ensemble.coordinates.read(view=view, run_id=run_id)
-        if coords is None or coords.shape[1] == 0:
-            # No coordinates for this microstate, return empty mask
-            return np.array([], dtype=np.dtype(np.bool))
-
-        for coord in coords:
-            from_coords = coord[self.from_atoms]
-            distances = np.linalg.norm(coord - from_coords, axis=1)
-            return distances <= self.dist
+        for chunk in ensemble.coordinates.iter(run_id=run_id, view=view, chunk_size=1):
+            if chunk is None or chunk.shape[1] == 0:
+                # No coordinates for this microstate, return empty mask
+                yield np.array([], dtype=np.dtype(np.bool))
+            else:
+                from_coords = chunk[self.from_atoms]
+                distances = np.linalg.norm(chunk - from_coords, axis=1)
+                yield distances <= self.dist

@@ -4,8 +4,8 @@ from abc import ABC
 from pathlib import Path
 
 from atomea.data import OptionalSliceSpec
-from atomea.stores import ArrayDiskFormats, DiskFormat, Store, StoreKind
 from atomea.helpers import chunker
+from atomea.stores import ArrayDiskFormats, DiskFormat, Store, StoreKind
 
 
 class ArrayStore(Store, ABC):

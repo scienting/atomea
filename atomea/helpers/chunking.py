@@ -1,4 +1,5 @@
-from typing import Any, Iterator, Iterable
+from typing import Any, Iterable, Iterator
+
 from loguru import logger
 
 
