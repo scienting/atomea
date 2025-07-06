@@ -31,7 +31,9 @@ Note:
     defined in this module for consistent behavior.
 """
 
-SliceSpec = tuple[slice, ...] | dict[int, tuple[slice, ...]]
+Slice = tuple[slice | int | list[int] | tuple[int, ...], ...]
+
+SliceSpec = Slice | dict[int, Slice]
 """Type specification for multidimensional array slicing operations.
 
 Defines the allowed formats for specifying how to slice multidimensional arrays
@@ -40,7 +42,7 @@ and advanced axis-specific slicing for complex data access patterns.
 
 The type union supports two slicing approaches:
 
-1. **Tuple format** (`tuple[slice, ...]`):
+1. **Tuple format** (`tuple[slice | int | list[int] | tuple[int, ...], ...]`):
    - Direct specification of slice objects for each dimension
    - Maps directly to standard NumPy indexing syntax
    - Most common and intuitive approach
@@ -82,13 +84,9 @@ Note:
     and are typically not created directly by users. The bracket notation
     on interfaces (`interface[0:10]`) automatically converts to appropriate
     SliceSpec formats.
-
-See Also:
-    numpy.view: NumPy slice object documentation
-    atomea.store.interfaces.ArrayInterface: Array interface implementation
 """
 
-OptionalSliceSpec = tuple[slice, ...] | dict[int, tuple[slice, ...]] | None
+OptionalSliceSpec = SliceSpec | None
 
 
 ValueOrSlice: TypeAlias = T | tuple[T, SliceSpec]
