@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from atomea.data import SliceSpec
 from atomea.selection.expressions import (
     AndExpression,
     AtomTypeIs,
@@ -80,21 +81,33 @@ class EnsembleSelector:
         """
         return self._add_expression(AtomTypeIs(atom_types))
 
-    def distance_within(
-        self, center_atom_index: int, radius: float
+    def within(
+        self, from_atoms: SliceSpec | "EnsembleSelector", dist: float
     ) -> "EnsembleSelector":
         """
         Selects atoms within a specified radial distance from a given center atom index.
         This filter is applied per microstate.
 
         Args:
-            center_atom_index: The 0-based index of the atom to use as the center.
+            from_atoms: The 0-based index of the atom to use as the center.
             radius: The maximum distance (inclusive) from the center atom in the same units as coordinates.
 
         Returns:
             The EnsembleSelector instance for chaining.
         """
-        return self._add_expression(DistanceWithin(center_atom_index, radius))
+        if isinstance(from_atoms, EnsembleSelector):
+            # If from_atoms is an EnsembleSelector, use its current expression
+            if from_atoms._current_expression is None:
+                raise ValueError(
+                    "The 'from_atoms' selector has no active selection. Add filters to it first."
+                )
+            return self._add_expression(
+                DistanceWithin(from_atoms._current_expression, dist)
+            )
+        else:
+            # Otherwise, assume it's a direct index (int)
+            # The DistanceWithin class will handle SliceSpec if from_atoms is more complex
+            return self._add_expression(DistanceWithin(from_atoms, dist))
 
     def and_(self) -> "EnsembleSelector":
         """
