@@ -1,8 +1,8 @@
 import os
 import shutil
 
-import pytest
 import numpy as np
+import pytest
 
 from atomea import Project, enable_logging
 from atomea.stores import DiskFormat
