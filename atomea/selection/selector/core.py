@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
+# See https://stackoverflow.com/questions/33533148/how-do-i-type-hint-a-method-with-the-type-of-the-enclosing-class
 
 import numpy as np
 
@@ -81,9 +82,7 @@ class EnsembleSelector:
         """
         return self._add_expression(AtomTypeIs(atom_types))
 
-    def within(
-        self, from_atoms: SliceSpec | "EnsembleSelector", dist: float
-    ) -> "EnsembleSelector":
+    def within(self, from_atoms: SliceSpec | Self, dist: float) -> "EnsembleSelector":
         """
         Selects atoms within a specified radial distance from a given center atom index.
         This filter is applied per microstate.
