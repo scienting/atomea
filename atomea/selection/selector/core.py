@@ -1,9 +1,9 @@
-from typing import TYPE_CHECKING, Self
-# See https://stackoverflow.com/questions/33533148/how-do-i-type-hint-a-method-with-the-type-of-the-enclosing-class
+from typing import TYPE_CHECKING, Iterator, Self
 
 import numpy as np
+import numpy.typing as npt
 
-from atomea.data import SliceSpec
+from atomea.data import OptionalSliceSpec, SliceSpec
 from atomea.selection.expressions import (
     AndExpression,
     AtomTypeIs,
@@ -13,6 +13,9 @@ from atomea.selection.expressions import (
     OrExpression,
     SelectionExpression,
 )
+
+# See https://stackoverflow.com/questions/33533148/how-do-i-type-hint-a-method-with-the-type-of-the-enclosing-class
+
 
 if TYPE_CHECKING:
     from atomea.containers import Ensemble
@@ -40,9 +43,15 @@ class EnsembleSelector:
         self._current_expression: SelectionExpression | None = None
         # This flag helps manage implicit AND vs explicit OR/AND
         self._next_op_is_or: bool = False
+        # Indicates if the next expression to be added should be negated
+        self._next_expression_is_negated: bool = False
 
     def _add_expression(self, new_expr: SelectionExpression) -> "EnsembleSelector":
         """Internal method to add a new expression to the tree."""
+        if self._next_expression_is_negated:
+            new_expr = NotExpression(new_expr)
+            self._next_expression_is_negated = False  # Reset the flag after use
+
         if self._current_expression is None:
             self._current_expression = new_expr
         else:
@@ -52,7 +61,7 @@ class EnsembleSelector:
                 )
                 self._next_op_is_or = False  # Reset after applying OR
             else:
-                # Default is AND
+                # Default is AND if no OR was specified
                 self._current_expression = AndExpression(
                     self._current_expression, new_expr
                 )
@@ -82,7 +91,9 @@ class EnsembleSelector:
         """
         return self._add_expression(AtomTypeIs(atom_types))
 
-    def within(self, from_atoms: SliceSpec | Self, dist: float) -> "EnsembleSelector":
+    def distance_within(
+        self, from_atoms: SliceSpec | Self, dist: float
+    ) -> "EnsembleSelector":
         """
         Selects atoms within a specified radial distance from a given center atom index.
         This filter is applied per microstate.
@@ -137,83 +148,40 @@ class EnsembleSelector:
         Example: `select().not_().mol_id_in([0])`
         Example: `select().mol_id_in([0]).and_().not_().atom_type_is(["C"])`
         """
-        if self._current_expression is None:
-            raise ValueError(
-                "Cannot apply 'not_' to an empty selection. Add a filter first."
-            )
-        self._current_expression = NotExpression(self._current_expression)
+        self._next_expression_is_negated = True
         return self
 
-    def get_mask(self) -> dict[int, np.ndarray]:
+    def get_mask(
+        self, micro_id: OptionalSliceSpec = None
+    ) -> Iterator[npt.NDArray[np.bool]]:
         """
-        Executes the built selection query and returns a dictionary of atom-level
+        Executes the built selection query and yields atom-level
         boolean masks, one for each microstate.
 
         The mask for each microstate will have a length equal to the number of atoms
         in that microstate, indicating which atoms meet the criteria.
 
+        Args:
+            micro_id: Specifies the microstate IDs for which to generate masks.
+                Can be an integer, a slice, or None (to get masks for all microstates).
+
         Returns:
-            A dictionary where keys are `microstate_id` (int) and values are
             1D boolean NumPy arrays representing the atom selection mask for that microstate.
         """
         if self._current_expression is None:
-            # If no filters were added, return all True for all atoms in all microstates
-            all_microstate_ids = self._get_all_microstate_ids()
-            if not all_microstate_ids:
-                return {}
-
-            masks = {}
-            for ms_id in all_microstate_ids:
-                coords = self._ensemble.coordinates.read(
-                    ens_id=self._ensemble.label,
-                    run_id=self._run_id,
-                    microstate_id=ms_id,
-                )
-                num_atoms = coords.shape[1] if coords is not None else 0
-                masks[ms_id] = np.ones(num_atoms, dtype=bool)
-            return masks
-
-        # Get all microstate IDs that exist for this ensemble and run
-        all_microstate_ids = self._get_all_microstate_ids()
-        if not all_microstate_ids:
-            return {}
-
-        result_masks: dict[int, np.ndarray] = {}
-        for microstate_id in all_microstate_ids:
-            # Evaluate the entire expression tree for each microstate
-            mask = self._current_expression.evaluate(
-                self._ensemble, microstate_id, self._run_id
+            # If no selection expression, yield all-true masks for the specified microstates.
+            # We still need to iterate through coordinates to get num_atoms for each microstate.
+            microstate_data_iterator = self._ensemble.coordinates.iter(
+                run_id=self._run_id,
+                elements=micro_id,
+                chunk_size=1,
             )
-            result_masks[microstate_id] = mask
-        return result_masks
-
-    def _get_all_microstate_ids(self) -> list[int]:
-        """Helper to get all unique microstate IDs for the current ensemble and run."""
-        # Assuming prj.energy.potential_mm is a reliable source for all microstate IDs
-        energy_df = self._ensemble._parent.energy.potential_mm.read(
-            ens_id=self._ensemble.label, run_id=self._run_id
-        )
-        if energy_df is None or energy_df.shape[0] == 0:
-            # If no energy data, try to get microstate IDs from coordinates
-            # This is less reliable as coordinates might not exist for all microstates
-            # or might be sparse.
-            # A more robust solution might involve a dedicated 'microstates' table.
-            coords_data = self._ensemble.coordinates.get(
-                ens_id=self._ensemble.label, run_id=self._run_id
+            for coords_chunk in microstate_data_iterator:
+                num_atoms = coords_chunk.shape[1] if coords_chunk is not None else 0
+                yield np.ones(num_atoms, dtype=bool)
+        else:
+            # If there is a selection expression, delegate the evaluation directly to it.
+            # The SelectionExpression.evaluate method already returns an iterator of masks.
+            yield from self._current_expression.evaluate(
+                self._ensemble, self._run_id, micro_id=micro_id
             )
-            if coords_data is not None:
-                # If Zarr array, we might need to inspect its structure for microstate dimension
-                # This is a simplification; actual implementation might need to query Zarr metadata
-                # For now, assume it's just the microstate index.
-                # This part is highly dependent on how Zarr is structured for microstates.
-                # If Zarr stores (microstate_idx, num_atoms, 3), then coords_data.shape[0]
-                # would give the number of microstates.
-                # For now, let's assume we can get a list of available microstate IDs from the store.
-                # This needs to be refined based on actual Zarr/Polars usage.
-                # Placeholder:
-                # If coords_data is a Zarr array, its shape[0] would be the number of microstates
-                # Assuming microstate IDs are 0 to N-1
-                return list(range(coords_data.shape[0]))
-            return []  # No microstates found
-
-        return sorted(energy_df["microstate_id"].unique().to_list())

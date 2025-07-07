@@ -25,7 +25,7 @@ def chunker(
     logger.debug(
         "Generating chunk slices of size {} for {} elements", chunk_size, n_data
     )
-    if elements is None:
+    if elements is None or elements == slice(None, None, None):
         for start in range(0, n_data, chunk_size):
             stop = min(start + chunk_size, n_data)
             yield slice(start, stop, 1)

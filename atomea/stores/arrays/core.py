@@ -29,6 +29,7 @@ class ArrayStore(Store, ABC):
     def iter(
         self,
         path: Path | str,
+        elements: OptionalSliceSpec = None,
         view: OptionalSliceSpec = None,
         chunk_size: int = 1,
         **kwargs: Any,
@@ -44,7 +45,7 @@ class ArrayStore(Store, ABC):
         if z is None:
             return None
         n_items = z.shape[0]
-        for chunk in chunker(chunk_size, n_items):
+        for chunk in chunker(chunk_size, n_items, elements):
             if view is None:
                 _view = (chunk,)
             else:

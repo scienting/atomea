@@ -170,6 +170,7 @@ class Data(Generic[T]):
     def iter(
         self,
         run_id: str | None = None,
+        elements: OptionalSliceSpec = None,
         view: OptionalSliceSpec = None,
         chunk_size: int = 1,
         **kwargs: Any,
@@ -178,13 +179,15 @@ class Data(Generic[T]):
 
         Args:
             run_id:
+            elements: Slice for the first dimension. Usually used to specific certain
+                microstates or all microstates
             view: Slice spec for all but the first dimension.
             chunk: Number of data points of the first axis to yield at each time.
         """
         store, path = self.get_store_info(run_id=run_id)
         if store.kind != StoreKind.ARRAY:
             raise TypeError(f"Can only iterator over Array store, not {store.kind}")
-        for chunk in store.iter(path, view, chunk_size, **kwargs):  # type: ignore
+        for chunk in store.iter(path, elements, view, chunk_size, **kwargs):  # type: ignore
             yield chunk
 
     def next_microstate_id(self, ens_id: str, run_id: str) -> int:
