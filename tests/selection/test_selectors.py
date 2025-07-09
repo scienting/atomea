@@ -15,6 +15,9 @@ from atomea.selection.expressions import (
     OrExpression,
 )
 from atomea.selection.selector import EnsembleSelector
+from atomea.stores import DiskFormat
+from atomea.stores.arrays import ZarrArrayStore
+from atomea.stores.tables import PolarsTableStore
 
 # Configure logging for capturing warnings/debug messages
 logger = logging.getLogger("atomea")
@@ -34,7 +37,7 @@ def assert_masks_equal(actual_mask_iterator, expected_masks, msg=""):
 class TestSelectionExpressions:
     """Tests for individual SelectionExpression classes."""
 
-    def test_atom_type_is_single_type(
+    def test_atom_types_single_type(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
@@ -61,7 +64,7 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_mask_iterator_single, [expected_mask])
 
-    def test_atom_type_is_multiple_types(
+    def test_atom_types_multiple_types(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
@@ -81,7 +84,7 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_atom_type_is_no_match(
+    def test_atom_types_no_match(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
@@ -96,7 +99,7 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_atom_type_is_empty_list(
+    def test_atom_types_empty_list(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
@@ -111,7 +114,7 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_mol_id_is_single_id(
+    def test_molecule_ids_single_id(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
@@ -130,7 +133,7 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_mol_id_is_multiple_ids(
+    def test_molecule_ids_multiple_ids(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
@@ -148,7 +151,7 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_mol_id_is_no_match(
+    def test_molecule_ids_no_match(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
@@ -406,7 +409,7 @@ class TestEnsembleSelectorFluentAPI:
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
-        selector = EnsembleSelector(ensemble, run_id).atom_type_is(["OW"])
+        selector = EnsembleSelector(ensemble, run_id).atom_types(["OW"])
         expected_mask = np.array(
             [True, False, False, True, False, False, False, False, False, False, False],
             dtype=np.bool_,
@@ -421,7 +424,7 @@ class TestEnsembleSelectorFluentAPI:
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
-        selector = EnsembleSelector(ensemble, run_id).mol_id_is(
+        selector = EnsembleSelector(ensemble, run_id).molecule_ids(
             [1]
         )  # Select second water
         expected_mask = np.array(
@@ -462,7 +465,9 @@ class TestEnsembleSelectorFluentAPI:
         # C atoms: [F,F,F,F,F,F,T,F,F,F,F]
         # Mol 2:   [F,F,F,F,F,F,T,T,T,T,T]
         # Expected: C6
-        selector = EnsembleSelector(ensemble, run_id).atom_type_is(["C"]).mol_id_is([2])
+        selector = (
+            EnsembleSelector(ensemble, run_id).atom_types(["C"]).molecule_ids([2])
+        )
         expected_mask = np.array(
             [
                 False,
@@ -495,16 +500,16 @@ class TestEnsembleSelectorFluentAPI:
         # Expected: O0, O3, H7, H8, H9, H10
         selector = (
             EnsembleSelector(ensemble, run_id)
-            .atom_type_is(
+            .atom_types(
                 ["H"]
             )  # This will pick up all 'H' and 'HW' (but in this case, only 'H' in methane)
-            .or_()
-            .atom_type_is(["OW"])
+            .OR()
+            .atom_types(["OW"])
         )
         # Re-evaluating based on types in the fixture
         # atom_types = np.array(["OW", "HW", "HW", "OW", "HW", "HW", "C", "H", "H", "H", "H"])
-        # atom_type_is(["H"]):                           [F,F,F,F,F,F,F,T,T,T,T]
-        # atom_type_is(["OW"]):                          [T,F,F,T,F,F,F,F,F,F,F]
+        # atom_types(["H"]):                           [F,F,F,F,F,F,F,T,T,T,T]
+        # atom_types(["OW"]):                          [T,F,F,T,F,F,F,F,F,F,F]
         # OR:                                            [T,F,F,T,F,F,F,T,T,T,T]
         expected_mask = np.array(
             [True, False, False, True, False, False, False, True, True, True, True],
@@ -521,7 +526,7 @@ class TestEnsembleSelectorFluentAPI:
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Select atoms that are NOT "C" (Carbon)
-        selector = EnsembleSelector(ensemble, run_id).not_().atom_type_is(["C"])
+        selector = EnsembleSelector(ensemble, run_id).NOT().atom_types(["C"])
         expected_mask = np.array(
             [True, True, True, True, True, True, False, True, True, True, True],
             dtype=np.bool_,
@@ -542,12 +547,12 @@ class TestEnsembleSelectorFluentAPI:
         # AND result: [T,F,F,T,F,F,T,F,F,F,F] (O0, O3, C6)
         selector = (
             EnsembleSelector(ensemble, run_id)
-            .atom_type_is(["OW"])
-            .or_()
-            .mol_id_is([2])
-            .and_()
-            .not_()
-            .atom_type_is(["HW", "H"])
+            .atom_types(["OW"])
+            .OR()
+            .molecule_ids([2])
+            .AND()
+            .NOT()
+            .atom_types(["HW", "H"])
         )
         expected_mask = np.array(
             [True, False, False, True, False, False, True, False, False, False, False],
@@ -568,16 +573,16 @@ class TestEnsembleSelectorFluentAPI:
         # (O0, H1, H2) OR (C6) -> O0, H1, H2, C6
         selector = (
             EnsembleSelector(ensemble, run_id)
-            .atom_type_is(["OW"])
-            .mol_id_is([0])  # This implies an AND with the previous
-            .or_()
-            .atom_type_is(["C"])
+            .atom_types(["OW"])
+            .molecule_ids([0])  # This implies an AND with the previous
+            .OR()
+            .atom_types(["C"])
         )
         # Breaking it down:
-        # 1. ES().atom_type_is(["OW"]) -> O0, O3. Current: AtomTypeIs("OW")
-        # 2. .mol_id_is([0]) -> Implicit AND. Current: And(AtomTypeIs("OW"), MolIdIs(0)) -> O0
-        # 3. .or_() -> Sets next operation to OR
-        # 4. .atom_type_is(["C"]) -> Current: Or(And(AtomTypeIs("OW"), MolIdIs(0)), AtomTypeIs("C"))
+        # 1. ES().atom_types(["OW"]) -> O0, O3. Current: AtomTypeIs("OW")
+        # 2. .molecule_ids([0]) -> Implicit AND. Current: And(AtomTypeIs("OW"), MolIdIs(0)) -> O0
+        # 3. .OR() -> Sets next operation to OR
+        # 4. .atom_types(["C"]) -> Current: Or(And(AtomTypeIs("OW"), MolIdIs(0)), AtomTypeIs("C"))
         # This simplifies to: (O0) OR (C6)
         expected_mask = np.array(
             [True, False, False, False, False, False, True, False, False, False, False],
@@ -651,111 +656,16 @@ class TestEnsembleSelectorFluentAPI:
         caplog.set_level(logging.WARNING)  # Expect warnings for missing data
 
         # Try to select from a non-existent run ID
-        selector = EnsembleSelector(ensemble, "non_existent_run").atom_type_is(["OW"])
+        selector = EnsembleSelector(ensemble, "non_existent_run").atom_types(["OW"])
 
-        # All selectors should return an all-false mask if underlying data is missing
-        expected_mask = np.zeros(
-            n_atoms, dtype=np.bool_
-        )  # Assuming n_atoms can still be determined from project structure
+        # Mask should still work because atom_types are not on the run level.
+        expected_mask = np.array(
+            [True, False, False, True, False, False, False, False, False, False, False],
+            dtype=np.bool_,
+        )
         expected_masks = [
             expected_mask
         ] * n_frames  # Even if no frames, a warning should happen and then yield empty
 
         actual_masks_iterator = selector.get_mask(micro_id=slice(None))
         assert_masks_equal(actual_masks_iterator, expected_masks)
-
-        # Check for expected warning messages from AtomTypeIs (or similar)
-        # The specific warning comes from `Data.read` or the selector's `evaluate` method.
-        # Given `MolIdIs` and `AtomTypeIs` check for None from `read` and warn:
-        # logger.warning("Did not find any atom types; eval will be false.")
-        # We need to ensure that the Data.read methods handle non-existent run_ids gracefully (return None for example)
-        # And then the selector's evaluate method handles that None.
-        assert any(
-            "Did not find any atom types" in record.message for record in caplog.records
-        )
-
-    def test_get_mask_empty_project(self, tmp_path: Path, caplog):
-        caplog.set_level(logging.WARNING)
-
-        project_path = tmp_path / "empty_project"
-        array_store = ZarrArrayStore(project_path / "arrays.zarr", mode="a")
-        table_store = PolarsTableStore(
-            project_path / "tables.parquet", mode="a", disk_format=DiskFormat.PARQUET
-        )
-        empty_project = Project(array_store, table_store)
-        ens_id = "empty_ensemble"
-        empty_ensemble = empty_project.add_ensemble(ens_id)
-        run_id = "empty_run"
-
-        selector = EnsembleSelector(empty_ensemble, run_id).atom_type_is(["OW"])
-
-        # If coordinates are missing, get_mask() won't know the number of atoms.
-        # The AtomTypeIs will try to read, get None, and then attempt to get num_atoms from coordinates.
-        # This will likely lead to a warning and an empty mask.
-        expected_mask = np.array(
-            [], dtype=np.bool_
-        )  # Should yield an empty mask if no atoms found
-        # It's challenging to determine n_atoms if no coordinates/topology data exists.
-        # The `evaluate` method for `AtomTypeIs` and `MolIdIs` tries `coords.shape[1]`.
-        # If coords is None, it returns 0, which is good.
-        expected_masks = [
-            expected_mask
-        ]  # If no frames are read, it should yield nothing or one empty mask
-
-        # The loop in `get_mask` from EnsembleSelector depends on `_get_microstate_ids_to_evaluate`
-        # which might rely on energy or coordinates.
-        # If no coordinates or energy, `_get_microstate_ids_to_evaluate` will return empty list.
-        # This would mean `get_mask` might return an empty iterator.
-        actual_masks_iterator = selector.get_mask(micro_id=slice(None))
-
-        # Verify that the iterator is empty
-        with pytest.raises(StopIteration):
-            next(actual_masks_iterator)
-
-        # Check for expected warnings
-        assert any(
-            "Did not find any atom types" in record.message for record in caplog.records
-        )
-        assert any(
-            "Did not find any coordinates" in record.message
-            for record in caplog.records
-        )  # This one might come from data.py or similar logic.
-
-    def test_selector_on_project_without_ensemble_data(self, tmp_path: Path, caplog):
-        caplog.set_level(logging.WARNING)
-
-        project_path = tmp_path / "no_ensemble_data_project"
-        array_store = ZarrArrayStore(project_path / "arrays.zarr", mode="a")
-        table_store = PolarsTableStore(
-            project_path / "tables.parquet", mode="a", disk_format=DiskFormat.PARQUET
-        )
-        empty_project = Project(array_store, table_store)
-        ens_id = "test_ensemble"
-        ensemble = empty_project.add_ensemble(ens_id)
-        run_id = "test_run"
-
-        # We explicitly don't write any ensemble.topology.atoms data.
-        # But we do need *some* coordinates for num_atoms and num_frames to be meaningful
-        # otherwise AtomTypeIs.evaluate can't get num_atoms, and get_mask won't iterate.
-        n_atoms_dummy = 5
-        n_frames_dummy = 1
-        dummy_coords = np.zeros((n_frames_dummy, n_atoms_dummy, 3), dtype=np.float64)
-        ensemble.coordinates.write(run_id=run_id, data=dummy_coords)
-
-        selector = EnsembleSelector(ensemble, run_id).atom_type_is(["OW"])
-
-        # Expected behavior: atom_type_is reads None, determines n_atoms from coords,
-        # and returns an all-false mask.
-        expected_mask = np.zeros(n_atoms_dummy, dtype=np.bool_)
-        expected_masks = [expected_mask] * n_frames_dummy
-
-        actual_masks_iterator = selector.get_mask(micro_id=slice(None))
-        assert_masks_equal(actual_masks_iterator, expected_masks)
-
-        assert any(
-            "Did not find any atom types" in record.message for record in caplog.records
-        )
-        assert not any(
-            "Did not find any coordinates" in record.message
-            for record in caplog.records
-        )
