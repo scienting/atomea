@@ -39,12 +39,19 @@ class EnsembleSelector:
             run_id: The ID of the run within the ensemble for which to generate masks.
         """
         self._ensemble = ensemble
+        """Ensemble object to perform selections on."""
+
         self._run_id = run_id
+        """Run ID to use if needed for expressions."""
+
         self._current_expression: SelectionExpression | None = None
-        # This flag helps manage implicit AND vs explicit OR/AND
+        """This flag helps manage implicit AND vs explicit OR/AND."""
+
         self._next_op_is_or: bool = False
-        # Indicates if the next expression to be added should be negated
+        """Indicates if the next expression to be added should be negated."""
+
         self._next_expression_is_negated: bool = False
+        """Indicates if we should negate the next selection by using `NOT`"""
 
     def _add_expression(self, new_expr: SelectionExpression) -> "EnsembleSelector":
         """Internal method to add a new expression to the tree."""
@@ -67,7 +74,7 @@ class EnsembleSelector:
                 )
         return self
 
-    def mol_id_is(self, mol_ids: list[int]) -> "EnsembleSelector":
+    def molecule_ids(self, mol_ids: list[int]) -> "EnsembleSelector":
         """
         Selects atoms whose molecule ID is present in the provided list.
 
@@ -79,7 +86,7 @@ class EnsembleSelector:
         """
         return self._add_expression(MolIdIs(mol_ids))
 
-    def atom_type_is(self, atom_types: list[str]) -> "EnsembleSelector":
+    def atom_types(self, atom_types: list[str]) -> "EnsembleSelector":
         """
         Selects atoms whose atom type is present in the provided list.
 
@@ -119,34 +126,36 @@ class EnsembleSelector:
             # The DistanceWithin class will handle SliceSpec if from_atoms is more complex
             return self._add_expression(DistanceWithin(from_atoms, dist))
 
-    def and_(self) -> "EnsembleSelector":
+    def AND(self) -> "EnsembleSelector":
         """
         Sets the logical operator for the next chained filter to AND.
         This is the default behavior if no logical operator is explicitly called.
         """
         # No explicit action needed here as _add_expression defaults to AND.
         # This method primarily serves to make the chaining explicit and readable.
-        self._next_op_is_or = False  # Ensure it's explicitly AND
+        self._next_op_is_or = False
+        self._next_expression_is_negated = False
         return self
 
-    def or_(self) -> "EnsembleSelector":
+    def OR(self) -> "EnsembleSelector":
         """
         Sets the logical operator for the next chained filter to OR.
         The next filter added will be OR'd with the current expression tree.
         """
         if self._current_expression is None:
             raise ValueError(
-                "Cannot start a query with an 'or_' operator. Add a filter first."
+                "Cannot start a query with an 'OR' operator. Add a filter first."
             )
         self._next_op_is_or = True
+        self._next_expression_is_negated = False
         return self
 
-    def not_(self) -> "EnsembleSelector":
+    def NOT(self) -> "EnsembleSelector":
         """
         Applies a logical NOT operation to the *entire* current expression tree.
         This should typically be used at the end of a sub-expression or for a single filter.
-        Example: `select().not_().mol_id_in([0])`
-        Example: `select().mol_id_in([0]).and_().not_().atom_type_is(["C"])`
+        Example: `select().NOT().mol_id_in([0])`
+        Example: `select().mol_id_in([0]).AND().NOT().atom_types(["C"])`
         """
         self._next_expression_is_negated = True
         return self
