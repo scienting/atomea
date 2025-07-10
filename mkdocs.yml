@@ -62,6 +62,9 @@ plugins:
         python:
           inventories:
             - "https://docs.python.org/3/objects.inv"
+            - "https://numpy.org/doc/stable/objects.inv"
+            - "https://docs.pola.rs/py-polars/html/objects.inv"
+            - "https://zarr.readthedocs.io/en/stable/objects.inv"
           paths: ["atomea"]
           options:
             annotations_path: brief
@@ -81,6 +84,7 @@ plugins:
             merge_init_into_class: true
             line_length: 88
             show_root_heading: false
+            find_stubs_package: true
   - awesome-nav
   - glightbox
   - macros

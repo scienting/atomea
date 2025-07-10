@@ -45,7 +45,7 @@ class Quantum(Container):
 
     def __init__(self, parent: object) -> None:
         self.label = "quantum"
-        self.cadence = Cadence.ENSEMBLE
+        self.cadence = Cadence.RUN
         self._parent = parent
         self.electron_frozen_num.bind_to_container(self)
         self.charge_net.bind_to_container(self)

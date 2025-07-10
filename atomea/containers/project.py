@@ -76,7 +76,7 @@ class Project(Container):
     - `run_id` (`str`): An unique, independent run within the same ensemble.
         This often arises when running multiple independent molecular simulation
         trajectories with different random seeds.
-    - `microstate_id` (`uint`): An index specifying a microstate with some
+    - `micro_id` (`uint`): An index specifying a microstate with some
         relationship to order. This can be a frame in a molecular simulation
         trajectories, docking scores from best to worst, optimization steps, etc.
 

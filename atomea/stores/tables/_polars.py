@@ -30,10 +30,10 @@ class PolarsTableStore(TableStore):
         if (
             "ens_id" not in columns
             or "run_id" not in columns
-            or "microstate_id" not in columns
+            or "micro_id" not in columns
         ):
             raise ValueError(
-                "Table must include 'ens_id', 'run_id', 'microstate_id' columns"
+                "Table must include 'ens_id', 'run_id', 'micro_id' columns"
             )
 
     def write(
@@ -77,7 +77,7 @@ class PolarsTableStore(TableStore):
         path: Path | str,
         ens_id: str | None = None,
         run_id: int | None = None,
-        microstate_id: int | None = None,
+        micro_id: int | None = None,
         filter_expr: str | None = None,
         **kwargs: Any,
     ) -> pl.DataFrame:
@@ -91,8 +91,8 @@ class PolarsTableStore(TableStore):
             df = df.filter(pl.col("ens_id") == ens_id)
         if run_id is not None:
             df = df.filter(pl.col("run_id") == run_id)
-        if microstate_id is not None:
-            df = df.filter(pl.col("microstate_id") == microstate_id)
+        if micro_id is not None:
+            df = df.filter(pl.col("micro_id") == micro_id)
         if filter_expr:
             df = df.filter(pl.parse_expr(filter_expr))
         return df

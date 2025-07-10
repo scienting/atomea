@@ -8,7 +8,6 @@ from atomea.stores import StoreKind
 
 if TYPE_CHECKING:
     from atomea.containers import Project
-    from atomea.selection.selector import EnsembleSelector
 
 
 class Ensemble(Container):

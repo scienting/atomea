@@ -293,14 +293,14 @@ class SyntheticAtomDataGenerator:
     ) -> pl.DataFrame:
         """
         Generates synthetic energy data as a Polars DataFrame.
-        This includes 'ens_id', 'run_id', 'microstate_id', and 'potential_energy'.
+        This includes 'ens_id', 'run_id', 'micro_id', and 'potential_energy'.
         """
         # For fuzzing, we could inject missing columns, wrong dtypes in columns, etc.
         # For now, generate valid data as Polars handles many data issues.
         data = {
             "ens_id": [ens_id] * n_frames,
             "run_id": [run_id] * n_frames,
-            "microstate_id": list(range(n_frames)),
+            "micro_id": list(range(n_frames)),
             "potential_mm": np.random.uniform(-500.0, 500.0, size=n_frames).astype(
                 np.float64
             ),

@@ -1,5 +1,13 @@
 nav:
     - Home: index.md
+    - Data:
+      - data/index.md
+      - Cadence: data/cadence/index.md
+      - Dimensionality: data/dimensionality/index.md
+    - Stores:
+      - stores/index.md
+      - Arrays: stores/arrays/index.md
+      - Tables: stores/tables/index.md
     - Containers:
       - containers/index.md
       - Levels:
@@ -20,6 +28,14 @@ nav:
         - io/readers/index.md
       - Writers:
         - io/writers/index.md
+    - Selections:
+      - selections/index.md
+      - Expressions:
+        - selections/expressions/index.md
+        - Atom type: selections/expressions/atom-type/index.md
+        - Molecule IDs: selections/expressions/mol-ids/index.md
+        - Distance: selections/expressions/distance/index.md
+      - Usage: selections/usage/index.md
     - Examples:
       - examples/index.md
     - API: api

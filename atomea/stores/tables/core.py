@@ -32,7 +32,7 @@ class TableStore(Store, ABC):
         path: Path | str,
         ens_id: str | None = None,
         run_id: str | None = None,
-        microstate_id: int | None = None,
+        micro_id: int | None = None,
         filter_expr: str | None = None,
         **kwargs: Any,
     ) -> Any:
@@ -46,7 +46,7 @@ class TableStore(Store, ABC):
             run_id: An unique, independent run within the same ensemble.
                 This often arises when running multiple independent molecular
                 simulation trajectories with different random seeds.
-            microstate_id: An index specifying a microstate with some relationship to
+            micro_id: An index specifying a microstate with some relationship to
                 order. This can be a frame in a molecular simulation trajectories,
                 docking scores from best to worst, optimization steps, etc.
             filter_expr: string expression to filter rows.

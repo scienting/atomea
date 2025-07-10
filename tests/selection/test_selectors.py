@@ -550,7 +550,6 @@ class TestEnsembleSelectorFluentAPI:
             .atom_types(["OW"])
             .OR()
             .molecule_ids([2])
-            .AND()
             .NOT()
             .atom_types(["HW", "H"])
         )

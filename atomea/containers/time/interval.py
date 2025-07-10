@@ -35,7 +35,7 @@ class Interval(Container):
 
     def __init__(self, parent: object) -> None:
         self.label = "interval"
-        self.cadence = Cadence.ENSEMBLE
+        self.cadence = Cadence.RUN
         self._parent = parent
 
         self.coord.bind_to_container(self)

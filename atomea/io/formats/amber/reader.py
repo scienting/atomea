@@ -35,17 +35,17 @@ class AmberOutputReader(Reader):
         parser = ctx["parser"]
         parsed_file = parser.parse_file(ctx["file_path"])
 
-        microstate_id_next = -1  # placeholder until we determine
+        micro_id_next = -1  # placeholder until we determine
 
         for region in parsed_file.regions:
             for key, value in region.data.items():
                 if key == "eptot":
                     data_obj = prj.energy.potential_mm
-                    microstate_id_next = data_obj.next_microstate_id(ens_id, run_id)
+                    micro_id_next = data_obj.next_micro_id(ens_id, run_id)
                     df_next = data_obj.prep_dataframe(
-                        ens_id, run_id, microstate_id_next, value
+                        ens_id, run_id, micro_id_next, value
                     )
-                    if microstate_id_next == 0:
+                    if micro_id_next == 0:
                         data_obj.write(df_next, run_id=run_id)
                     else:
                         data_obj.append(df_next, run_id=run_id)

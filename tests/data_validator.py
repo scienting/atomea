@@ -313,8 +313,8 @@ class DataValidator:
             assert "run_id" in energy_df.columns, (
                 "'run_id' column missing in energy data."
             )
-            assert "microstate_id" in energy_df.columns, (
-                "'microstate_id' column missing in energy data."
+            assert "micro_id" in energy_df.columns, (
+                "'micro_id' column missing in energy data."
             )
             assert "potential_mm" in energy_df.columns, (
                 "'potential_mm' column missing in energy data."
@@ -330,7 +330,7 @@ class DataValidator:
 
             # Microstate IDs should be contiguous and match frame count
             assert np.array_equal(
-                energy_df["microstate_id"].to_numpy(), np.arange(n_frames)
+                energy_df["micro_id"].to_numpy(), np.arange(n_frames)
             ), "Microstate IDs in energy data are not contiguous or incorrect."
 
             # Data types for numeric columns

@@ -20,7 +20,7 @@ class Time(Container):
 
     def __init__(self, parent: object) -> None:
         self.label = "time"
-        self.cadence = Cadence.ENSEMBLE
+        self.cadence = Cadence.RUN
         self._parent = parent
 
         self.interval = Interval(self)

@@ -45,7 +45,7 @@ class DistanceWithin(SelectionExpression):
                 run_id=run_id,
                 elements=micro_id,
                 view=(slice(None), slice(None)),
-                return_microstate_id=True,
+                return_micro_id=True,
                 chunk_size=chunk_size,  # Pass chunk_size to the iterator
             ),
             reference_masks_iterator,

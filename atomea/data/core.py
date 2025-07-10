@@ -112,8 +112,7 @@ class Data(Generic[T]):
         path = "/".join([obj.label for obj in parent_chain[1:]])
         if self.store_kind == StoreKind.ARRAY:
             if run_id is not None:
-                # Cadences of ensembles should never change between run_ids.
-                if self.parent_chain[-1].cadence == Cadence.MICROSTATE:
+                if self.parent_chain[-1].cadence != Cadence.ENSEMBLE:  # type: ignore
                     path += f"/{run_id}"
             path += f"/{self.label}"
         return path
@@ -190,8 +189,8 @@ class Data(Generic[T]):
         for chunk in store.iter(path, elements, view, chunk_size, **kwargs):  # type: ignore
             yield chunk
 
-    def next_microstate_id(self, ens_id: str, run_id: str) -> int:
-        """Determine the next `microstate_id` by adding one to the currently
+    def next_micro_id(self, ens_id: str, run_id: str) -> int:
+        """Determine the next `micro_id` by adding one to the currently
         largest one for this `ens_id` and `run_id`.
 
         Args:
@@ -200,34 +199,35 @@ class Data(Generic[T]):
             run_id: ID of the run to query.
 
         Returns:
-            The next `microstate_id`.
+            The next `micro_id`.
         """
         store, path = self.get_store_info()
         assert store.kind == StoreKind.TABLE, (
             "Can only check for microstate IDs on table data"
         )
-        # Need to determine this by using the key
-        df = store.query(path, ens_id=ens_id, run_id=run_id)  # type: ignore
-        if df.shape == (0, 0):
-            return 0
+        if store.kind == StoreKind.TABLE:
+            # Need to determine this by using the key
+            df = store.query(path, ens_id=ens_id, run_id=run_id)  # type: ignore
+            if df.shape == (0, 0):
+                return 0
 
-        # Get the largest microstate_id
-        microstate_ids = df.get_column("microstate_id")
-        microstate_id_max = microstate_ids.top_k(1).to_numpy()[0]
-        return int(microstate_id_max + 1)
+            # Get the largest micro_id
+            micro_ids = df.get_column("micro_id")
+            micro_id_max = micro_ids.top_k(1).to_numpy()[0]
+        else:
+            data = self.read(run_id=run_id)
+            micro_id_max = data.shape[0]  # type: ignore
+        new_id = int(micro_id_max + 1)
+        return new_id
 
-    def prep_dataframe(
-        self, ens_id: str, run_id: str, microstate_id_next: int, data: Any
-    ):
+    def prep_dataframe(self, ens_id: str, run_id: str, micro_id_next: int, data: Any):
         n_microstates = data.shape[0]
-        microstate_ids = np.arange(
-            microstate_id_next, microstate_id_next + n_microstates
-        )
+        micro_ids = np.arange(micro_id_next, micro_id_next + n_microstates)
         df = pl.DataFrame(
             {
-                "ens_id": np.full(microstate_ids.shape, ens_id),
-                "run_id": np.full(microstate_ids.shape, run_id),
-                "microstate_id": microstate_ids,
+                "ens_id": np.full(micro_ids.shape, ens_id),
+                "run_id": np.full(micro_ids.shape, run_id),
+                "micro_id": micro_ids,
                 self.label: data,
             }
         )
