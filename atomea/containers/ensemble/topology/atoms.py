@@ -1,6 +1,6 @@
 import atomea.typing as adt
 from atomea.containers import Container
-from atomea.data import Cadence, Data
+from atomea.data import Cadence, Data, OptionalSliceSpec
 from atomea.stores import StoreKind
 
 
@@ -54,3 +54,21 @@ class Atoms(Container):
         self.atomic_numbers.bind_to_container(self)
         self.symbols.bind_to_container(self)
         self.types.bind_to_container(self)
+
+        self._n_atoms = None
+
+    def n_atoms(self, view: OptionalSliceSpec = None, run_id: str | None = None):
+        """Total number of atoms in this ensemble."""
+        if self._n_atoms:
+            return self._n_atoms
+
+        to_check = (self.atomic_numbers, self.symbols, self.types)
+        for data_check in to_check:
+            if data_check.store_kind != StoreKind.ARRAY:
+                continue
+            data = data_check.read(view=view, run_id=run_id)
+            if data is not None:
+                self._n_atoms = int(data.shape[0])
+                return self._n_atoms
+
+        return None

@@ -1,6 +1,6 @@
 import atomea.typing as adt
 from atomea.containers import Container
-from atomea.data import Cadence, Data
+from atomea.data import Cadence, Data, OptionalSliceSpec
 from atomea.stores import StoreKind
 
 
@@ -23,3 +23,23 @@ class Bonds(Container):
         self._parent = parent
 
         self.covalent.bind_to_container(self)
+
+        self._n_covalent_bonds = None
+
+    def n_covalent_bonds(
+        self, view: OptionalSliceSpec = None, run_id: str | None = None
+    ):
+        """Total number of covalent bonds."""
+        if self._n_covalent_bonds:
+            return self._n_covalent_bonds
+
+        to_check = (self.covalent,)
+        for data_check in to_check:
+            if data_check.store_kind != StoreKind.ARRAY:
+                continue
+            data = data_check.read(view=view, run_id=run_id)
+            if data is not None:
+                self._n_covalent_bonds = int(data.shape[0])
+                return self._n_covalent_bonds
+
+        return None
