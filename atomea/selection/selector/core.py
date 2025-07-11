@@ -1,17 +1,15 @@
-from typing import TYPE_CHECKING, Iterator, Self
+from typing import TYPE_CHECKING, Callable, Iterator, Self
 
 import numpy as np
 import numpy.typing as npt
 
 from atomea.data import OptionalSliceSpec, SliceSpec
 from atomea.selection.expressions import (
-    AndExpression,
     AtomTypeIs,
     DistanceWithin,
     MolIdIs,
-    NotExpression,
-    OrExpression,
     SelectionExpression,
+    SelectionOperator,
 )
 
 # See https://stackoverflow.com/questions/33533148/how-do-i-type-hint-a-method-with-the-type-of-the-enclosing-class
@@ -25,18 +23,21 @@ class EnsembleSelector:
     """
     A fluent API for building complex selection queries on an Ensemble's data.
 
-    Allows chaining of selection criteria with logical AND, OR, and NOT operations.
+    Allows chaining of selection criteria with logical `.AND()`, `.OR()`, and `.NOT()` operations.
     The selection is lazy, meaning the actual computation happens only when
     `get_mask()` is called.
     """
 
-    def __init__(self, ensemble: "Ensemble", run_id: str | None = None):
+    def __init__(
+        self, ensemble: "Ensemble", run_id: str | None = None, is_negated: bool = False
+    ):
         """
         Initializes the EnsembleSelector for a specific ensemble and run.
 
         Args:
             ensemble: The Ensemble object to perform selections on.
             run_id: The ID of the run within the ensemble for which to generate masks.
+            is_negated: Any filter after this specific instance will be negated.
         """
         self._ensemble = ensemble
         """Ensemble object to perform selections on."""
@@ -47,31 +48,39 @@ class EnsembleSelector:
         self._current_expression: SelectionExpression | None = None
         """This flag helps manage implicit AND vs explicit OR/AND."""
 
-        self._next_op_is_or: bool = False
-        """Indicates if the next expression to be added should be negated."""
+        self._pending_operator_factory: Callable[
+            [SelectionExpression, SelectionExpression | None], SelectionExpression
+        ] = SelectionOperator.AND
+        """Indicates how to apply the next operation."""
 
-        self._next_expression_is_negated: bool = False
+        self._is_negated = is_negated
         """Indicates if we should negate the next selection by using `NOT`"""
+
+        self._n_atoms: int | None = ensemble.topology.atoms.n_atoms
+        """Number of atoms to initialize the boolean mask with."""
 
     def _add_expression(self, new_expr: SelectionExpression) -> "EnsembleSelector":
         """Internal method to add a new expression to the tree."""
-        if self._next_expression_is_negated:
-            new_expr = NotExpression(new_expr)
-            self._next_expression_is_negated = False  # Reset the flag after use
+        # Apply negation immediately if this selector instance is marked as negated
+        if self._is_negated:
+            new_expr = SelectionOperator.NOT(new_expr)
+            # IMPORTANT: After applying the negation, create a *new* non-negated selector
+            # for subsequent chaining. This prevents `NOT().NOT().atom_types()` from negating twice.
+            new_selector = EnsembleSelector(self._ensemble, self._run_id)
+            new_selector._current_expression = new_expr
+            new_selector._pending_operator_factory = self._pending_operator_factory
+            return new_selector
 
         if self._current_expression is None:
             self._current_expression = new_expr
         else:
-            if self._next_op_is_or:
-                self._current_expression = OrExpression(
-                    self._current_expression, new_expr
-                )
-                self._next_op_is_or = False  # Reset after applying OR
-            else:
-                # Default is AND if no OR was specified
-                self._current_expression = AndExpression(
-                    self._current_expression, new_expr
-                )
+            self._current_expression = self._pending_operator_factory(
+                self._current_expression, new_expr
+            )
+
+        if self._pending_operator_factory is not SelectionOperator.OR:
+            self._pending_operator_factory = SelectionOperator.AND
+
         return self
 
     def molecule_ids(self, mol_ids: list[int]) -> "EnsembleSelector":
@@ -113,17 +122,14 @@ class EnsembleSelector:
             The EnsembleSelector instance for chaining.
         """
         if isinstance(from_atoms, EnsembleSelector):
-            # If from_atoms is an EnsembleSelector, use its current expression
             if from_atoms._current_expression is None:
                 raise ValueError(
                     "The 'from_atoms' selector has no active selection. Add filters to it first."
                 )
-            return self._add_expression(
-                DistanceWithin(from_atoms._current_expression, dist)
-            )
+            # Ensure the nested selector's expression is processed correctly
+            nested_expr = from_atoms._current_expression
+            return self._add_expression(DistanceWithin(nested_expr, dist))
         else:
-            # Otherwise, assume it's a direct index (int)
-            # The DistanceWithin class will handle SliceSpec if from_atoms is more complex
             return self._add_expression(DistanceWithin(from_atoms, dist))
 
     def AND(self) -> "EnsembleSelector":
@@ -131,10 +137,7 @@ class EnsembleSelector:
         Sets the logical operator for the next chained filter to AND.
         This is the default behavior if no logical operator is explicitly called.
         """
-        # No explicit action needed here as _add_expression defaults to AND.
-        # This method primarily serves to make the chaining explicit and readable.
-        self._next_op_is_or = False
-        self._next_expression_is_negated = False
+        self._pending_operator_factory = SelectionOperator.AND
         return self
 
     def OR(self) -> "EnsembleSelector":
@@ -146,19 +149,24 @@ class EnsembleSelector:
             raise ValueError(
                 "Cannot start a query with an 'OR' operator. Add a filter first."
             )
-        self._next_op_is_or = True
-        self._next_expression_is_negated = False
+        self._pending_operator_factory = SelectionOperator.OR
         return self
 
     def NOT(self) -> "EnsembleSelector":
         """
-        Applies a logical NOT operation to the *entire* current expression tree.
-        This should typically be used at the end of a sub-expression or for a single filter.
-        Example: `select().NOT().mol_id_in([0])`
-        Example: `select().mol_id_in([0]).AND().NOT().atom_types(["C"])`
+        Returns a _new_ EnsembleSelector instance where the next added filter will be
+        negated. This handles `select().NOT().atom_types(...)`.
         """
-        self._next_expression_is_negated = True
-        return self
+        # Create a new selector instance that is marked as negated.
+        # This allows chaining like `select().NOT().atom_types(...)`
+        # or `select().atom_types(...).AND().NOT().molecule_ids(...)`
+        negated_selector = EnsembleSelector(
+            self._ensemble, self._run_id, is_negated=True
+        )
+        # Carry over the current expression and pending operator from the original selector
+        negated_selector._current_expression = self._current_expression
+        negated_selector._pending_operator_factory = self._pending_operator_factory
+        return negated_selector
 
     def get_mask(
         self, micro_id: OptionalSliceSpec = None
@@ -167,8 +175,7 @@ class EnsembleSelector:
         Executes the built selection query and yields atom-level
         boolean masks, one for each microstate.
 
-        The mask for each microstate will have a length equal to the number of atoms
-        in that microstate, indicating which atoms meet the criteria.
+        The mask for each microstate will have a length equal to the number of atoms in that microstate, indicating which atoms meet the criteria.
 
         Args:
             micro_id: Specifies the microstate IDs for which to generate masks.
@@ -179,14 +186,10 @@ class EnsembleSelector:
         """
         if self._current_expression is None:
             # If no selection expression, yield all-true masks for the specified microstates.
-            # We still need to iterate through coordinates to get num_atoms for each microstate.
-            microstate_data_iterator = self._ensemble.coordinates.iter(
-                run_id=self._run_id,
-                elements=micro_id,
-                chunk_size=1,
-            )
-            for coords_chunk in microstate_data_iterator:
-                num_atoms = coords_chunk.shape[1] if coords_chunk is not None else 0
+            for _ in range(
+                0, self._ensemble.n_micro(view=micro_id, run_id=self._run_id)
+            ):
+                num_atoms = self._n_atoms if self._n_atoms is not None else 0
                 yield np.ones(num_atoms, dtype=bool)
         else:
             # If there is a selection expression, delegate the evaluation directly to it.

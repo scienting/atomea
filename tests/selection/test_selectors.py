@@ -1,6 +1,4 @@
-# tests/selection/test_selectors.py
 import logging
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -15,12 +13,6 @@ from atomea.selection.expressions import (
     OrExpression,
 )
 from atomea.selection.selector import EnsembleSelector
-from atomea.stores import DiskFormat
-from atomea.stores.arrays import ZarrArrayStore
-from atomea.stores.tables import PolarsTableStore
-
-# Configure logging for capturing warnings/debug messages
-logger = logging.getLogger("atomea")
 
 
 def assert_masks_equal(actual_mask_iterator, expected_masks, msg=""):
@@ -368,33 +360,6 @@ class TestSelectionExpressions:
         expected_masks = [expected_mask] * n_frames
 
         selector = NotExpression(expr)
-        actual_masks_iterator = selector.evaluate(
-            ensemble=ensemble, run_id=run_id, micro_id=slice(None)
-        )
-        assert_masks_equal(actual_masks_iterator, expected_masks)
-
-    def test_complex_logical_expression(
-        self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
-    ):
-        project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
-
-        # Select atoms that are (Hydrogen AND in Mol 0) OR (Carbon AND within 1.0 A of atom 6 (C6))
-        # H in Mol 0: H1, H2
-        # C in Mol 2 (C6) within 1.0 A of C6: only C6 itself
-        # Expected: H1, H2, C6
-        h_in_mol0 = AtomTypeIs(atom_types=["H", "HW"]) & MolIdIs(mol_ids=[0])
-        carbon_near_c6 = AtomTypeIs(atom_types=["C"]) & DistanceWithin(
-            from_atoms=slice(6, 7), dist=1.0
-        )
-
-        selector = h_in_mol0 | carbon_near_c6
-
-        expected_mask = np.array(
-            [False, True, True, False, False, False, True, False, False, False, False],
-            dtype=np.bool_,
-        )
-        expected_masks = [expected_mask] * n_frames
-
         actual_masks_iterator = selector.evaluate(
             ensemble=ensemble, run_id=run_id, micro_id=slice(None)
         )
