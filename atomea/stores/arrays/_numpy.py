@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Iterator
 
 import os
 from pathlib import Path
@@ -7,6 +7,7 @@ import numpy as np
 import numpy.typing as npt
 
 from atomea.data import OptionalSliceSpec
+from atomea.helpers import chunker
 from atomea.stores import DiskFormat
 from atomea.stores.arrays import ArrayStore
 
@@ -134,4 +135,30 @@ class NumpyArrayStore(ArrayStore):
         elif self.disk_format == DiskFormat.NPZ:
             self._flush_npz(path)
         else:
-            raise ValueError("DiskFormat of {} not supported", self.disk_format)
+            raise ValueError(f"DiskFormat of {self.disk_format} not supported")
+
+    def iter(
+        self,
+        path: Path | str,
+        elements: OptionalSliceSpec = None,
+        view: OptionalSliceSpec = None,
+        chunk_size: int = 1,
+        **kwargs: Any,
+    ) -> Iterator[Any]:
+        """Yield chunks of data instead of reading all into memory.
+
+        Args:
+            path:
+            view: View for all but the first dimension.
+            chunk: Number of data points of the first axis to yield.
+        """
+        z = self.get(path)
+        if z is None:
+            return None
+        n_items = z.shape[0]
+        for chunk in chunker(chunk_size, n_items, elements):
+            if view is None:
+                _view = (chunk,)
+            else:
+                _view = (chunk, *view)  # type: ignore
+            yield z[_view]

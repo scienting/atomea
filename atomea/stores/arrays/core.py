@@ -1,10 +1,9 @@
 from typing import Any, Iterator
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 from atomea.data import OptionalSliceSpec
-from atomea.helpers import chunker
 from atomea.stores import ArrayDiskFormats, DiskFormat, Store, StoreKind
 
 
@@ -26,6 +25,14 @@ class ArrayStore(Store, ABC):
         assert disk_format in ArrayDiskFormats or disk_format == DiskFormat.NONE
         super().__init__(path, mode=mode, disk_format=disk_format, **kwargs)
 
+    def shape(self, path: Path | str) -> tuple[int, ...]:
+        """Get the shape of the underlying array."""
+        z = self.get(path)
+        if z is None:
+            return None
+        return z.shape
+
+    @abstractmethod
     def iter(
         self,
         path: Path | str,
@@ -41,13 +48,3 @@ class ArrayStore(Store, ABC):
             view: View for all but the first dimension.
             chunk: Number of data points of the first axis to yield.
         """
-        z = self.get(path)
-        if z is None:
-            return None
-        n_items = z.shape[0]
-        for chunk in chunker(chunk_size, n_items, elements):
-            if view is None:
-                _view = (chunk,)
-            else:
-                _view = (chunk, *view)  # type: ignore
-            yield z.get_orthogonal_selection(_view)
