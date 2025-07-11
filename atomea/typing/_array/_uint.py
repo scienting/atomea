@@ -100,7 +100,7 @@ Example:
         )
 
         # Check if atomic numbers are available
-        z_values = molecule.atom_z.value
+        z_values = molecule.atom_z.read()
         if z_values is not None:
             unique_elements = np.unique(z_values)
 

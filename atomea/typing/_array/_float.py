@@ -44,7 +44,7 @@ Example:
     Type checking::
 
         # Type checker knows this is npt.NDArray[np.float64]
-        coord_data: Float64 = ensemble.coordinates.value
+        coord_data: Float64 = ensemble.coordinates.read()
 
 Note:
     This type alias does not include None. For optional arrays, use OptionalFloat64.
@@ -141,7 +141,7 @@ Example:
 
     Handling optional data::
 
-        energy_data = ensemble.energy.value
+        energy_data = ensemble.energy.read()
         if energy_data is not None:
             max_energy = np.max(energy_data)
         else:

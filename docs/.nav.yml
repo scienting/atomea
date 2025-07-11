@@ -1,5 +1,13 @@
 nav:
     - Home: index.md
+    - Data:
+      - data/index.md
+      - Cadence: data/cadence/index.md
+      - Dimensionality: data/dimensionality/index.md
+    - Stores:
+      - stores/index.md
+      - Arrays: stores/arrays/index.md
+      - Tables: stores/tables/index.md
     - Containers:
       - containers/index.md
       - Levels:
@@ -8,8 +16,28 @@ nav:
         - Ensemble: containers/levels/ensemble.md
         - Microstate: containers/levels/microstate.md
       - UUIDs: containers/uuids.md
-    - Digesters: digesters
-    - Examples: examples
+      - Design:
+        - containers/design/index.md
+        - Energy: containers/design/energy.md
+        - Quantum: containers/design/quantum.md
+        - Time: containers/design/time.md
+        - Topology: containers/design/topology.md
+    - IO:
+      - io/index.md
+      - Readers:
+        - io/readers/index.md
+      - Writers:
+        - io/writers/index.md
+    - Selections:
+      - selections/index.md
+      - Expressions:
+        - selections/expressions/index.md
+        - Atom type: selections/expressions/atom-type/index.md
+        - Molecule IDs: selections/expressions/mol-ids/index.md
+        - Distance: selections/expressions/distance/index.md
+      - Usage: selections/usage/index.md
+    - Examples:
+      - examples/index.md
     - API: api
 
 sort:

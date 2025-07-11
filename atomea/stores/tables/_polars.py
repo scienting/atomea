@@ -19,21 +19,21 @@ class PolarsTableStore(TableStore):
     def __init__(
         self,
         path: Path | str,
-        disk_format: DiskFormat = DiskFormat.PARQUET,
         mode: str = "r",
+        disk_format: DiskFormat = DiskFormat.PARQUET,
         **kwargs: Any,
     ) -> None:
-        super().__init__(path, disk_format=disk_format)
+        super().__init__(path, mode=mode, disk_format=disk_format)
 
     @classmethod
     def check_columns(cls, columns):
         if (
-            "ensemble_id" not in columns
+            "ens_id" not in columns
             or "run_id" not in columns
-            or "microstate_id" not in columns
+            or "micro_id" not in columns
         ):
             raise ValueError(
-                "Table must include 'ensemble_id', 'run_id', 'microstate_id' columns"
+                "Table must include 'ens_id', 'run_id', 'micro_id' columns"
             )
 
     def write(
@@ -43,86 +43,64 @@ class PolarsTableStore(TableStore):
         view: OptionalSliceSpec = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Write a Polars DataFrame to the named table.
-
-        The DataFrame must contain `ensemble_id`, `run_id`, and `microstate_id` columns.
-        """
+        if self.mode == "r":
+            raise ValueError("Cannot create when in 'r' mode")
         self.check_columns(data.columns)
         self._store[str(path)] = data
 
     def append(self, path: Path | str, data: pl.DataFrame, **kwargs: Any) -> None:
-        """
-        Append a Polars DataFrame to the named table.
-
-        The DataFrame must contain `ensemble_id` and `microstate_id` columns.
-        """
+        if self.mode in ("r", "w-"):
+            raise ValueError(f"Cannot append when in '{self.mode}' mode")
         path = str(path)
         self.check_columns(data.columns)
         self._store[path] = pl.concat([self._store[path], data], how="vertical")
 
-    def read(
-        self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
+    def get(
+        self,
+        path: Path | str,
+        **kwargs: Any,
     ) -> pl.DataFrame:
-        """
-        Read the entire table with the given name.
-
-        Raises KeyError if the table does not exist.
-        """
         try:
             return self._store[str(path)]
         except KeyError:
             logger.warning(f"Table '{path}' not found! Returning empty DataFrame")
             return pl.DataFrame()
 
+    def read(
+        self, path: Path | str, view: OptionalSliceSpec = None, **kwargs: Any
+    ) -> pl.Series:
+        df = self.get(path)
+        return df
+
     def query(
         self,
         path: Path | str,
-        ensemble_id: str | None = None,
+        ens_id: str | None = None,
         run_id: int | None = None,
-        microstate_id: int | None = None,
+        micro_id: int | None = None,
         filter_expr: str | None = None,
         **kwargs: Any,
     ) -> pl.DataFrame:
-        """
-        Query a named table by keys and/or additional expression.
-
-        Args:
-            path: Container/table name.
-            ensemble_id: A unique identification label for an ensemble.
-                This can be `"1"`, `"default"`, `"exp3829"`, etc.
-            run_id: An unique, independent run within the same ensemble.
-                This often arises when running multiple independent molecular
-                simulation trajectories with different random seeds.
-            microstate_id: An index specifying a microstate with some relationship to
-                order. This can be a frame in a molecular simulation trajectories,
-                docking scores from best to worst, optimization steps, etc.
-            filter_expr: string expression to filter rows.
-        """
-        df = self.read(path)
+        df = self.get(path)
 
         # Early return if df is empty
         if df.shape == (0, 0):
             return df
 
-        if ensemble_id is not None:
-            df = df.filter(pl.col("ensemble_id") == ensemble_id)
+        if ens_id is not None:
+            df = df.filter(pl.col("ens_id") == ens_id)
         if run_id is not None:
             df = df.filter(pl.col("run_id") == run_id)
-        if microstate_id is not None:
-            df = df.filter(pl.col("microstate_id") == microstate_id)
+        if micro_id is not None:
+            df = df.filter(pl.col("micro_id") == micro_id)
         if filter_expr:
             df = df.filter(pl.parse_expr(filter_expr))
         return df
 
     def available(self) -> list[str]:
-        """List all table names."""
         return list(self._store.keys())
 
-    def dump(self, **kwargs: Any) -> None:
-        """
-        Dump all stored tables to files in the specified directory/prefix.
-        """
+    def flush(self, **kwargs: Any) -> None:
         for name, df in self._store.items():
             path = os.path.join(self.path, f"{name}")
             if self.disk_format == DiskFormat.CSV:

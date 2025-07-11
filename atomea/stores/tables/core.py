@@ -18,25 +18,21 @@ class TableStore(Store, ABC):
     def __init__(
         self,
         path: Path | str,
+        mode: str = "r",
         disk_format: DiskFormat = DiskFormat.NONE,
         **kwargs: Any,
     ) -> None:
-        """
-        Args:
-            path: Directory to store all tables. We recommend "<project>.tables".
-            disk_format: Format to store data on disk.
-        """
         self._store: dict[str, pl.DataFrame] = {}
-        assert disk_format not in ArrayDiskFormats
-        super().__init__(path, disk_format=disk_format, **kwargs)
+        assert disk_format not in ArrayDiskFormats or disk_format == DiskFormat.NONE
+        super().__init__(path, mode=mode, disk_format=disk_format, **kwargs)
 
     @abstractmethod
     def query(
         self,
         path: Path | str,
-        ensemble_id: str | None = None,
-        run_id: int | None = None,
-        microstate_id: int | None = None,
+        ens_id: str | None = None,
+        run_id: str | None = None,
+        micro_id: int | None = None,
         filter_expr: str | None = None,
         **kwargs: Any,
     ) -> Any:
@@ -45,12 +41,12 @@ class TableStore(Store, ABC):
 
         Args:
             path: Container/table name.
-            ensemble_id: A unique identification label for an ensemble.
+            ens_id: A unique identification label for an ensemble.
                 This can be `"1"`, `"default"`, `"exp3829"`, etc.
             run_id: An unique, independent run within the same ensemble.
                 This often arises when running multiple independent molecular
                 simulation trajectories with different random seeds.
-            microstate_id: An index specifying a microstate with some relationship to
+            micro_id: An index specifying a microstate with some relationship to
                 order. This can be a frame in a molecular simulation trajectories,
                 docking scores from best to worst, optimization steps, etc.
             filter_expr: string expression to filter rows.
@@ -58,4 +54,3 @@ class TableStore(Store, ABC):
         Returns:
             Filtered DataFrame.
         """
-        ...

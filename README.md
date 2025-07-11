@@ -1,5 +1,5 @@
 <h1 align="center">atomea</h1>
-<h4 align="center">Robust data structure for atomistic data</h4>
+<h4 align="center">A hierarchical data model for atomistic calculations</h4>
 <p align="center">
     <a href="https://github.com/oasci/atomea/actions/workflows/tests.yml">
         <img src="https://github.com/oasci/atomea/actions/workflows/tests.yml/badge.svg" alt="Build Status ">

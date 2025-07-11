@@ -25,6 +25,7 @@ from ._uint import (
     OptionalUInt8,
 )
 from ._str import Str, OptionalStr
+from ._bool import Bool, OptionalBool
 
 __all__ = [
     "Float64",
@@ -49,4 +50,6 @@ __all__ = [
     "OptionalUInt8",
     "Str",
     "OptionalStr",
+    "Bool",
+    "OptionalBool",
 ]

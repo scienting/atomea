@@ -1,13 +1,16 @@
 from typing import TYPE_CHECKING
 
-from atomea.containers import AtomeaContainer
-from atomea.containers.atomistic import Microstates, Topology
+import atomea.typing as adt
+from atomea.containers import Container
+from atomea.containers.ensemble import Topology
+from atomea.data import Cadence, Data, OptionalSliceSpec
+from atomea.stores import StoreKind
 
 if TYPE_CHECKING:
     from atomea.containers import Project
 
 
-class Ensemble(AtomeaContainer):
+class Ensemble(Container):
     """
     The `Ensemble` class represents a collection of molecular structures,
     each referred to as a microstate. This class is used to
@@ -20,14 +23,41 @@ class Ensemble(AtomeaContainer):
     data should be stored in a [`Project`][schemas.Project].
     """
 
-    def __init__(self, ensemble_id: str, parent: "Project") -> None:
-        self.id: str = ensemble_id
-        self._parent = parent
+    coordinates = Data[adt.Float64](
+        store_kind=StoreKind.ARRAY,
+        uuid="81c7cec9-beec-4126-b6d8-91bee28951d6",
+        description="Atomic coordinates",
+    )
+    """Coordinates refer to the specific three-dimensional positions of particles
+    defined using a set of Cartesian coordinates ($x$, $y$, $z$).
+    """
 
-        # Initialize components with parent reference
-        self.microstates = Microstates(self)
+    def __init__(self, ens_id: str, parent: "Project") -> None:
+        self.label = ens_id
+        self.cadence = Cadence.MICROSTATE
+        self._parent = parent
 
         self.topology = Topology(self)
 
+        self.coordinates.bind_to_container(self)
+
+        self._n_micro: int | None = None
+
     def __repr__(self) -> str:
-        return f"<Ensemble id={self.id!r}>"
+        return f"<Ensemble id={self.label!r}>"
+
+    def n_micro(self, view: OptionalSliceSpec = None, run_id: str | None = None):
+        """Total number of microstates."""
+        if self._n_micro:
+            return self._n_micro
+
+        to_check = (self.coordinates,)
+        for data_check in to_check:
+            if data_check.store_kind != StoreKind.ARRAY:
+                continue
+            data = data_check.read(view=view, run_id=run_id)
+            if data is not None:
+                self._n_micro = int(data.shape[0])
+                return self._n_micro
+
+        return None

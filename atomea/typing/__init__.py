@@ -26,9 +26,9 @@ Example:
     Type-safe access::
 
         # Type checkers understand these return the correct types
-        coords: Float64 | None = ensemble.coordinates.value
-        atoms: Uint8 | None = ensemble.atom_numbers.value
-        data: pl.DataFrame | None = ensemble.results.value
+        coords: Float64 | None = ensemble.coordinates.read()
+        atoms: Uint8 | None = ensemble.atom_numbers.read()
+        data: pl.DataFrame | None = ensemble.results.read()
 """
 
 from ._array import (
@@ -54,6 +54,8 @@ from ._array import (
     OptionalUInt8,
     Str,
     OptionalStr,
+    Bool,
+    OptionalBool,
 )
 from ._dataframe import DataFrame, OptionalDataFrame
 from .passable import PassableData, OptionalPassableData
@@ -81,6 +83,8 @@ __all__ = [
     "OptionalUInt8",
     "Str",
     "OptionalStr",
+    "Bool",
+    "OptionalBool",
     "DataFrame",
     "OptionalDataFrame",
     "PassableData",
