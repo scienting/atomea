@@ -2,3 +2,8 @@ __pycache__
 *.pyc
 *.zarr
 public
+.pixi
+*.egg-info
+.git
+*_cache
+.vscode
