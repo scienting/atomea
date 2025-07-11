@@ -54,6 +54,8 @@ from ._array import (
     OptionalUInt8,
     Str,
     OptionalStr,
+    Bool,
+    OptionalBool,
 )
 from ._dataframe import DataFrame, OptionalDataFrame
 from .passable import PassableData, OptionalPassableData
@@ -81,6 +83,8 @@ __all__ = [
     "OptionalUInt8",
     "Str",
     "OptionalStr",
+    "Bool",
+    "OptionalBool",
     "DataFrame",
     "OptionalDataFrame",
     "PassableData",
