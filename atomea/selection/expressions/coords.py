@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Iterator
 import numpy as np
 import numpy.typing as npt
 
+import atomea.typing as adt
 from atomea.data import OptionalSliceSpec, SliceSpec
 from atomea.selection.expressions import SelectionExpression
 
@@ -93,7 +94,7 @@ class DistanceWithin(SelectionExpression):
         micro_id: OptionalSliceSpec = None,
         chunk_size: int = 1,
     ) -> Iterator[npt.NDArray[np.bool]]:
-        view = (slice(None), slice(None))
+        view: SliceSpec = (slice(None), slice(None))
 
         for chunk in ensemble.coordinates.iter(
             run_id=run_id, elements=micro_id, view=view, chunk_size=chunk_size
@@ -133,9 +134,9 @@ class DistanceWithin(SelectionExpression):
                 diff = ms_coords[:, np.newaxis, :] - ms_from_coords[np.newaxis, :, :]
 
                 # Compute the Euclidean norm along the coordinate axis (axis=2 for (N, K, 3))
-                distances = np.linalg.norm(diff, axis=2)  # (N, K)
+                distances: adt.Float64 = np.linalg.norm(diff, axis=2)  # (N, K)
 
-                min_distances = np.min(distances, axis=1)  # (N,)
+                min_distances: adt.Float64 = np.min(distances, axis=1)  # (N,)
 
                 yield min_distances <= self.dist
 

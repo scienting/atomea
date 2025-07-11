@@ -24,7 +24,6 @@ class AtomTypeIs(SelectionExpression):
         run_id: str | None = None,
         micro_id: OptionalSliceSpec = None,
     ) -> Iterator[npt.NDArray[np.bool]]:
-        # Atom types are ENSEMBLE cadence, so load once and cache
         if self._cached_all_atom_types is None:
             self._cached_all_atom_types = ensemble.topology.atoms.types.read(
                 run_id=run_id
