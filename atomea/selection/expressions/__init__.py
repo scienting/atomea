@@ -1,16 +1,16 @@
 from .core import SelectionExpression
 from .ops import SelectionOperator, AndExpression, OrExpression, NotExpression
-from .coords import DistanceWithin
-from .atoms import AtomTypeIs
-from .mols import MolIdIs
+from .coords import SelectByDistance
+from .atoms import SelectByAtomType
+from .ids import SelectByMoleculeID
 
-__all__ = [
+__all__: list[str] = [
     "SelectionExpression",
     "SelectionOperator",
     "AndExpression",
     "OrExpression",
     "NotExpression",
-    "DistanceWithin",
-    "AtomTypeIs",
-    "MolIdIs",
+    "SelectByDistance",
+    "SelectByAtomType",
+    "SelectByMoleculeID",
 ]

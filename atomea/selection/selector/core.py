@@ -5,9 +5,9 @@ import numpy.typing as npt
 
 from atomea.data import OptionalSliceSpec, SliceSpec
 from atomea.selection.expressions import (
-    AtomTypeIs,
-    DistanceWithin,
-    MolIdIs,
+    SelectByAtomType,
+    SelectByDistance,
+    SelectByMoleculeID,
     SelectionExpression,
     SelectionOperator,
 )
@@ -83,55 +83,6 @@ class EnsembleSelector:
 
         return self
 
-    def molecule_ids(self, mol_ids: list[int]) -> "EnsembleSelector":
-        """
-        Selects atoms whose molecule ID is present in the provided list.
-
-        Args:
-            mol_ids: A list of integer molecule IDs to select.
-
-        Returns:
-            The EnsembleSelector instance for chaining.
-        """
-        return self._add_expression(MolIdIs(mol_ids))
-
-    def atom_types(self, atom_types: list[str]) -> "EnsembleSelector":
-        """
-        Selects atoms whose atom type is present in the provided list.
-
-        Args:
-            atom_types: A list of string atom types (e.g., "C", "N", "H") to select.
-
-        Returns:
-            The EnsembleSelector instance for chaining.
-        """
-        return self._add_expression(AtomTypeIs(atom_types))
-
-    def distance_within(
-        self, from_atoms: SliceSpec | Self, dist: float
-    ) -> "EnsembleSelector":
-        """
-        Selects atoms within a specified radial distance from a given center atom index.
-        This filter is applied per microstate.
-
-        Args:
-            from_atoms: The 0-based index of the atom to use as the center.
-            radius: The maximum distance (inclusive) from the center atom in the same units as coordinates.
-
-        Returns:
-            The EnsembleSelector instance for chaining.
-        """
-        if isinstance(from_atoms, EnsembleSelector):
-            if from_atoms._current_expression is None:
-                raise ValueError(
-                    "The 'from_atoms' selector has no active selection. Add filters to it first."
-                )
-            # Ensure the nested selector's expression is processed correctly
-            nested_expr = from_atoms._current_expression
-            return self._add_expression(DistanceWithin(nested_expr, dist))
-        else:
-            return self._add_expression(DistanceWithin(from_atoms, dist))
-
     def AND(self) -> "EnsembleSelector":
         """
         Sets the logical operator for the next chained filter to AND.
@@ -172,10 +123,11 @@ class EnsembleSelector:
         self, micro_id: OptionalSliceSpec = None
     ) -> Iterator[npt.NDArray[np.bool]]:
         """
-        Executes the built selection query and yields atom-level
-        boolean masks, one for each microstate.
+        Executes the built selection query and yields atom-level boolean masks, one for
+        each microstate.
 
-        The mask for each microstate will have a length equal to the number of atoms in that microstate, indicating which atoms meet the criteria.
+        The mask for each microstate will have a length equal to the number of atoms in
+        that microstate, indicating which atoms meet the criteria.
 
         Args:
             micro_id: Specifies the microstate IDs for which to generate masks.
@@ -189,7 +141,9 @@ class EnsembleSelector:
             for _ in range(
                 0, self._ensemble.n_micro(view=micro_id, run_id=self._run_id)
             ):
-                num_atoms = self._n_atoms if self._n_atoms is not None else 0
+                num_atoms: int | None = (
+                    self._n_atoms if self._n_atoms is not None else 0
+                )
                 yield np.ones(num_atoms, dtype=bool)
         else:
             # If there is a selection expression, delegate the evaluation directly to it.
@@ -197,3 +151,51 @@ class EnsembleSelector:
             yield from self._current_expression.evaluate(
                 self._ensemble, self._run_id, micro_id=micro_id
             )
+
+    def molecule_ids(self, mol_ids: list[int]) -> "EnsembleSelector":
+        """
+        Selects atoms whose molecule ID is present in the provided list.
+
+        Args:
+            mol_ids: A list of integer molecule IDs to select.
+
+        Returns:
+            The EnsembleSelector instance for chaining.
+        """
+        return self._add_expression(SelectByMoleculeID(mol_ids))
+
+    def atom_types(self, atom_types: list[str]) -> "EnsembleSelector":
+        """
+        Selects atoms whose atom type is present in the provided list.
+
+        Args:
+            atom_types: A list of string atom types (e.g., "C", "N", "H") to select.
+
+        Returns:
+            The EnsembleSelector instance for chaining.
+        """
+        return self._add_expression(SelectByAtomType(atom_types))
+
+    def within_distance(
+        self, from_atoms: SliceSpec | Self, dist: float
+    ) -> "EnsembleSelector":
+        """
+        Selects atoms within a specified radial distance from a given center atom index.
+        This filter is applied per microstate.
+
+        Args:
+            from_atoms: The 0-based index of the atom to use as the center.
+            radius: The maximum distance (inclusive) from the center atom in the same units as coordinates.
+
+        Returns:
+            The EnsembleSelector instance for chaining.
+        """
+        if isinstance(from_atoms, EnsembleSelector):
+            if from_atoms._current_expression is None:
+                raise ValueError(
+                    "The 'from_atoms' selector has no active selection. Add filters to it first."
+                )
+            nested_expr = from_atoms._current_expression
+            return self._add_expression(SelectByDistance(nested_expr, dist))
+        else:
+            return self._add_expression(SelectByDistance(from_atoms, dist))

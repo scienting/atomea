@@ -6,11 +6,11 @@ import pytest
 from atomea.containers import Ensemble, Project
 from atomea.selection.expressions import (
     AndExpression,
-    AtomTypeIs,
-    DistanceWithin,
-    MolIdIs,
     NotExpression,
     OrExpression,
+    SelectByAtomType,
+    SelectByDistance,
+    SelectByMoleculeID,
 )
 from atomea.selection.selector import EnsembleSelector
 
@@ -37,12 +37,12 @@ class TestSelectionExpressions:
         # Select Oxygen atoms ("OW" type)
         # Atoms: O0, H1, H2, O3, H4, H5, C6, H7, H8, H9, H10
         # Types: OW, HW, HW, OW, HW, HW, C, H, H, H, H
-        selector = AtomTypeIs(atom_types=["OW"])
+        selector = SelectByAtomType(atom_types=["OW"])
         expected_mask = np.array(
             [True, False, False, True, False, False, False, False, False, False, False],
             dtype=np.bool_,
         )
-        # AtomTypeIs is ENSEMBLE cadence, so mask is same for all frames
+        # SelectByAtomType is ENSEMBLE cadence, so mask is same for all frames
         expected_masks = [expected_mask] * n_frames
 
         actual_masks_iterator = selector.evaluate(
@@ -64,7 +64,7 @@ class TestSelectionExpressions:
         # Select all Hydrogen atoms ("HW" and "H" types)
         # Atoms: O0, H1, H2, O3, H4, H5, C6, H7, H8, H9, H10
         # Types: OW, HW, HW, OW, HW, HW, C, H, H, H, H
-        selector = AtomTypeIs(atom_types=["HW", "H"])
+        selector = SelectByAtomType(atom_types=["HW", "H"])
         expected_mask = np.array(
             [False, True, True, False, True, True, False, True, True, True, True],
             dtype=np.bool_,
@@ -82,7 +82,7 @@ class TestSelectionExpressions:
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Select a non-existent atom type
-        selector = AtomTypeIs(atom_types=["XYZ"])
+        selector = SelectByAtomType(atom_types=["XYZ"])
         expected_mask = np.zeros(n_atoms, dtype=np.bool_)
         expected_masks = [expected_mask] * n_frames
 
@@ -97,7 +97,7 @@ class TestSelectionExpressions:
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Select with an empty list of atom types
-        selector = AtomTypeIs(atom_types=[])
+        selector = SelectByAtomType(atom_types=[])
         expected_mask = np.zeros(n_atoms, dtype=np.bool_)
         expected_masks = [expected_mask] * n_frames
 
@@ -113,7 +113,7 @@ class TestSelectionExpressions:
 
         # Select molecule ID 0 (first water)
         # Mol IDs: 0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 2
-        selector = MolIdIs(mol_ids=[0])
+        selector = SelectByMoleculeID(mol_ids=[0])
         expected_mask = np.array(
             [True, True, True, False, False, False, False, False, False, False, False],
             dtype=np.bool_,
@@ -131,7 +131,7 @@ class TestSelectionExpressions:
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Select molecule IDs 0 and 2 (first water and methane)
-        selector = MolIdIs(mol_ids=[0, 2])
+        selector = SelectByMoleculeID(mol_ids=[0, 2])
         expected_mask = np.array(
             [True, True, True, False, False, False, True, True, True, True, True],
             dtype=np.bool_,
@@ -149,7 +149,7 @@ class TestSelectionExpressions:
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Select a non-existent molecule ID
-        selector = MolIdIs(mol_ids=[99])
+        selector = SelectByMoleculeID(mol_ids=[99])
         expected_mask = np.zeros(n_atoms, dtype=np.bool_)
         expected_masks = [expected_mask] * n_frames
 
@@ -158,7 +158,7 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_distance_within_from_slice(
+    def test_within_distance_from_slice(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
@@ -169,7 +169,7 @@ class TestSelectionExpressions:
         # Atom 2: H at (0.7, -0.7, 0.0) -> dist = sqrt(0.7^2 + (-0.7)^2) = sqrt(0.98) approx 0.99
         # Both H1 and H2 are within 1.0 A of O0. O0 is also selected.
         # Other atoms are far away.
-        selector = DistanceWithin(
+        selector = SelectByDistance(
             from_atoms=slice(0, 1), dist=1.0
         )  # Atom 0 is the reference
         expected_mask_ms0 = np.array(
@@ -196,7 +196,7 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_mask_iterator_single, [expected_mask_ms0])
 
-    def test_distance_within_from_selection_expression(
+    def test_within_distance_from_selection_expression(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
@@ -207,8 +207,8 @@ class TestSelectionExpressions:
         # Ref 0: O0 (0,0,0) -> H1, H2 are within 1.0
         # Ref 3: O3 (3,0,0) -> H4, H5 are within 1.0
         # Expected selection: [O0, H1, H2, O3, H4, H5]
-        ref_selection = AtomTypeIs(atom_types=["OW"])
-        selector = DistanceWithin(from_atoms=ref_selection, dist=1.0)
+        ref_selection = SelectByAtomType(atom_types=["OW"])
+        selector = SelectByDistance(from_atoms=ref_selection, dist=1.0)
         expected_mask = np.array(
             [True, True, True, True, True, True, False, False, False, False, False],
             dtype=np.bool_,
@@ -223,14 +223,14 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_distance_within_dist_zero(
+    def test_within_distance_dist_zero(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Only atoms exactly at the reference point should be selected
         # Selecting around atom 0 (O0)
-        selector = DistanceWithin(from_atoms=slice(0, 1), dist=0.0)
+        selector = SelectByDistance(from_atoms=slice(0, 1), dist=0.0)
         expected_mask = np.array(
             [
                 True,
@@ -254,13 +254,13 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_distance_within_dist_negative(
+    def test_within_distance_dist_negative(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Negative distance should always result in an empty selection
-        selector = DistanceWithin(from_atoms=slice(0, 1), dist=-1.0)
+        selector = SelectByDistance(from_atoms=slice(0, 1), dist=-1.0)
         expected_mask = np.zeros(n_atoms, dtype=np.bool_)
         expected_masks = [expected_mask] * n_frames
 
@@ -269,7 +269,7 @@ class TestSelectionExpressions:
         )
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_distance_within_no_reference_atoms(
+    def test_within_distance_no_reference_atoms(
         self,
         test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int],
         caplog,
@@ -278,8 +278,8 @@ class TestSelectionExpressions:
         caplog.set_level(logging.WARNING)
 
         # Reference selection yields no atoms
-        no_atoms_selector = AtomTypeIs(atom_types=["NONEXISTENT"])
-        selector = DistanceWithin(from_atoms=no_atoms_selector, dist=1.0)
+        no_atoms_selector = SelectByAtomType(atom_types=["NONEXISTENT"])
+        selector = SelectByDistance(from_atoms=no_atoms_selector, dist=1.0)
 
         expected_mask = np.zeros(n_atoms, dtype=np.bool_)
         expected_masks = [expected_mask] * n_frames
@@ -290,14 +290,14 @@ class TestSelectionExpressions:
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
         # Check if a warning was logged (depends on internal implementation)
-        # As per the `DistanceWithin` snippet, it handles `from_coords.shape[0] == 0`
+        # As per the `SelectByDistance` snippet, it handles `from_coords.shape[0] == 0`
         # but doesn't necessarily log a warning itself. The warning might come from
         # a sub-expression if its data is missing. For this specific case,
-        # no warning is expected from DistanceWithin if the *reference selection* is empty.
+        # no warning is expected from SelectByDistance if the *reference selection* is empty.
         # If the *coordinates data itself* is missing, then a warning might be logged.
-        # Let's adjust based on the current implementation for `MolIdIs` and `AtomTypeIs`
+        # Let's adjust based on the current implementation for `SelectByMoleculeID` and `SelectByAtomType`
         # which log warnings if their `_cached_all_mol_ids` or `_cached_all_atom_types` are None.
-        # DistanceWithin doesn't have such a cache.
+        # SelectByDistance doesn't have such a cache.
 
     def test_and_expression(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
@@ -305,10 +305,10 @@ class TestSelectionExpressions:
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Select atoms that are Hydrogen ("HW" or "H") AND are in Molecule 0
-        expr1 = AtomTypeIs(
+        expr1 = SelectByAtomType(
             atom_types=["HW", "H"]
         )  # All H atoms: [F,T,T,F,T,T,F,T,T,T,T]
-        expr2 = MolIdIs(mol_ids=[0])  # Mol 0 atoms: [T,T,T,F,F,F,F,F,F,F,F]
+        expr2 = SelectByMoleculeID(mol_ids=[0])  # Mol 0 atoms: [T,T,T,F,F,F,F,F,F,F,F]
 
         # Expected: intersection of H atoms and Mol 0 (H1, H2)
         expected_mask = np.array(
@@ -329,8 +329,8 @@ class TestSelectionExpressions:
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Select atoms that are Oxygen ("OW") OR are in Molecule 2 (Methane)
-        expr1 = AtomTypeIs(atom_types=["OW"])  # O0, O3: [T,F,F,T,F,F,F,F,F,F,F]
-        expr2 = MolIdIs(mol_ids=[2])  # Mol 2: [F,F,F,F,F,F,T,T,T,T,T]
+        expr1 = SelectByAtomType(atom_types=["OW"])  # O0, O3: [T,F,F,T,F,F,F,F,F,F,F]
+        expr2 = SelectByMoleculeID(mol_ids=[2])  # Mol 2: [F,F,F,F,F,F,T,T,T,T,T]
 
         # Expected: union of O atoms and Mol 2 (O0, O3, C6, H7, H8, H9, H10)
         expected_mask = np.array(
@@ -351,7 +351,7 @@ class TestSelectionExpressions:
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Select atoms that are NOT "HW" (Hydrogen in Water)
-        expr = AtomTypeIs(atom_types=["HW"])  # HW atoms: [F,T,T,F,T,T,F,F,F,F,F]
+        expr = SelectByAtomType(atom_types=["HW"])  # HW atoms: [F,T,T,F,T,T,F,F,F,F,F]
         # Expected: all non-HW atoms (O0, O3, C6, H7, H8, H9, H10)
         expected_mask = np.array(
             [True, False, False, True, False, False, True, True, True, True, True],
@@ -401,13 +401,13 @@ class TestEnsembleSelectorFluentAPI:
         actual_masks_iterator = selector.get_mask(micro_id=slice(None))
         assert_masks_equal(actual_masks_iterator, expected_masks)
 
-    def test_select_distance_within(
+    def test_select_within_distance(
         self, test_project_with_synthetic_data: tuple[Project, Ensemble, str, int, int]
     ):
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Select atoms within 1.0 A of atom 3 (O of second water)
-        selector = EnsembleSelector(ensemble, run_id).distance_within(
+        selector = EnsembleSelector(ensemble, run_id).within_distance(
             from_atoms=3, dist=1.0
         )
         expected_mask = np.array(
@@ -533,7 +533,7 @@ class TestEnsembleSelectorFluentAPI:
         project, ensemble, run_id, n_atoms, n_frames = test_project_with_synthetic_data
 
         # Test implicit AND and explicit OR
-        # (AtomTypeIs("OW") AND MolIdIs(0)) OR AtomTypeIs("C")
+        # (SelectByAtomType("OW") AND SelectByMoleculeID(0)) OR SelectByAtomType("C")
         # (O0, H1, H2) OR (C6) -> O0, H1, H2, C6
         selector = (
             EnsembleSelector(ensemble, run_id)
@@ -543,10 +543,10 @@ class TestEnsembleSelectorFluentAPI:
             .atom_types(["C"])
         )
         # Breaking it down:
-        # 1. ES().atom_types(["OW"]) -> O0, O3. Current: AtomTypeIs("OW")
-        # 2. .molecule_ids([0]) -> Implicit AND. Current: And(AtomTypeIs("OW"), MolIdIs(0)) -> O0
+        # 1. ES().atom_types(["OW"]) -> O0, O3. Current: SelectByAtomType("OW")
+        # 2. .molecule_ids([0]) -> Implicit AND. Current: And(SelectByAtomType("OW"), SelectByMoleculeID(0)) -> O0
         # 3. .OR() -> Sets next operation to OR
-        # 4. .atom_types(["C"]) -> Current: Or(And(AtomTypeIs("OW"), MolIdIs(0)), AtomTypeIs("C"))
+        # 4. .atom_types(["C"]) -> Current: Or(And(SelectByAtomType("OW"), SelectByMoleculeID(0)), SelectByAtomType("C"))
         # This simplifies to: (O0) OR (C6)
         expected_mask = np.array(
             [True, False, False, False, False, False, True, False, False, False, False],
@@ -565,7 +565,7 @@ class TestEnsembleSelectorFluentAPI:
         # For microstate 0: Select atoms within 0.8 A of atom 0 (O0, (0,0,0))
         # Atom 0 itself is True. H1 (0.7,0.7,0) and H2 (0.7,-0.7,0) are both sqrt(0.98) ~ 0.99 away
         # So H1 and H2 are NOT within 0.8 A
-        selector = EnsembleSelector(ensemble, run_id).distance_within(
+        selector = EnsembleSelector(ensemble, run_id).within_distance(
             from_atoms=0, dist=0.8
         )
         expected_mask_ms0 = np.array(
@@ -599,7 +599,7 @@ class TestEnsembleSelectorFluentAPI:
         # H5: (3.7, -0.7, 0.0) in MS0, (3.8, -0.7, 0.0) in MS1
         # Distances from Atom 3 (O3) to H4/H5 are sqrt(0.7^2+0.7^2) = 0.9899... < 1.0
         # So for both microstates, the mask is [F,F,F,T,T,T,F,F,F,F,F]
-        selector = EnsembleSelector(ensemble, run_id).distance_within(
+        selector = EnsembleSelector(ensemble, run_id).within_distance(
             from_atoms=3, dist=1.0
         )
         expected_mask = np.array(

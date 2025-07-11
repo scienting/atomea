@@ -4,7 +4,9 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import numpy.typing as npt
+from loguru import logger
 
+import atomea.typing as adt
 from atomea.data import OptionalSliceSpec
 
 if TYPE_CHECKING:
@@ -19,6 +21,12 @@ class SelectionExpression(ABC):
     It also provides dunder methods for convenient logical operations
     (`AND`, `OR`, `NOT`) using Python's `&`, `|`, and `~` operators.
     """
+
+    def init_mask(self) -> adt.Bool:
+        logger.warning("Did not find any atom types; eval will be false.")
+        num_atoms: int | None = self._n_atoms if self._n_atoms is not None else 0
+        mask: adt.Bool = np.zeros(num_atoms, dtype=np.dtype(np.bool))
+        return mask
 
     @abstractmethod
     def evaluate(

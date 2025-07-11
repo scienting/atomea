@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from atomea.containers import Ensemble
 
 
-class DistanceWithin(SelectionExpression):
+class SelectByDistance(SelectionExpression):
     """
     Selects atoms within a certain distance from a reference selection.
     Selections include the reference atoms.
@@ -108,9 +108,9 @@ class DistanceWithin(SelectionExpression):
             if isinstance(self.from_atoms, int):
                 from_coords = chunk[
                     :, self.from_atoms : self.from_atoms + 1, :
-                ]  # from_coords is (M, 1, 3)
+                ]  # (M, 1, 3)
             else:  # Assume slice or list[int]
-                from_coords = chunk[:, self.from_atoms, :]  # from_coords is (M, K, 3)
+                from_coords = chunk[:, self.from_atoms, :]  # (M, K, 3)
 
             # If 'from_atoms' selection results in no atoms (K=0),
             # then from_coords will have shape (M, 0, 3).
@@ -147,6 +147,6 @@ class DistanceWithin(SelectionExpression):
         micro_id: OptionalSliceSpec = None,
     ) -> Iterator[npt.NDArray[np.bool]]:
         if isinstance(self.from_atoms, SelectionExpression):
-            return self._evaluate_selection(ensemble, run_id, micro_id)
+            yield from self._evaluate_selection(ensemble, run_id, micro_id)
         else:
-            return self._evaluate_indices(ensemble, run_id, micro_id)
+            yield from self._evaluate_indices(ensemble, run_id, micro_id)
