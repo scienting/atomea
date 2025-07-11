@@ -99,7 +99,7 @@ class MDAnalysisReader(Reader):
         """Stack all frames into a (n_frames, n_atoms, 3) array."""
         u = ctx["u"]
         coords = [ts.positions.copy() for ts in u.trajectory]
-        arr = np.stack(coords, axis=0)
+        arr = np.stack(coords, axis=0, dtype=np.dtype(np.float64))
         # this writes a 3D microstate array
         prj[ens_id].coordinates.write(arr, run_id=run_id)
         return prj
