@@ -17,7 +17,7 @@ logger.disable("atomea")
 LOG_FORMAT = (
     "<green>{time:HH:mm:ss}</green> | "
     "<level>{level: <8}</level> | "
-    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
+    "<level>{message}</level>"
 )
 
 
@@ -45,7 +45,7 @@ def enable_logging(
         )
     if isinstance(file_path, str):
         config["handlers"].append(
-            {"sink": file_path, "level": level_set, "format": log_format, "False": True}
+            {"sink": file_path, "level": level_set, "format": log_format, "colorize": True}
         )
     # https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.configure
     logger.configure(**config)
