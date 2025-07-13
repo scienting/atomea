@@ -1,5 +1,6 @@
-from typing import Any, Iterator, Literal
+from typing import Any, Literal
 
+from collections.abc import Generator
 from pathlib import Path
 
 import numpy as np
@@ -120,7 +121,7 @@ class ZarrArrayStore(ArrayStore):
         view: OptionalSliceSpec = None,
         chunk_size: int = 1,
         **kwargs: Any,
-    ) -> Iterator[Any]:
+    ) -> Generator[Any]:
         """Yield chunks of data instead of reading all into memory.
 
         Args:
