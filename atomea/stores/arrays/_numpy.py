@@ -7,10 +7,10 @@
 #
 # See the LICENSE.md file for full license terms.
 
+import os
 from typing import Any
 
-import os
-from collections.abc import Iterator
+from collections.abc import Generator
 from pathlib import Path
 
 import numpy as np

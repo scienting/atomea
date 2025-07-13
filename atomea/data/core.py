@@ -9,7 +9,7 @@
 
 from typing import Any, Generic
 
-from collections.abc import Iterator
+from collections.abc import Generator
 
 import numpy as np
 import polars as pl

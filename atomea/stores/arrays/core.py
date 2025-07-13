@@ -7,10 +7,10 @@
 #
 # See the LICENSE.md file for full license terms.
 
+from abc import ABC, abstractmethod
 from typing import Any
 
-from abc import ABC, abstractmethod
-from collections.abc import Iterator
+from collections.abc import Generator
 from pathlib import Path
 
 from atomea.data import OptionalSliceSpec

@@ -9,7 +9,7 @@
 
 from typing import Any, Literal
 
-from collections.abc import Iterator
+from collections.abc import Generator
 from pathlib import Path
 
 import numpy as np
