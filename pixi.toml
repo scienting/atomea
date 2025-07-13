@@ -11,6 +11,7 @@ readme = "README.md"
 
 [pypi-dependencies]
 atomea = { path = ".", editable = true }
+raygent = { git = "https://github.com/oasci/raygent", branch = "main" }
 
 [environments]
 dev = ["dev"]
