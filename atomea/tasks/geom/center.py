@@ -1,12 +1,11 @@
-from typing import override
+from typing import Any, Type
 
 import numpy as np
-from raygent import Task
+import numpy.typing as npt
+from raygent.task import Task
 
-import atomea.typing as adt
 
-
-class GeometricCenterTask(Task[adt.Float64, adt.Float64]):
+class GeometricCenterTask(Task[npt.NDArray[np.float64], npt.NDArray[np.float64]]):
     """
     A Task to compute the geometric center for each structure (microstate)
     within a given chunk of atomic coordinates.
@@ -19,14 +18,15 @@ class GeometricCenterTask(Task[adt.Float64, adt.Float64]):
     The geometric center is calculated as the mean of the x, y, and z coordinates
     for all atoms in each structure.
 
-    InputType: adt.Float64
+    InputType: npt.NDArray[np.float64]
         A NumPy array representing a chunk of atomic coordinates.
-        Expected shape: (n_microstates, n_atoms, 3)
+        Expected shape: (n_microstates_in_chunk, n_atoms, 3)
+        Alternatively, if flattened: (n_microstates_in_chunk, n_atoms * 3)
 
-    OutputType: adt.Float64
+    OutputType: npt.NDArray[np.float64]
         A NumPy array where each row is the geometric center (x, y, z)
         for a corresponding microstate in the input chunk.
-        Expected shape: (n_microstates, 3)
+        Expected shape: (n_microstates_in_chunk, 3)
 
     Examples:
 
@@ -45,7 +45,7 @@ class GeometricCenterTask(Task[adt.Float64, adt.Float64]):
         # by the `process_items` method of GeometricCenterTask.
         center_task_manager.submit_tasks(
             items=ensemble.coordinates.iter(run_id="run_01", chunk_size=10),
-            at_once=True,
+            at_once=True,  # Important: tells Task.run to call process_items
         )
 
         # Retrieve results
@@ -53,8 +53,9 @@ class GeometricCenterTask(Task[adt.Float64, adt.Float64]):
         ```
     """
 
-    @override
-    def do(self, batch: adt.Float64, *args: object, **kwargs: object) -> adt.Float64:
+    def process_items(
+        self, items: npt.NDArray[np.float64], **kwargs: Any
+    ) -> npt.NDArray[np.float64]:
         """
         Computes the geometric center for each structure in the input chunk.
 
@@ -66,9 +67,9 @@ class GeometricCenterTask(Task[adt.Float64, adt.Float64]):
             A list of NumPy arrays, where each array is the geometric center (x, y, z)
             for a corresponding microstate. Each inner array will have shape (3,).
         """
-        if batch.ndim == 2:
-            batch = batch[np.newaxis, :]
-        if batch.ndim != 3:
-            raise RuntimeError("`batch` must be a NumPy array with 3 dimensions")
-        centers = np.mean(batch, axis=1)
+        if items.ndim == 2:
+            items = items[np.newaxis, :]
+        if items.ndim != 3:
+            raise RuntimeError("Items must be a NumPy array with 3 dimensions")
+        centers = np.mean(items, axis=0)
         return centers
