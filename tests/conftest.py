@@ -10,6 +10,7 @@ from atomea.stores.arrays import ZarrArrayStore
 from atomea.stores.tables import PolarsTableStore
 
 from .fixtures.amber_v22 import *  # type: ignore
+from .synthetic_data import SyntheticAtomDataGenerator
 
 TEST_DIR = os.path.dirname(__file__)
 TMP_DIR = os.path.join(TEST_DIR, "tmp")
@@ -22,6 +23,11 @@ def pytest_sessionstart(session):
     """
     # Creates a tmp directory for writing files.
     os.makedirs(TMP_DIR, exist_ok=True)
+
+
+@pytest.fixture
+def data_generator() -> type[SyntheticAtomDataGenerator]:
+    return SyntheticAtomDataGenerator
 
 
 @pytest.fixture

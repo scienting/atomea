@@ -1,7 +1,6 @@
-from typing import Any
+from typing import override
 
 import numpy as np
-import numpy.typing as npt
 from raygent import Task
 
 import atomea.typing as adt
@@ -23,7 +22,6 @@ class GeometricCenterTask(Task[adt.Float64, adt.Float64]):
     InputType: adt.Float64
         A NumPy array representing a chunk of atomic coordinates.
         Expected shape: (n_microstates, n_atoms, 3)
-        Alternatively, if flattened: (n_microstates, n_atoms * 3)
 
     OutputType: adt.Float64
         A NumPy array where each row is the geometric center (x, y, z)
@@ -55,9 +53,8 @@ class GeometricCenterTask(Task[adt.Float64, adt.Float64]):
         ```
     """
 
-    def process_items(
-        self, items: npt.NDArray[np.float64], **kwargs: dict[str, Any]
-    ) -> npt.NDArray[np.float64]:
+    @override
+    def do(self, batch: adt.Float64, *args: object, **kwargs: object) -> adt.Float64:
         """
         Computes the geometric center for each structure in the input chunk.
 
@@ -69,9 +66,9 @@ class GeometricCenterTask(Task[adt.Float64, adt.Float64]):
             A list of NumPy arrays, where each array is the geometric center (x, y, z)
             for a corresponding microstate. Each inner array will have shape (3,).
         """
-        if items.ndim == 2:
-            items = items[np.newaxis, :]
-        if items.ndim != 3:
-            raise RuntimeError("Items must be a NumPy array with 3 dimensions")
-        centers = np.mean(items, axis=1)
+        if batch.ndim == 2:
+            batch = batch[np.newaxis, :]
+        if batch.ndim != 3:
+            raise RuntimeError("`batch` must be a NumPy array with 3 dimensions")
+        centers = np.mean(batch, axis=1)
         return centers

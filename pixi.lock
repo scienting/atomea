@@ -59,7 +59,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/wrapt-1.17.2-py313h536fd9c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/yaml-0.2.5-h7f98852_2.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/zarr-3.0.8-pyhd8ed1ab_0.conda
-      - pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+      - pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
       - pypi: ./
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
@@ -108,7 +108,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/wrapt-1.17.2-py313h63b0ddb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/yaml-0.2.5-h0d85af4_2.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/zarr-3.0.8-pyhd8ed1ab_0.conda
-      - pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+      - pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
       - pypi: ./
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
@@ -157,7 +157,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/wrapt-1.17.2-py313h90d716c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.5-h3422bc3_2.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/zarr-3.0.8-pyhd8ed1ab_0.conda
-      - pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+      - pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
       - pypi: ./
   dev:
     channels:
@@ -378,7 +378,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/84/c2/80633736cd183ee4a62107413def345f7e6e3c01563dbca1417363cf957e/build-1.2.2.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bd/24/12818598c362d7f300f18e74db45963dbcb85150324092410c8b49405e42/pyproject_hooks-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/36/71/610ac09997ae76138b326a7c89000d9c43da3382db320e3c81e7e9e2a9cc/pyrefly-0.16.3-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+      - pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
       - pypi: https://files.pythonhosted.org/packages/ab/ac/8f96ba9b4cfe3e4ea201f23f4f97165862395e9331a424ed325ae37024a8/setuptools_scm-8.3.1-py3-none-any.whl
       - pypi: ./
       osx-64:
@@ -577,7 +577,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/84/c2/80633736cd183ee4a62107413def345f7e6e3c01563dbca1417363cf957e/build-1.2.2.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bd/24/12818598c362d7f300f18e74db45963dbcb85150324092410c8b49405e42/pyproject_hooks-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/13/1d/1bf1102c17f496d7ef6ae2debdd990505f56fc4ed521aec371b8bdf8b607/pyrefly-0.16.3-py3-none-macosx_10_12_x86_64.whl
-      - pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+      - pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
       - pypi: https://files.pythonhosted.org/packages/ab/ac/8f96ba9b4cfe3e4ea201f23f4f97165862395e9331a424ed325ae37024a8/setuptools_scm-8.3.1-py3-none-any.whl
       - pypi: ./
       osx-arm64:
@@ -776,7 +776,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/84/c2/80633736cd183ee4a62107413def345f7e6e3c01563dbca1417363cf957e/build-1.2.2.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bd/24/12818598c362d7f300f18e74db45963dbcb85150324092410c8b49405e42/pyproject_hooks-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ed/8e/e5fa5c7cb327bb5ca086c9e1662b16ad9593e68bb41699e8d50299b7a514/pyrefly-0.16.3-py3-none-macosx_11_0_arm64.whl
-      - pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+      - pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
       - pypi: https://files.pythonhosted.org/packages/ab/ac/8f96ba9b4cfe3e4ea201f23f4f97165862395e9331a424ed325ae37024a8/setuptools_scm-8.3.1-py3-none-any.whl
       - pypi: ./
   docs:
@@ -900,7 +900,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/d7/23/2ae189f4bbb5d35bf6dbd202a534b3f7f929c404d056fb0b20e826b9b643/mkdocs_awesome_nav-3.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e1/46/db5d3235cfa6764e3b09ea82cb2c606b2a5bbe77547eb551ad30bc85d0cf/mkdocs_print_site_plugin-2.7.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ef/82/7a9d0550484a62c6da82858ee9419f3dd1ccc9aa1c26a1e43da3ecd20b0d/natsort-8.4.0-py3-none-any.whl
-      - pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+      - pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
       - pypi: https://files.pythonhosted.org/packages/ab/df/4ee467ab39cc1de4b852c212c1ed3becfec2e486a51ac1ce0091f85f38d7/wcmatch-10.0-py3-none-any.whl
       - pypi: ./
       osx-64:
@@ -1012,7 +1012,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/d7/23/2ae189f4bbb5d35bf6dbd202a534b3f7f929c404d056fb0b20e826b9b643/mkdocs_awesome_nav-3.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e1/46/db5d3235cfa6764e3b09ea82cb2c606b2a5bbe77547eb551ad30bc85d0cf/mkdocs_print_site_plugin-2.7.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ef/82/7a9d0550484a62c6da82858ee9419f3dd1ccc9aa1c26a1e43da3ecd20b0d/natsort-8.4.0-py3-none-any.whl
-      - pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+      - pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
       - pypi: https://files.pythonhosted.org/packages/ab/df/4ee467ab39cc1de4b852c212c1ed3becfec2e486a51ac1ce0091f85f38d7/wcmatch-10.0-py3-none-any.whl
       - pypi: ./
       osx-arm64:
@@ -1124,7 +1124,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/d7/23/2ae189f4bbb5d35bf6dbd202a534b3f7f929c404d056fb0b20e826b9b643/mkdocs_awesome_nav-3.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e1/46/db5d3235cfa6764e3b09ea82cb2c606b2a5bbe77547eb551ad30bc85d0cf/mkdocs_print_site_plugin-2.7.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ef/82/7a9d0550484a62c6da82858ee9419f3dd1ccc9aa1c26a1e43da3ecd20b0d/natsort-8.4.0-py3-none-any.whl
-      - pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+      - pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
       - pypi: https://files.pythonhosted.org/packages/ab/df/4ee467ab39cc1de4b852c212c1ed3becfec2e486a51ac1ce0091f85f38d7/wcmatch-10.0-py3-none-any.whl
       - pypi: ./
 packages:
@@ -6687,13 +6687,15 @@ packages:
   purls: []
   size: 516376
   timestamp: 1720814307311
-- pypi: git+https://github.com/oasci/raygent?branch=main#e1569f0b40841635b8392dbffbe889c2dc9e1cae
+- pypi: git+https://github.com/oasci/raygent?branch=main#7dba3b6c8c71bc6c685d53585bcef6db8278eda9
   name: raygent
-  version: 0.1.dev48+ge1569f0
+  version: 0.1.dev67+g7dba3b6
   requires_dist:
   - loguru>=0.7.2,<1.0
+  - numpy>=2.2.0,<3
+  - polars>=1.15.0,<2
   - ray>=2.10.0,<3 ; extra == 'ray'
-  requires_python: '>=3.10'
+  requires_python: '>=3.12'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.2-h8c095d6_2.conda
   sha256: 2d6d0c026902561ed77cd646b5021aef2d4db22e57a5b0178dfc669231e06d2c
   md5: 283b96675859b20a825f8fa30f311446

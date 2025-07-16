@@ -1,11 +1,13 @@
-from typing import Any, Iterable, Iterator
+from typing import Any
+
+from collections.abc import Generator, Iterable
 
 from loguru import logger
 
 
 def chunker(
     chunk_size: int, n_data: int, elements: Iterable[int] | int | None = None
-) -> Iterator[Any]:
+) -> Generator[Any, None, None]:
     """
     Provides slice for chunking data from the first dimension.
 
