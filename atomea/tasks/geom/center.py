@@ -72,3 +72,53 @@ class GeometricCenterTask(Task[adt.Float64, adt.Float64]):
             raise RuntimeError("`batch` must be a NumPy array with 3 dimensions")
         centers = np.mean(batch, axis=1)
         return centers
+
+
+class CenterOriginTask(Task[adt.Float64, adt.Float64]):
+    """
+    A Task to shift the coordinates of each microstate so that its geometric center
+    actively placing the center at the origin (0, 0, 0).
+
+    This task calculates the geometric center of each microstate and then shifts
+    the coordinates so that this center is at the origin (0, 0, 0).
+
+    InputType: adt.Float64
+        A NumPy array representing a chunk of atomic coordinates.
+        Expected shape: (n_microstates, n_atoms, 3)
+
+    OutputType: adt.Float64
+        A NumPy array where each row is the shifted coordinates for a corresponding
+        microstate in the input chunk, with the geometric center at the origin.
+        Expected shape: (n_microstates, n_atoms, 3)
+    """
+
+    def setup(self, *args, **kwargs):
+        """
+        Setup method for the task. This is called to initialize the center of mass calculation.
+        Thus it will calculate the geometric center of the microstates in the batch.
+        """
+        calc_geometric_center = GeometricCenterTask()
+        return calc_geometric_center
+
+    @override  # why do we have to override this?
+    def do(self, batch: adt.Float64, *args: object, **kwargs: object) -> adt.Float64:
+        """
+        Computes the shifted coordinates for each structure in the input chunk.
+
+        Args:
+            items: Atomic coordinates of one or more microstates.
+            **kwargs: Additional keyword arguments (not used in this specific task).
+
+        Returns:
+            A NumPy array where each microstate's coordinates are shifted such that
+            its geometric center is at the origin.
+        """
+        if batch.ndim == 2:
+            batch = batch[np.newaxis, :]
+        if batch.ndim != 3:
+            raise RuntimeError("`batch` must be a NumPy array with 3 dimensions")
+
+        center_class = self.setup(batch, *args, **kwargs)
+        geometric_centers = center_class.do(batch, *args, **kwargs)
+        shifted_coordinates = batch - geometric_centers[:, np.newaxis, :]
+        return shifted_coordinates
