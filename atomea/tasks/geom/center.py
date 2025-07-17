@@ -97,8 +97,7 @@ class CenterOriginTask(Task[adt.Float64, adt.Float64]):
         Setup method for the task. This is called to initialize the center of mass calculation.
         Thus it will calculate the geometric center of the microstates in the batch.
         """
-        calc_geometric_center = GeometricCenterTask()
-        return calc_geometric_center
+        self.centers=GeometricCenterTask()
 
     @override  # why do we have to override this?
     def do(self, batch: adt.Float64, *args: object, **kwargs: object) -> adt.Float64:
@@ -118,7 +117,6 @@ class CenterOriginTask(Task[adt.Float64, adt.Float64]):
         if batch.ndim != 3:
             raise RuntimeError("`batch` must be a NumPy array with 3 dimensions")
 
-        center_class = self.setup(batch, *args, **kwargs)
-        geometric_centers = center_class.do(batch, *args, **kwargs)
-        shifted_coordinates = batch - geometric_centers[:, np.newaxis, :]
+        #geometric_centers = center_class.do(batch, *args, **kwargs)
+        shifted_coordinates = batch - self.centers.do(batch, *args, **kwargs)[:, np.newaxis, :]
         return shifted_coordinates
