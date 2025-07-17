@@ -51,6 +51,9 @@ def test_generate_and_validate_valid_data(data_generator, temp_project_dir):
         prebatched=True,
     )
     results = handler.get()
+    assert np.allclose(
+        np.mean(results[0]), np.zeros((results[0].shape[0], 3))
+    )
     assert len(results) == 5
     assert np.allclose(results[0], centers_ref[:batch_size])
     assert np.allclose(results[1], centers_ref[batch_size : batch_size * 2])
