@@ -40,11 +40,7 @@ def test_generate_and_validate_valid_data(data_generator, temp_project_dir):
 
     coords_ref: adt.Float64 = reference_data["ref_coords"]
     mean_ref = np.mean(coords_ref, axis=1)
-    print(f"Reference coordinates: {coords_ref}")
-    print(f"Reference mean coordinates: {mean_ref}")
-
     centers_ref = coords_ref - mean_ref[:, np.newaxis, :]
-    print(f"Reference centers: {centers_ref}")
 
     manager = TaskManager[adt.Float64, ResultsCollector[adt.Float64]](
         CenterOriginTask, ResultsCollector, in_parallel=False
