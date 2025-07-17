@@ -33,5 +33,5 @@ class BoxDimensionsTask(Task[adt.Float64, adt.Float64]):
             "`batch` must be a NumPy array with 3 dimensions. Got {}",
             batch.ndim,
         )
-        lengths = np.max(batch, axis=0) - np.min(batch, axis=0)
+        lengths = np.max(batch, axis=1) - np.min(batch, axis=1)
         return lengths

@@ -33,7 +33,7 @@ def test_generate_and_validate_valid_data(data_generator, temp_project_dir):
         clean_up_paths=True,
     )
     coords_ref: adt.Float64 = reference_data["ref_coords"]
-    len_ref = np.max(coords_ref, axis=0) - np.min(coords_ref, axis=0)
+    len_ref = np.max(coords_ref, axis=1) - np.min(coords_ref, axis=1)
 
     manager = TaskManager[adt.Float64, ResultsCollector[adt.Float64]](
         BoxDimensionsTask, ResultsCollector, in_parallel=False
