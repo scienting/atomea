@@ -1,28 +1,6 @@
 <h1 align="center">atomea</h1>
 <h4 align="center">A hierarchical data model for atomistic calculations</h4>
 <p align="center">
-    <a href="https://github.com/scienting/atomea/actions/workflows/tests.yml">
-        <img src="https://github.com/scienting/atomea/actions/workflows/tests.yml/badge.svg" alt="Build Status ">
-    </a>
-    <a href="https://github.com/scienting/atomea/actions/workflows/docs.yml">
-        <img src="https://github.com/scienting/atomea/actions/workflows/docs.yml/badge.svg" alt="Build Status ">
-    </a>
-    <a href="https://badge.fury.io/py/atomea">
-        <img src="https://badge.fury.io/py/atomea.svg" alt="PyPI version" height="18">
-    </a>
-    <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/atomea">
-    <a href="https://codecov.io/gh/scienting/atomea">
-        <img src="https://codecov.io/gh/scienting/atomea/branch/main/graph/badge.svg" alt="codecov">
-    </a>
-    <a href="https://github.com/scienting/atomea/releases">
-        <img src="https://img.shields.io/github/v/release/scienting/atomea" alt="GitHub release (latest by date)">
-    </a>
-    <a href="https://github.com/scienting/atomea/blob/main/LICENSE" target="_blank">
-        <img src="https://img.shields.io/github/license/scienting/atomea" alt="License">
-    </a>
-    <a href="https://github.com/scienting/atomea/" target="_blank">
-        <img src="https://img.shields.io/github/repo-size/scienting/atomea" alt="GitHub repo size">
-    </a>
     <a href="https://github.com/psf/black" target="_blank">
         <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Black style">
     </a>
