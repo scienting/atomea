@@ -2,7 +2,7 @@
 name = "atomea"
 description = "Extensible schema for atomistic data and calculations"
 authors = [
-    "OASCI <us@oasci.org>",
+    "Scienting Studio <us@scient.ing>",
 ]
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64"]
@@ -48,7 +48,7 @@ mdlint = { cmd = ["markdownlint-cli2", '"docs/*.{md,markdown}"', "--fix", "--con
 isort = { cmd = ["isort", "--settings-path", ".isort.cfg", "./atomea", "./tests", "||", "true"] }
 ruff = { cmd = ["ruff", "format", "--config", ".ruff.toml", "./atomea", "./tests", "||", "true"] }
 format = { depends-on = ["mdlint", "isort", "ruff"] }
-data = { cmd = ["rm", "-rf", "tests/files", "&&", "git", "clone", "git@github.com:oasci/atomea-data.git", "tests/files"]}
+data = { cmd = ["rm", "-rf", "tests/files", "&&", "git", "clone", "git@github.com:scienting/atomea-data.git", "tests/files"]}
 tests = { cmd = [
     "PYTHONPATH=.",
     "pytest",

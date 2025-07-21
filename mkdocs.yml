@@ -1,11 +1,11 @@
 docs_dir: docs
 
 site_name: atomea
-site_author: OASCI
+site_author: Scienting Studio
 
 # Git host
-repo_name: oasci/atomea
-repo_url: https://github.com/oasci/atomea
+repo_name: scienting/atomea
+repo_url: https://github.com/scienting/atomea
 
 # https://squidfunk.github.io/mkdocs-material/
 theme:
@@ -97,7 +97,7 @@ extra:
   generator: false
   analytics:
     provider: plausible
-    domain: atomea.oasci.org
+    domain: atomea.scient.ing
 
 extra_css:
   - css/base.css

@@ -1202,21 +1202,8 @@ packages:
   timestamp: 1746997294787
 - pypi: ./
   name: atomea
-  version: 0.1.dev204+g528bfef
-  sha256: a0c489a14b2da52b7b504120562c5c92b30aa272922a3da07a85c0752b562bed
-  requires_dist:
-  - loguru>=0.7.2,<1
-  - numpy>=1.2.6,<3
-  - pydantic>=2.10.6,<3
-  - pyyaml>=6.0.2,<7
-  - zarr>=3.0.0,<4
-  - polars>=1.10.0,<2
-  requires_python: '>=3.12'
-  editable: true
-- pypi: ./
-  name: atomea
-  version: 0.1.dev205+g7c2d0b0.d20250612201434
-  sha256: a0c489a14b2da52b7b504120562c5c92b30aa272922a3da07a85c0752b562bed
+  version: 0.1.dev205+gdb9a3eb.d20250721151027
+  sha256: 3aa4c54b323e703df82e12dd884089051d0dfc2d0447dd4aff44b99b31da7c8f
   requires_dist:
   - loguru>=0.7.2,<1
   - numpy>=1.2.6,<3

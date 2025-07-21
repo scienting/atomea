@@ -2,10 +2,10 @@
 name = "atomea"
 description = "Extensible schema for atomistic data and calculations"
 authors = [
-    {name = "OASCI", email = "us@oasci.org"}
+    {name = "Scienting Studio", email = "us@scient.ing"}
 ]
 maintainers = [
-    {name = "Alex M. Maldonado", email = "alex.maldonado@pitt.edu"}
+    {name = "Alex M. Maldonado", email = "alex@scient.ing"}
 ]
 dynamic = ["version"]
 readme = "README.md"
@@ -34,10 +34,10 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://atomea.oasci.org"
-Repository = "https://github.com/oasci/atomea"
-Issues = "https://github.com/oasci/atomea/issues"
-Changelog = "https://github.com/oasci/atomea/blob/main/CHANGELOG.md"
+Documentation = "https://atomea.scient.ing"
+Repository = "https://github.com/scienting/atomea"
+Issues = "https://github.com/scienting/atomea/issues"
+Changelog = "https://github.com/scienting/atomea/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["setuptools>=61.0", "setuptools-scm>=8", "wheel"]
