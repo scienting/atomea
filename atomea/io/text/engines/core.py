@@ -1,7 +1,16 @@
-# scan_engine.py
-from typing import Generic, Iterator, TypeVar
+# This file is licensed under the Prosperity Public License 3.0.0.
+# You may use, copy, and share it for noncommercial purposes.
+# Commercial use is allowed for a 30-day trial only.
+#
+# Contributor: Scienting Studio
+# Source Code: https://github.com/scienting/atomea
+#
+# See the LICENSE.md file for full license terms.
+
+from typing import Generic, TypeVar
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from enum import Enum
 
 S = TypeVar("S", bound=Enum)
