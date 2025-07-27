@@ -1,5 +1,5 @@
 <h1 align="center">atomea</h1>
-<h4 align="center">A hierarchical data model for atomistic calculations</h4>
+<h4 align="center">A hierarchical data model for atomistic systems</h4>
 <p align="center">
     <a href="https://github.com/psf/black" target="_blank">
         <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Black style">
@@ -19,14 +19,8 @@ Atomea is a Python package for atomistic data and calculations.
 
 ## Installation
 
-`atomea` requires Python 3.10 or later.
-You can install it using pip, the Python package installer,
-
-```bash
-pip install atomea
-```
-
-or directly from the GitHub `main` branch.
+`atomea` requires Python 3.12 or later.
+You can currently only install it from the GitHub `main` branch.
 
 ```bash
 pip install git+https://github.com/scienting/atomea.git
@@ -49,9 +43,5 @@ pixi shell
 
 ## License
 
-This software is licensed under the **Prosperity Public License 3.0.0**.  
+This software is licensed under the **Prosperity Public License 3.0.0**.
 See [LICENSE.md](https://github.com/scienting/atomea/blob/main/LICENSE.md) for full terms, including noncommercial use and 30-day commercial trial conditions.
-
-<!-- REFERENCES -->
-
-[zarr]: https://zarr.dev/
