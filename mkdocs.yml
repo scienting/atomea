@@ -1,7 +1,7 @@
 docs_dir: docs
 
 site_name: atomea
-site_author: Scienting Studio
+site_author: Scientific Computing Studio
 
 # Git host
 repo_name: scienting/atomea

@@ -2,7 +2,7 @@
 # You may use, copy, and share it for noncommercial purposes.
 # Commercial use is allowed for a 30-day trial only.
 #
-# Contributor: Scienting Studio
+# Contributor: Scientific Computing Studio
 # Source Code: https://github.com/scienting/atomea
 #
 # See the LICENSE.md file for full license terms.
@@ -17,8 +17,7 @@ import numpy as np
 import numpy.typing as npt
 import polars as pl
 
-import atomea.typing as adt
-from atomea.containers import Ensemble, Project
+from atomea.containers import Project
 from atomea.stores import DiskFormat
 from atomea.stores.arrays import ZarrArrayStore
 from atomea.stores.tables import PolarsTableStore

@@ -1,8 +1,8 @@
 [project]
 name = "atomea"
-description = "Extensible schema for atomistic data and calculations"
+description = "A hierarchical data model for atomistic systems"
 authors = [
-    {name = "Scienting Studio", email = "us@scient.ing"}
+    {name = "Scientific Computing Studio", email = "us@scient.ing"}
 ]
 maintainers = [
     {name = "Alex M. Maldonado", email = "alex@scient.ing"}
@@ -23,7 +23,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Chemistry",
 ]
 
-# TODO: Keep this here until pixi releases building capabilities
 dependencies = [
     "loguru>=0.7.2,<1",
     "numpy>=1.2.6,<3",

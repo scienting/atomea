@@ -1202,8 +1202,8 @@ packages:
   timestamp: 1746997294787
 - pypi: ./
   name: atomea
-  version: 0.1.dev205+gdb9a3eb.d20250721151027
-  sha256: 3aa4c54b323e703df82e12dd884089051d0dfc2d0447dd4aff44b99b31da7c8f
+  version: 0.1.dev211+gee39da8.d20250727121248
+  sha256: 192f10a2d7902e1a23a70f73bcd21deefcd01ac050fc9338121f1c496dbbf930
   requires_dist:
   - loguru>=0.7.2,<1
   - numpy>=1.2.6,<3
