@@ -1,4 +1,4 @@
-[project]
+[workspace]
 name = "atomea"
 description = "A hierarchical data model for atomistic systems"
 authors = [
@@ -11,7 +11,7 @@ readme = "README.md"
 
 [pypi-dependencies]
 atomea = { path = ".", editable = true }
-raygent = { git = "https://github.com/oasci/raygent", branch = "main" }
+raygent = { git = "https://github.com/scienting/raygent", branch = "main" }
 
 [environments]
 dev = ["dev"]
