@@ -7,9 +7,8 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any
-
 from abc import ABC, abstractmethod
+from typing import Any
 
 from loguru import logger
 
@@ -62,7 +61,7 @@ class Writer(ABC):
         if writer_kwargs is None:
             writer_kwargs = dict()
         cls.checks()
-        ctx = cls.prepare(*writer_args, **writer_kwargs)
+        # ctx = cls.prepare(*writer_args, **writer_kwargs)
 
         _ = prj.get_ensemble(ens_id) or prj.add_ensemble(ens_id)
 

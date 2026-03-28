@@ -7,10 +7,9 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any
-
 import os
 from pathlib import Path
+from typing import Any
 
 import polars as pl
 from loguru import logger

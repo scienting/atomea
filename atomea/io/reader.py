@@ -7,9 +7,8 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any
-
 from abc import ABC, abstractmethod
+from typing import Any
 
 from loguru import logger
 

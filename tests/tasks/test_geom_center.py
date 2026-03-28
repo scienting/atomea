@@ -2,7 +2,6 @@ import os
 import shutil
 
 import numpy as np
-
 import pytest
 from raygent import TaskManager
 from raygent.results.handlers import ResultsCollector
@@ -55,4 +54,3 @@ def test_generate_and_validate_valid_data(data_generator, temp_project_dir):
     assert len(results) == 2
     assert np.allclose(results[0], mean_ref[:5])
     assert np.allclose(results[1], mean_ref[5:])
-    

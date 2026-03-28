@@ -8,10 +8,9 @@
 # See the LICENSE.md file for full license terms.
 
 import os
-from typing import Any
-
 from collections.abc import Generator
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt

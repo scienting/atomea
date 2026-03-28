@@ -7,9 +7,8 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any, Generic
-
 from collections.abc import Generator
+from typing import Any, Generic
 
 import numpy as np
 import polars as pl

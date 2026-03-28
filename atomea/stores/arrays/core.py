@@ -8,10 +8,9 @@
 # See the LICENSE.md file for full license terms.
 
 from abc import ABC, abstractmethod
-from typing import Any
-
 from collections.abc import Generator
 from pathlib import Path
+from typing import Any
 
 from atomea.data import OptionalSliceSpec
 from atomea.stores import ArrayDiskFormats, DiskFormat, Store, StoreKind

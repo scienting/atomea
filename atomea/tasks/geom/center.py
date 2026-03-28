@@ -1,6 +1,7 @@
 from typing import override
 
 import numpy as np
+import numpy.typing as npt
 from raygent import Task
 
 import atomea.typing as adt

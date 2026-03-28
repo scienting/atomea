@@ -18,7 +18,7 @@ from atomea.stores import DiskFormat
 from atomea.stores.arrays import ZarrArrayStore
 from atomea.stores.tables import PolarsTableStore
 
-from .fixtures.amber_v22 import *  # type: ignore
+from .fixtures.amber_v22 import *  # noqa
 from .synthetic_data import SyntheticAtomDataGenerator
 
 TEST_DIR = os.path.dirname(__file__)

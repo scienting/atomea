@@ -82,7 +82,7 @@ class StateScanner(Generic[S]):
             self.engine.stream(buf), key=lambda t: t[0]
         ):
             trans.append(StateTransition(cur_state, next_state, start, -1, pattern))
-            cur_state, last = next_state, start
+            cur_state, last = next_state, start  # noqa
 
         for i in range(len(trans) - 1):
             trans[i].end_pos = trans[i + 1].start_pos

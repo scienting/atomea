@@ -7,11 +7,10 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any
-
 import os
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any
 
 import atomea.typing as adt
 from atomea.data import OptionalSliceSpec

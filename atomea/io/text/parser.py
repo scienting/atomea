@@ -7,11 +7,10 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any, Generic, TypeVar
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Generic, TypeVar
 
 from atomea.io.text import StateScanner, StateTransition
 

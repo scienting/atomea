@@ -7,10 +7,9 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any, Literal
-
 from collections.abc import Generator
 from pathlib import Path
+from typing import Any, Literal
 
 import numpy as np
 import numpy.typing as npt
