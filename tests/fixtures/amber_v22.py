@@ -98,7 +98,7 @@ def results_step_data():
 @pytest.fixture
 def system_info_data():
     return b"""--------------------------------------------------------------------------------
-   1.  RESOURCE   USE: 
+   1.  RESOURCE   USE:
 --------------------------------------------------------------------------------
  getting box info from netcdf restart file
  NATOM  =   33582 NTYPES =      19 NBONH =   31714 MBONA  =    1852
@@ -137,7 +137,7 @@ Test simulation
 &end
 
 --------------------------------------------------------------------------------
-   1.  RESOURCE   USE: 
+   1.  RESOURCE   USE:
 --------------------------------------------------------------------------------
  NATOM  =   33582 NTYPES =      19 NBONH =   31714 MBONA  =    1852
  NRES   =   10270

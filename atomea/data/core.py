@@ -7,9 +7,8 @@
 #
 # See the LICENSE.md file for full license terms.
 
+from collections.abc import Generator
 from typing import Any, Generic
-
-from collections.abc import Iterator
 
 import numpy as np
 import polars as pl
@@ -184,7 +183,7 @@ class Data(Generic[T]):
         view: OptionalSliceSpec = None,
         chunk_size: int = 1,
         **kwargs: Any,
-    ) -> Iterator[Any]:
+    ) -> Generator[T]:
         """Yield chunks of data instead of reading all into memory.
 
         Args:

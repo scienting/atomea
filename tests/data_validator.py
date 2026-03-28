@@ -7,9 +7,8 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any
-
 import random
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt

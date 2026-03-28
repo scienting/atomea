@@ -132,7 +132,7 @@ class Project(Container):
 
         self.time = Time(self)
 
-    def __getitem__(self, ens_id: str) -> Ensemble:
+    def __getitem__(self, ens_id: str) -> Ensemble | None:
         return self.get_ensemble(ens_id)
 
     def add_ensemble(self, ens_id: str) -> Ensemble:

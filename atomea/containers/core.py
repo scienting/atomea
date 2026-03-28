@@ -7,9 +7,8 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any
-
 from abc import ABC
+from typing import Any
 
 import polars as pl
 

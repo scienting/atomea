@@ -7,16 +7,15 @@
 #
 # See the LICENSE.md file for full license terms.
 
+from collections.abc import Generator, Iterable
 from typing import Any
-
-from collections.abc import Iterable, Iterator
 
 from loguru import logger
 
 
 def chunker(
     chunk_size: int, n_data: int, elements: Iterable[int] | int | None = None
-) -> Iterator[Any]:
+) -> Generator[Any, None, None]:
     """
     Provides slice for chunking data from the first dimension.
 

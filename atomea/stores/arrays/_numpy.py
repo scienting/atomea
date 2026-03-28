@@ -7,11 +7,10 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any
-
 import os
-from collections.abc import Iterator
+from collections.abc import Generator
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
@@ -154,7 +153,7 @@ class NumpyArrayStore(ArrayStore):
         view: OptionalSliceSpec = None,
         chunk_size: int = 1,
         **kwargs: Any,
-    ) -> Iterator[Any]:
+    ) -> Generator[Any]:
         """Yield chunks of data instead of reading all into memory.
 
         Args:

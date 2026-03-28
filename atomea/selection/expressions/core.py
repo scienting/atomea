@@ -7,10 +7,9 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import TYPE_CHECKING
-
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 import numpy as np
 import numpy.typing as npt

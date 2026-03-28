@@ -7,11 +7,10 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Generic, TypeVar
-
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from enum import Enum
+from typing import Generic, TypeVar
 
 S = TypeVar("S", bound=Enum)
 

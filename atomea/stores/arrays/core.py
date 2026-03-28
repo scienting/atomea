@@ -7,11 +7,10 @@
 #
 # See the LICENSE.md file for full license terms.
 
-from typing import Any
-
 from abc import ABC, abstractmethod
-from collections.abc import Iterator
+from collections.abc import Generator
 from pathlib import Path
+from typing import Any
 
 from atomea.data import OptionalSliceSpec
 from atomea.stores import ArrayDiskFormats, DiskFormat, Store, StoreKind
@@ -39,7 +38,7 @@ class ArrayStore(Store, ABC):
         """Get the shape of the underlying array."""
         z = self.get(path)
         if z is None:
-            return None
+            return tuple()
         return z.shape
 
     @abstractmethod
@@ -50,7 +49,7 @@ class ArrayStore(Store, ABC):
         view: OptionalSliceSpec = None,
         chunk_size: int = 1,
         **kwargs: Any,
-    ) -> Iterator[Any]:
+    ) -> Generator[Any]:
         """Yield chunks of data instead of reading all into memory.
 
         Args:
