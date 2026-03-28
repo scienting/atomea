@@ -1,12 +1,6 @@
 <h1 align="center">atomea</h1>
 <h4 align="center">A hierarchical data model for atomistic systems</h4>
 <p align="center">
-    <a href="https://github.com/psf/black" target="_blank">
-        <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Black style">
-    </a>
-    <a href="https://github.com/PyCQA/pylint" target="_blank">
-        <img src="https://img.shields.io/badge/linting-pylint-yellowgreen" alt="Black style">
-    </a>
     <a href="https://github.com/astral-sh/ruff" target="_blank">
         <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Black style">
     </a>
